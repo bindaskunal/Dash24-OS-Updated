@@ -271,17 +271,27 @@ class OrderService:
         status: Optional[str] = None,
         limit: int = 10,
         offset: int = 0
-    ) -> List[Order]:
-        """Get orders for a user"""
-        query = select(Order).where(Order.user_id == user_id)
+    ) -> Tuple[List[Order], int]:
+        """Get orders for a user with total count for pagination"""
+        
+        # Build base query
+        base_query = select(Order).where(Order.user_id == user_id)
+        count_query = select(func.count(Order.id)).where(Order.user_id == user_id)
         
         if status:
-            query = query.where(Order.status == status)
+            base_query = base_query.where(Order.status == status)
+            count_query = count_query.where(Order.status == status)
         
-        query = query.order_by(Order.created_at.desc()).offset(offset).limit(limit)
+        # Get total count
+        count_result = await self.db.execute(count_query)
+        total = count_result.scalar() or 0
         
+        # Get paginated orders
+        query = base_query.order_by(Order.created_at.desc()).offset(offset).limit(limit)
         result = await self.db.execute(query)
-        return list(result.scalars().all())
+        orders = list(result.scalars().all())
+        
+        return orders, total
     
     async def update_from_webhook(
         self,
