@@ -151,20 +151,37 @@ class OrderService:
         
         else:
             # Prepaid: Create Razorpay order
-            payment_info = await self._create_razorpay_order(order, total)
+            from app.services.payment_service import payment_service
+            
+            success, razorpay_data, error = payment_service.create_order(
+                amount=float(total),
+                order_id=str(order.id)
+            )
+            
+            if not success:
+                raise ValueError(f"Payment initialization failed: {error}")
+            
+            order.razorpay_order_id = razorpay_data.get("id")
             
             # Create payment record
             payment = Payment(
                 order_id=order.id,
-                razorpay_order_id=payment_info.get("razorpay_order_id"),
+                razorpay_order_id=razorpay_data.get("id"),
                 amount=total,
-                status=PaymentStatus.PENDING.value
+                status=PaymentStatus.PENDING
             )
             self.db.add(payment)
             
-            await self.db.commit()
+            await self.db.flush()
             
-            return order, payment_info
+            return order, {
+                "type": "prepaid",
+                "razorpay_order_id": razorpay_data.get("id"),
+                "razorpay_key_id": os.environ.get("RAZORPAY_KEY_ID"),
+                "amount": razorpay_data.get("amount"),
+                "currency": razorpay_data.get("currency"),
+                "order_number": order.order_number
+            }
     
     async def verify_payment(
         self,
