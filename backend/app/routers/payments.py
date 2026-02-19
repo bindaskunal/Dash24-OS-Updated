@@ -5,18 +5,22 @@ Handles payment verification and status
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
 from uuid import UUID
+import logging
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 
 from app.database import get_db
 from app.models.order import Order
-from app.models.enums import OrderStatus, PaymentStatus
+from app.models.enums import OrderStatus, PaymentStatus, FulfillmentStatus
 from app.core.security import get_current_user, CurrentUser
 from app.core.responses import success_response
 from app.services.payment_service import payment_service
+from app.services.fulfillment_service import fulfillment_service
 
 router = APIRouter(prefix="/api/payments", tags=["payments"])
+logger = logging.getLogger(__name__)
 
 
 class VerifyPaymentRequest(BaseModel):
@@ -42,7 +46,13 @@ async def verify_payment(
     """
     
     result = await db.execute(
-        select(Order).where(Order.razorpay_order_id == request.razorpay_order_id)
+        select(Order)
+        .options(
+            selectinload(Order.items),
+            selectinload(Order.address),
+            selectinload(Order.user)
+        )
+        .where(Order.razorpay_order_id == request.razorpay_order_id)
     )
     order = result.scalar_one_or_none()
     
@@ -86,9 +96,23 @@ async def verify_payment(
         await db.flush()
         await db.refresh(order)
     
+    success_push, easyecom_order_id, error_msg = await fulfillment_service.push_order_to_easyecom(order)
+    
+    async with db.begin():
+        if success_push:
+            order.fulfillment_status = FulfillmentStatus.PUSHED
+            order.easyecom_order_id = easyecom_order_id
+            logger.info(f"Order {order.order_number} pushed to EasyEcom: {easyecom_order_id}")
+        else:
+            order.fulfillment_status = FulfillmentStatus.FAILED
+            logger.error(f"Failed to push order {order.order_number} to EasyEcom: {error_msg}")
+        
+        await db.flush()
+    
     return success_response({
         "order_id": str(order.id),
         "status": order.status.value,
         "payment_status": order.payment_status.value,
+        "fulfillment_status": order.fulfillment_status.value,
         "message": "Payment verified successfully"
     })
