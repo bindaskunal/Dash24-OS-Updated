@@ -1,5 +1,6 @@
 """
 Dash24 V1 - Event & Analytics Models (Basic)
+Phase 0: Fixed mutable defaults
 """
 from sqlalchemy import Column, String, Boolean, Integer, DateTime, ForeignKey, Text
 from sqlalchemy.dialects.postgresql import UUID, JSONB, INET
@@ -30,8 +31,8 @@ class Event(Base):
     order_id = Column(UUID(as_uuid=True), ForeignKey("orders.id", ondelete="SET NULL"))
     cart_id = Column(UUID(as_uuid=True))
     
-    # Event data
-    properties = Column(JSONB, nullable=False, default={})
+    # Event data - Phase 0: Fixed mutable default
+    properties = Column(JSONB, nullable=False, default=dict)
     
     # Context
     source = Column(String(50), nullable=False)  # 'web', 'pwa', 'admin', 'system'
@@ -103,8 +104,9 @@ class WebhookLog(Base):
     event_type = Column(String(100), nullable=False)
     event_id = Column(String(255))  # External event ID
     
-    payload = Column(JSONB, nullable=False)
-    headers = Column(JSONB)
+    # Phase 0: Fixed mutable defaults
+    payload = Column(JSONB, nullable=False, default=dict)
+    headers = Column(JSONB, default=dict)
     
     status = Column(String(50), nullable=False, default="pending")  # pending, processing, success, failed, retrying
     retry_count = Column(Integer, default=0)
