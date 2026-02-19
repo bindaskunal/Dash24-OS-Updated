@@ -2,7 +2,7 @@
 Dash24 V1 - User Model
 Phase 0: Fixed mutable defaults, added password_hash for auth
 """
-from sqlalchemy import Column, String, Boolean, Numeric, DateTime, Enum as SQLEnum, ForeignKey, Integer
+from sqlalchemy import Column, String, Boolean, Numeric, DateTime, Enum as SQLEnum, ForeignKey, Integer, Text
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import relationship
 from datetime import datetime, timezone
