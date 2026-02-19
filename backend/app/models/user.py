@@ -21,7 +21,7 @@ class User(Base):
     name = Column(String(255))
     password_hash = Column(String(255), nullable=True)  # For password-based auth
     role = Column(SQLEnum(UserRole, name='user_role', create_constraint=True), nullable=False, default=UserRole.CUSTOMER)
-    brand_id = Column(UUID(as_uuid=True), nullable=True, index=True)  # For brand users
+    brand_id = Column(UUID(as_uuid=True), ForeignKey("brands.id", ondelete="SET NULL"), nullable=True, index=True)  # For brand users
     wallet_balance = Column(Numeric(10, 2), nullable=False, default=0)
     is_active = Column(Boolean, nullable=False, default=True)
     is_verified = Column(Boolean, nullable=False, default=False)
