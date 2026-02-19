@@ -1,36 +1,27 @@
 """
 Dash24 V1 - Database Configuration
-PostgreSQL with SQLAlchemy Async
+Uses centralized settings for pool configuration
 """
 import os
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy.orm import declarative_base
-from dotenv import load_dotenv
 
-load_dotenv()
+from app.core.settings import settings
 
-DATABASE_URL = "postgresql+asyncpg://neondb_owner:npg_tk0FumpVDJw7@ep-quiet-frost-a1ar67af-pooler.ap-southeast-1.aws.neon.tech/neondb"
-
-# Create async engine
 engine = create_async_engine(
-    DATABASE_URL,
-    echo=True,
-    pool_size=5,
-    max_overflow=10,
-    connect_args={
-        "ssl": True,
-        "timeout": 10
-    }
+    settings.DATABASE_URL,
+    echo=False,
+    pool_size=settings.DB_POOL_SIZE,
+    max_overflow=settings.DB_MAX_OVERFLOW,
+    pool_timeout=settings.DB_POOL_TIMEOUT
 )
 
-# Session factory
 async_session_maker = async_sessionmaker(
     engine,
     class_=AsyncSession,
     expire_on_commit=False
 )
 
-# Base for models
 Base = declarative_base()
 
 
@@ -47,3 +38,13 @@ async def init_db():
     """Initialize database tables"""
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+
+
+async def check_db_health() -> bool:
+    """Check database connectivity"""
+    try:
+        async with engine.connect() as conn:
+            await conn.execute("SELECT 1")
+        return True
+    except Exception:
+        return False
