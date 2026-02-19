@@ -9,10 +9,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-DATABASE_URL = os.environ.get(
-    "DATABASE_URL",
-    "postgresql+asyncpg://postgres:postgres@localhost:5432/dash24"
-)
+DATABASE_URL = "postgresql+asyncpg://neondb_owner:npg_tk0FumpVDJw7@ep-quiet-frost-a1ar67af-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require"
 
 # Create async engine
 engine = create_async_engine(
