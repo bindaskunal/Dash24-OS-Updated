@@ -36,6 +36,14 @@ class PaymentMethod(str, Enum):
     WALLET = "wallet"
 
 
+class FulfillmentStatus(str, Enum):
+    PENDING = "pending"
+    PUSHED = "pushed"
+    FAILED = "failed"
+    SHIPPED = "shipped"
+    DELIVERED = "delivered"
+
+
 class TriggerType(str, Enum):
     CART_ABANDONMENT = "cart_abandonment"
     LAPSED_CUSTOMER = "lapsed_customer"
