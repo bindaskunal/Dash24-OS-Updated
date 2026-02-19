@@ -2,10 +2,11 @@
 Dash24 V1 - Payment Service
 Handles Razorpay integration
 """
-import os
 import razorpay
 from typing import Tuple, Optional
 import logging
+
+from app.core.settings import settings
 
 logger = logging.getLogger(__name__)
 
@@ -14,14 +15,9 @@ class PaymentService:
     """Razorpay payment service"""
     
     def __init__(self):
-        self.key_id = os.environ.get("RAZORPAY_KEY_ID")
-        self.key_secret = os.environ.get("RAZORPAY_KEY_SECRET")
-        
-        if not self.key_id or not self.key_secret:
-            logger.warning("Razorpay credentials not configured")
-            self.client = None
-        else:
-            self.client = razorpay.Client(auth=(self.key_id, self.key_secret))
+        self.key_id = settings.RAZORPAY_KEY_ID
+        self.key_secret = settings.RAZORPAY_KEY_SECRET
+        self.client = razorpay.Client(auth=(self.key_id, self.key_secret))
     
     def create_order(self, amount: float, order_id: str, currency: str = "INR") -> Tuple[bool, Optional[dict], Optional[str]]:
         """
@@ -35,9 +31,6 @@ class PaymentService:
         Returns:
             Tuple of (success, razorpay_order_data, error_message)
         """
-        if not self.client:
-            return False, None, "Razorpay not configured"
-        
         try:
             amount_paise = int(amount * 100)
             
@@ -71,10 +64,6 @@ class PaymentService:
         Returns:
             True if signature is valid, False otherwise
         """
-        if not self.client:
-            logger.error("Razorpay not configured")
-            return False
-        
         try:
             params_dict = {
                 'razorpay_order_id': razorpay_order_id,
