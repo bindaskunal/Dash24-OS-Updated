@@ -14,6 +14,7 @@ from app.models import *
 from app.routers.orders import router as orders_router
 from app.routers.webhooks import router as webhooks_router
 from app.routers.brand_analytics import router as brand_analytics_router
+from app.routers.auth import router as auth_router
 
 
 ROOT_DIR = Path(__file__).parent
