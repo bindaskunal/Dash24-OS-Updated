@@ -5,7 +5,6 @@ Handles EasyEcom webhooks and fulfillment status
 from fastapi import APIRouter, Depends, HTTPException, status, Header
 from pydantic import BaseModel
 from typing import Optional
-import os
 import logging
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -15,6 +14,7 @@ from app.database import get_db
 from app.models.order import Order
 from app.models.enums import OrderStatus, FulfillmentStatus
 from app.core.responses import success_response
+from app.core.settings import settings
 
 router = APIRouter(prefix="/api/fulfillment", tags=["fulfillment"])
 logger = logging.getLogger(__name__)
