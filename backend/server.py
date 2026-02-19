@@ -8,6 +8,7 @@ from app.database import engine, Base, check_db_health
 from app.redis_client import close_redis
 from app.core.exceptions import register_exception_handlers
 from app.models import *
+from app.middleware import RateLimitMiddleware, RequestIDMiddleware
 
 from app.routers.orders import router as orders_router
 from app.routers.webhooks import router as webhooks_router
@@ -20,17 +21,28 @@ from app.routers.dashboard import router as dashboard_router
 
 logging.basicConfig(
     level=getattr(logging, settings.LOG_LEVEL),
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format='%(asctime)s - %(name)s - %(levelname)s - [%(request_id)s] - %(message)s',
     handlers=[
         logging.StreamHandler(sys.stdout)
     ]
 )
+
+logging.getLogRecordFactory().__defaults__ = ('',)
+
 logger = logging.getLogger(__name__)
+
+docs_url = "/docs" if (settings.DEBUG or settings.ENABLE_DOCS) else None
+redoc_url = "/redoc" if (settings.DEBUG or settings.ENABLE_DOCS) else None
 
 app = FastAPI(
     title="Dash24 V1 - Bangalore Pilot",
-    debug=settings.DEBUG
+    debug=settings.DEBUG,
+    docs_url=docs_url,
+    redoc_url=redoc_url
 )
+
+app.add_middleware(RequestIDMiddleware)
+app.add_middleware(RateLimitMiddleware)
 
 register_exception_handlers(app)
 
@@ -78,6 +90,7 @@ async def health_check():
 async def startup_event():
     logger.info("Starting Dash24 V1 API")
     logger.info(f"Debug mode: {settings.DEBUG}")
+    logger.info(f"Docs enabled: {settings.DEBUG or settings.ENABLE_DOCS}")
     logger.info(f"Log level: {settings.LOG_LEVEL}")
     logger.info(f"CORS origins: {settings.ALLOWED_ORIGINS}")
     
