@@ -11,3 +11,4 @@ python-jose[cryptography]
 httpx
 razorpay
 redis
+email-validator
