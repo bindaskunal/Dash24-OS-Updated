@@ -21,6 +21,7 @@ class Settings:
         self.EASYECOM_WEBHOOK_SECRET: str = self._get_required("EASYECOM_WEBHOOK_SECRET")
         
         self.DEBUG: bool = os.environ.get("DEBUG", "false").lower() == "true"
+        self.ENABLE_DOCS: bool = os.environ.get("ENABLE_DOCS", "false").lower() == "true"
         self.LOG_LEVEL: str = os.environ.get("LOG_LEVEL", "INFO").upper()
         
         self.ALLOWED_ORIGINS: List[str] = self._parse_origins(
