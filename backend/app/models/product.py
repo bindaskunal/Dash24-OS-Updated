@@ -1,7 +1,8 @@
 """
 Dash24 V1 - Product & Brand Models
+Phase 0: Fixed mutable defaults, added composite indexes
 """
-from sqlalchemy import Column, String, Boolean, Numeric, Integer, DateTime, ForeignKey, Text
+from sqlalchemy import Column, String, Boolean, Numeric, Integer, DateTime, ForeignKey, Text, CheckConstraint, Index
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import relationship
 from datetime import datetime, timezone
@@ -22,8 +23,8 @@ class Brand(Base):
     is_active = Column(Boolean, nullable=False, default=True)
     commission_rate = Column(Numeric(5, 2), default=0)
     
-    # Extended metadata (LLM-ready)
-    metadata_extended = Column(JSONB, default={})
+    # Extended metadata (LLM-ready) - Phase 0: Fixed mutable default
+    metadata_extended = Column(JSONB, default=dict)
     
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
@@ -97,14 +98,14 @@ class Product(Base):
     reserved_quantity = Column(Integer, nullable=False, default=0)
     low_stock_threshold = Column(Integer, default=5)
     
-    # Product attributes
+    # Product attributes - Phase 0: Fixed mutable defaults
     weight_grams = Column(Integer)
-    images = Column(JSONB, default=[])
-    attributes = Column(JSONB, default={})
+    images = Column(JSONB, default=list)
+    attributes = Column(JSONB, default=dict)
     
-    # Extended attributes (LLM-ready)
-    attributes_extended = Column(JSONB, default={})
-    ai_metadata = Column(JSONB, default={})
+    # Extended attributes (LLM-ready) - Phase 0: Fixed mutable defaults
+    attributes_extended = Column(JSONB, default=dict)
+    ai_metadata = Column(JSONB, default=dict)
     
     # Flags
     is_active = Column(Boolean, nullable=False, default=True)
@@ -120,6 +121,14 @@ class Product(Base):
     # Relationships
     brand = relationship("Brand", back_populates="products")
     category = relationship("Category", back_populates="products")
+    
+    # Phase 0: Added composite indexes and inventory check constraint
+    __table_args__ = (
+        CheckConstraint("reserved_quantity >= 0", name="chk_reserved_non_negative"),
+        CheckConstraint("stock_quantity >= 0", name="chk_stock_non_negative"),
+        Index("ix_products_brand_active", "brand_id", "is_active"),
+        Index("ix_products_category_active", "category_id", "is_active"),
+    )
     
     @property
     def available_quantity(self):
