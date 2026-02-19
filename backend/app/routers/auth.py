@@ -133,7 +133,11 @@ async def login(
         )
     
     # Generate JWT token
-    access_token = create_access_token({"sub": str(user.id), "role": user.role.value})
+    access_token = create_access_token(
+        user_id=user.id,
+        role=user.role,
+        brand_id=user.brand_id
+    )
     
     return AuthResponse(
         access_token=access_token,
