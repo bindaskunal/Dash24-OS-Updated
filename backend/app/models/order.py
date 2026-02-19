@@ -1,7 +1,8 @@
 """
 Dash24 V1 - Order Model with State Machine
+Phase 0: Converted status fields to SQL Enum, added composite indexes
 """
-from sqlalchemy import Column, String, Boolean, Numeric, Integer, DateTime, ForeignKey, Text, CheckConstraint
+from sqlalchemy import Column, String, Boolean, Numeric, Integer, DateTime, ForeignKey, Text, CheckConstraint, Index, Enum as SQLEnum
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import relationship
 from datetime import datetime, timezone
@@ -18,13 +19,25 @@ class Order(Base):
     order_number = Column(String(50), unique=True, nullable=False, index=True)
     
     # User & Address
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), index=True)
-    address_id = Column(UUID(as_uuid=True), ForeignKey("addresses.id"))
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True)
+    address_id = Column(UUID(as_uuid=True), ForeignKey("addresses.id"), nullable=False)
     
-    # Status
-    status = Column(String(50), nullable=False, default=OrderStatus.PENDING.value, index=True)
-    payment_status = Column(String(50), nullable=False, default=PaymentStatus.PENDING.value)
-    payment_method = Column(String(50), nullable=False)
+    # Status - Phase 0: Using SQL Enum instead of String
+    status = Column(
+        SQLEnum(OrderStatus, name='order_status', create_constraint=True),
+        nullable=False,
+        default=OrderStatus.PENDING,
+        index=True
+    )
+    payment_status = Column(
+        SQLEnum(PaymentStatus, name='payment_status', create_constraint=True),
+        nullable=False,
+        default=PaymentStatus.PENDING
+    )
+    payment_method = Column(
+        SQLEnum(PaymentMethod, name='payment_method', create_constraint=True),
+        nullable=False
+    )
     
     # Pricing
     subtotal = Column(Numeric(10, 2), nullable=False)
@@ -61,12 +74,15 @@ class Order(Base):
     source = Column(String(50), default="web")
     notes = Column(Text)
     admin_notes = Column(Text)
-    metadata = Column(JSONB, default={})
+    metadata = Column(JSONB, default=dict)  # Phase 0: Fixed mutable default
     
     # Cancellation tracking
     cancelled_at = Column(DateTime(timezone=True))
     cancellation_reason = Column(Text)
     cancelled_by = Column(String(50))  # 'customer', 'admin', 'system'
+    
+    # Idempotency key for duplicate prevention
+    idempotency_key = Column(String(255), unique=True, nullable=True, index=True)
     
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), index=True)
     updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
@@ -77,8 +93,12 @@ class Order(Base):
     status_logs = relationship("OrderStatusLog", back_populates="order", cascade="all, delete-orphan")
     payment = relationship("Payment", back_populates="order", uselist=False)
     
+    # Phase 0: Added required indexes and constraints
     __table_args__ = (
         CheckConstraint("total >= 0", name="chk_total_positive"),
+        # Composite indexes for common queries
+        Index("ix_orders_user_created", "user_id", "created_at"),
+        Index("ix_orders_status_created", "status", "created_at"),
     )
     
     @property
@@ -89,11 +109,11 @@ class Order(Base):
         - Not allowed: after driver assignment or delivery states
         """
         non_cancellable_statuses = [
-            OrderStatus.SHIPPED.value,
-            OrderStatus.OUT_FOR_DELIVERY.value,
-            OrderStatus.DELIVERED.value,
-            OrderStatus.CANCELLED.value,
-            OrderStatus.FAILED.value
+            OrderStatus.SHIPPED,
+            OrderStatus.OUT_FOR_DELIVERY,
+            OrderStatus.DELIVERED,
+            OrderStatus.CANCELLED,
+            OrderStatus.FAILED
         ]
         
         if self.status in non_cancellable_statuses:
@@ -115,9 +135,9 @@ class Order(Base):
         return {
             "id": str(self.id),
             "order_number": self.order_number,
-            "status": self.status,
-            "payment_status": self.payment_status,
-            "payment_method": self.payment_method,
+            "status": self.status.value if isinstance(self.status, OrderStatus) else self.status,
+            "payment_status": self.payment_status.value if isinstance(self.payment_status, PaymentStatus) else self.payment_status,
+            "payment_method": self.payment_method.value if isinstance(self.payment_method, PaymentMethod) else self.payment_method,
             "subtotal": float(self.subtotal),
             "delivery_fee": float(self.delivery_fee),
             "discount_amount": float(self.discount_amount),
@@ -141,7 +161,7 @@ class Order(Base):
         return {
             "id": str(self.id),
             "order_number": self.order_number,
-            "status": self.status,
+            "status": self.status.value if isinstance(self.status, OrderStatus) else self.status,
             "total": float(self.total),
             "item_count": len(self.items) if self.items else 0,
             "created_at": self.created_at.isoformat() if self.created_at else None

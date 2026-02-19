@@ -1,5 +1,6 @@
 """
 Dash24 V1 - User Model
+Phase 0: Fixed mutable defaults, added password_hash for auth
 """
 from sqlalchemy import Column, String, Boolean, Numeric, DateTime, Enum as SQLEnum
 from sqlalchemy.dialects.postgresql import UUID, JSONB
@@ -18,14 +19,17 @@ class User(Base):
     email = Column(String(255), unique=True, nullable=False, index=True)
     phone = Column(String(15), unique=True, nullable=False, index=True)
     name = Column(String(255))
-    role = Column(SQLEnum(UserRole), nullable=False, default=UserRole.CUSTOMER)
+    password_hash = Column(String(255), nullable=True)  # For password-based auth
+    role = Column(SQLEnum(UserRole, name='user_role', create_constraint=True), nullable=False, default=UserRole.CUSTOMER)
+    brand_id = Column(UUID(as_uuid=True), nullable=True, index=True)  # For brand users
     wallet_balance = Column(Numeric(10, 2), nullable=False, default=0)
     is_active = Column(Boolean, nullable=False, default=True)
     is_verified = Column(Boolean, nullable=False, default=False)
     
     # JSONB for preferences and AI profile (LLM-ready)
-    preferences = Column(JSONB, default={})
-    ai_profile = Column(JSONB, default={})
+    # Phase 0 fix: use default_factory via server_default or use dict callable
+    preferences = Column(JSONB, default=dict)
+    ai_profile = Column(JSONB, default=dict)
     
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
