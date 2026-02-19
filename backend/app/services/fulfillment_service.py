@@ -28,9 +28,6 @@ class FulfillmentService:
         Returns:
             Tuple of (success, easyecom_order_id, error_message)
         """
-        if not self.api_url or not self.api_key:
-            return False, None, "EasyEcom not configured"
-        
         try:
             payload = self._build_easyecom_payload(order)
             
