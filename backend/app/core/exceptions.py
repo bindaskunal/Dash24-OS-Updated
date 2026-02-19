@@ -1,6 +1,6 @@
 """
 Dash24 V1 - Global Exception Handlers
-Phase 0 Foundation: Consistent error handling across all routes
+Secure error handling without stack trace leaks in production
 """
 import logging
 from fastapi import FastAPI, Request, status
@@ -8,6 +8,8 @@ from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 from sqlalchemy.exc import SQLAlchemyError
 from pydantic import ValidationError
+
+from app.core.settings import settings
 
 logger = logging.getLogger(__name__)
 
@@ -109,37 +111,52 @@ def register_exception_handlers(app: FastAPI):
             loc = " -> ".join(str(l) for l in error["loc"])
             errors.append(f"{loc}: {error['msg']}")
         
+        response_content = {
+            "success": False,
+            "data": None,
+            "error": "; ".join(errors)
+        }
+        
+        if settings.DEBUG:
+            response_content["data"] = {"validation_errors": exc.errors()}
+        
         return JSONResponse(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            content={
-                "success": False,
-                "data": {"validation_errors": exc.errors()},
-                "error": "; ".join(errors)
-            }
+            content=response_content
         )
     
     @app.exception_handler(SQLAlchemyError)
     async def sqlalchemy_exception_handler(request: Request, exc: SQLAlchemyError):
         """Handle database errors"""
-        logger.error(f"Database error: {exc}", exc_info=True)
+        logger.error(f"Database error: {exc}", exc_info=settings.DEBUG)
+        
+        error_message = "Database operation failed"
+        if settings.DEBUG:
+            error_message = f"Database error: {str(exc)}"
+        
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content={
                 "success": False,
                 "data": None,
-                "error": "Database operation failed"
+                "error": error_message
             }
         )
     
     @app.exception_handler(Exception)
     async def generic_exception_handler(request: Request, exc: Exception):
         """Handle unexpected errors"""
-        logger.error(f"Unexpected error: {exc}", exc_info=True)
+        logger.error(f"Unexpected error: {exc}", exc_info=settings.DEBUG)
+        
+        error_message = "An unexpected error occurred"
+        if settings.DEBUG:
+            error_message = f"Error: {str(exc)}"
+        
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content={
                 "success": False,
                 "data": None,
-                "error": "An unexpected error occurred"
+                "error": error_message
             }
         )
