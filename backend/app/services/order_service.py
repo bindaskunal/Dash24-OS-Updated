@@ -40,7 +40,8 @@ class OrderService:
         payment_method: str,
         wallet_amount: Decimal = Decimal("0"),
         delivery_instructions: str = None,
-        notes: str = None
+        notes: str = None,
+        idempotency_key: Optional[str] = None
     ) -> Tuple[Order, dict]:
         """
         Create order from user's cart.
