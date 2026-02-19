@@ -17,6 +17,7 @@ from app.routers.brand_analytics import router as brand_analytics_router
 from app.routers.auth import router as auth_router
 from app.routers.payments import router as payments_router
 from app.routers.fulfillment import router as fulfillment_router
+from app.routers.dashboard import router as dashboard_router
 
 
 ROOT_DIR = Path(__file__).parent
