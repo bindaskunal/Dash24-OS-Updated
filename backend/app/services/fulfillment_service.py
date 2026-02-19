@@ -2,11 +2,11 @@
 Dash24 V1 - Fulfillment Service
 Handles EasyEcom integration for order fulfillment
 """
-import os
 import httpx
 import logging
 from typing import Tuple, Optional
 from app.models.order import Order
+from app.core.settings import settings
 
 logger = logging.getLogger(__name__)
 
@@ -15,11 +15,8 @@ class FulfillmentService:
     """EasyEcom fulfillment service"""
     
     def __init__(self):
-        self.api_url = os.environ.get("EASYECOM_API_URL")
-        self.api_key = os.environ.get("EASYECOM_API_KEY")
-        
-        if not self.api_url or not self.api_key:
-            logger.warning("EasyEcom credentials not configured")
+        self.api_url = settings.EASYECOM_API_URL
+        self.api_key = settings.EASYECOM_API_KEY
     
     async def push_order_to_easyecom(self, order: Order) -> Tuple[bool, Optional[str], Optional[str]]:
         """
