@@ -1,10 +1,11 @@
 """
 Dash24 V1 - Fulfillment Router
-Handles EasyEcom webhooks and fulfillment status
+Strict webhook signature validation with timing-safe comparison
 """
-from fastapi import APIRouter, Depends, HTTPException, status, Header
+from fastapi import APIRouter, Depends, HTTPException, status, Header, Request
 from pydantic import BaseModel
 from typing import Optional
+import hmac
 import logging
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -32,6 +33,7 @@ class WebhookPayload(BaseModel):
 @router.post("/webhook")
 async def easyecom_webhook(
     payload: WebhookPayload,
+    request: Request,
     x_easyecom_signature: Optional[str] = Header(None),
     db: AsyncSession = Depends(get_db)
 ):
@@ -39,7 +41,7 @@ async def easyecom_webhook(
     Receive status updates from EasyEcom
     
     Security:
-    - Validates signature header
+    - Validates signature header with timing-safe comparison
     - Updates order status transactionally
     
     Status mapping:
@@ -48,11 +50,24 @@ async def easyecom_webhook(
     - delivered → DELIVERED
     """
     
-    if x_easyecom_signature != settings.EASYECOM_WEBHOOK_SECRET:
-        logger.warning(f"Invalid EasyEcom webhook signature")
+    if not x_easyecom_signature:
+        logger.warning(
+            "EasyEcom webhook rejected: missing signature",
+            extra={"request_id": getattr(request.state, "request_id", "unknown")}
+        )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid webhook signature"
+            detail="Unauthorized"
+        )
+    
+    if not hmac.compare_digest(x_easyecom_signature, settings.EASYECOM_WEBHOOK_SECRET):
+        logger.warning(
+            "EasyEcom webhook rejected: invalid signature",
+            extra={"request_id": getattr(request.state, "request_id", "unknown")}
+        )
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Unauthorized"
         )
     
     result = await db.execute(
@@ -61,7 +76,10 @@ async def easyecom_webhook(
     order = result.scalar_one_or_none()
     
     if not order:
-        logger.error(f"Order not found for webhook: {payload.order_id}")
+        logger.error(
+            f"Order not found for webhook: {payload.order_id}",
+            extra={"request_id": getattr(request.state, "request_id", "unknown")}
+        )
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Order not found"
@@ -76,7 +94,10 @@ async def easyecom_webhook(
     webhook_status = payload.status.lower()
     
     if webhook_status not in status_mapping:
-        logger.warning(f"Unknown webhook status: {payload.status}")
+        logger.warning(
+            f"Unknown webhook status: {payload.status}",
+            extra={"request_id": getattr(request.state, "request_id", "unknown")}
+        )
         return success_response({"message": "Status not mapped"})
     
     order_status, fulfillment_status = status_mapping[webhook_status]
@@ -100,7 +121,10 @@ async def easyecom_webhook(
         
         await db.flush()
     
-    logger.info(f"Order {order.order_number} updated to {order_status.value} via webhook")
+    logger.info(
+        f"Order {order.order_number} updated to {order_status.value} via webhook",
+        extra={"request_id": getattr(request.state, "request_id", "unknown")}
+    )
     
     return success_response({
         "order_id": str(order.id),
