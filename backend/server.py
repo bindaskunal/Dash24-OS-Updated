@@ -29,6 +29,7 @@ register_exception_handlers(app)
 # Include routers
 app.include_router(auth_router)
 app.include_router(orders_router)
+app.include_router(payments_router)
 app.include_router(webhooks_router)
 app.include_router(brand_analytics_router)
 
