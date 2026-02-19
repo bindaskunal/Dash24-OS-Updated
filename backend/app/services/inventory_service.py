@@ -91,7 +91,10 @@ class InventoryService:
         try:
             result = await self.db.execute(
                 update(Product)
-                .where(Product.id == product_id)
+                .where(
+                    Product.id == product_id,
+                    Product.reserved_quantity >= quantity
+                )
                 .values(
                     reserved_quantity=Product.reserved_quantity - quantity,
                     updated_at=datetime.now(timezone.utc)
