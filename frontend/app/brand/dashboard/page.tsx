@@ -5,14 +5,33 @@ import { useAuth } from '../../../lib/auth';
 import api from '../../../lib/api';
 import ProtectedRoute from '../../../components/ProtectedRoute';
 
+const getFulfillmentStatusColor = (status: string) => {
+  switch (status?.toLowerCase()) {
+    case 'pending':
+      return 'bg-gray-100 text-gray-800';
+    case 'pushed':
+      return 'bg-blue-100 text-blue-800';
+    case 'shipped':
+      return 'bg-orange-100 text-orange-800';
+    case 'delivered':
+      return 'bg-green-100 text-green-800';
+    case 'failed':
+      return 'bg-red-100 text-red-800';
+    default:
+      return 'bg-gray-100 text-gray-800';
+  }
+};
+
 export default function BrandDashboardPage() {
   const [metrics, setMetrics] = useState<any>(null);
+  const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const { user } = useAuth();
 
   useEffect(() => {
     fetchDashboard();
+    fetchOrders();
   }, []);
 
   const fetchDashboard = async () => {
@@ -25,6 +44,17 @@ export default function BrandDashboardPage() {
       setError(err.response?.data?.error || 'Failed to fetch dashboard');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchOrders = async () => {
+    try {
+      const response = await api.get('/api/orders?limit=20');
+      if (response.data.success) {
+        setOrders(response.data.data.items || []);
+      }
+    } catch (err: any) {
+      console.error('Failed to fetch orders:', err);
     }
   };
 
@@ -97,6 +127,62 @@ export default function BrandDashboardPage() {
                     <p className="text-sm text-gray-600">Cancelled</p>
                     <p className="text-2xl font-bold">{metrics.status_breakdown?.cancelled || 0}</p>
                   </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-lg shadow p-6">
+                <h3 className="text-lg font-semibold mb-4">Recent Orders</h3>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Order #</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Order Status</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Payment</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fulfillment</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Created</th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {orders.length === 0 ? (
+                        <tr>
+                          <td colSpan={6} className="px-4 py-4 text-center text-sm text-gray-500">
+                            No orders found
+                          </td>
+                        </tr>
+                      ) : (
+                        orders.map((order) => (
+                          <tr key={order.id}>
+                            <td className="px-4 py-4 text-sm font-medium text-gray-900">
+                              {order.order_number}
+                            </td>
+                            <td className="px-4 py-4 text-sm">
+                              <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">
+                                {order.status}
+                              </span>
+                            </td>
+                            <td className="px-4 py-4 text-sm">
+                              <span className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs">
+                                {order.payment_status}
+                              </span>
+                            </td>
+                            <td className="px-4 py-4 text-sm">
+                              <span className={`px-2 py-1 rounded text-xs ${getFulfillmentStatusColor(order.fulfillment_status)}`}>
+                                {order.fulfillment_status}
+                              </span>
+                            </td>
+                            <td className="px-4 py-4 text-sm text-gray-900">
+                              ₹{order.total}
+                            </td>
+                            <td className="px-4 py-4 text-sm text-gray-500">
+                              {new Date(order.created_at).toLocaleDateString()}
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
                 </div>
               </div>
 
