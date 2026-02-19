@@ -54,6 +54,7 @@ async def startup_event():
     # Create tables if not present (temporary until Alembic)
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+        print("REGISTERED TABLES:", list(Base.metadata.tables.keys()))
 
 @app.on_event("shutdown")
 async def shutdown_event():
