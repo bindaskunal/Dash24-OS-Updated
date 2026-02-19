@@ -74,7 +74,7 @@ class Order(Base):
     source = Column(String(50), default="web")
     notes = Column(Text)
     admin_notes = Column(Text)
-    metadata = Column(JSONB, default=dict)  # Phase 0: Fixed mutable default
+    extra_metadata = Column("metadata", JSONB, default=dict)  # Phase 0: Fixed mutable default
     
     # Cancellation tracking
     cancelled_at = Column(DateTime(timezone=True))
