@@ -2,6 +2,7 @@
 
 ## Document Index
 
+### Core Commerce Layer
 | # | Document | Contents |
 |---|----------|----------|
 | 1 | [01-OVERVIEW.md](./01-OVERVIEW.md) | System context, tech stack, service boundaries |
@@ -12,6 +13,15 @@
 | 6 | [06-WEBHOOK-HANDLING.md](./06-WEBHOOK-HANDLING.md) | Webhook processing, retry logic |
 | 7 | [07-PAYMENT-FLOW.md](./07-PAYMENT-FLOW.md) | Razorpay, COD, wallet implementation |
 | 8 | [08-API-CONTRACTS.md](./08-API-CONTRACTS.md) | REST API specifications |
+
+### Intelligence Layer
+| # | Document | Contents |
+|---|----------|----------|
+| 9 | [09-EVENT-SYSTEM.md](./09-EVENT-SYSTEM.md) | Centralized event tracking, async processing |
+| 10 | [10-BRAND-ANALYTICS.md](./10-BRAND-ANALYTICS.md) | Aggregation tables, materialized views, cohorts |
+| 11 | [11-BRAND-DASHBOARD-API.md](./11-BRAND-DASHBOARD-API.md) | Brand analytics API contracts |
+| 12 | [12-RETENTION-ENGINE.md](./12-RETENTION-ENGINE.md) | Trigger detection, action preparation |
+| 13 | [13-LLM-READINESS.md](./13-LLM-READINESS.md) | Semantic search, embeddings, AI readiness |
 
 ---
 
@@ -216,11 +226,18 @@ COD_MAX_AMOUNT=5000
 11. Implement inventory sync + reconciliation
 12. Set up background job workers
 
-### Phase 4: Frontend (Post-Architecture Approval)
-13. Next.js PWA setup
-14. Customer app UI
-15. Brand portal
-16. Admin dashboard
+### Phase 4: Intelligence Layer
+13. Event tracking system + async processing
+14. Brand analytics aggregation jobs
+15. Brand dashboard APIs
+16. Retention trigger detection
+17. LLM-ready schema extensions
+
+### Phase 5: Frontend (Post-Architecture Approval)
+18. Next.js PWA setup
+19. Customer app UI
+20. Brand portal with analytics
+21. Admin dashboard
 
 ---
 
@@ -234,6 +251,37 @@ COD_MAX_AMOUNT=5000
 
 ---
 
-*Document Version: 1.0*  
+---
+
+## Intelligence Layer Summary
+
+### Event System
+- Centralized tracking for all user interactions
+- Async processing via Redis queues (high/normal/low priority)
+- JSONB properties for flexible event data
+- Optimized indexes for brand-level queries
+
+### Analytics Aggregation
+- Daily/weekly/monthly brand metrics
+- SKU velocity tracking with trend analysis
+- Cohort retention (D7, D30, D60, D90)
+- Zone-wise demand heatmaps
+- Payment split analysis (COD/Prepaid/Wallet)
+
+### Retention Engine
+- Trigger types: cart_abandonment, lapsed_customer, reorder_opportunity, winback
+- Action types: wallet_credit, coupon_generate, push_notification
+- Rule-based configuration with cooldown periods
+- Prepared actions ready for external execution
+
+### LLM Readiness
+- Rich JSONB attributes on products/brands/users
+- Embeddings placeholder for pgvector migration
+- Search synonyms and query expansion
+- Conversation history structure for future chatbot
+
+---
+
+*Document Version: 1.1*  
 *Last Updated: January 2026*  
 *Author: Dash24 Engineering*
