@@ -14,11 +14,12 @@ DATABASE_URL = "postgresql+asyncpg://neondb_owner:npg_tk0FumpVDJw7@ep-quiet-fros
 # Create async engine
 engine = create_async_engine(
     DATABASE_URL,
-    echo=False,
+    echo=True,
     pool_size=5,
     max_overflow=10,
     connect_args={
-        "ssl": True
+        "ssl": True,
+        "timeout": 10
     }
 )
 
