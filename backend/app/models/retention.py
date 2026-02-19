@@ -1,7 +1,8 @@
 """
 Dash24 V1 - Retention Trigger Models (Minimal)
+Phase 0: Converted status fields to SQL Enum, fixed mutable defaults, added indexes
 """
-from sqlalchemy import Column, String, Boolean, Integer, DateTime, ForeignKey, Text
+from sqlalchemy import Column, String, Boolean, Integer, DateTime, ForeignKey, Text, Index, Enum as SQLEnum
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from datetime import datetime, timezone
 import uuid
@@ -28,18 +29,22 @@ class RetentionTrigger(Base):
     trigger_type = Column(String(50), nullable=False, index=True)
     trigger_source = Column(String(50), nullable=False)  # 'event', 'scheduled'
     
-    # Context
-    context = Column(JSONB, nullable=False, default={})
+    # Context - Phase 0: Fixed mutable default
+    context = Column(JSONB, nullable=False, default=dict)
     
     # Timing
     triggered_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     expires_at = Column(DateTime(timezone=True), nullable=False)
     
-    # Status
-    status = Column(String(50), nullable=False, default=TriggerStatus.PENDING.value)
+    # Status - Phase 0: Using SQL Enum instead of String
+    status = Column(
+        SQLEnum(TriggerStatus, name='trigger_status', create_constraint=True),
+        nullable=False,
+        default=TriggerStatus.PENDING
+    )
     
-    # Actions
-    eligible_actions = Column(JSONB, default=[])
+    # Actions - Phase 0: Fixed mutable default
+    eligible_actions = Column(JSONB, default=list)
     
     # Outcome
     converted_at = Column(DateTime(timezone=True))
@@ -52,12 +57,17 @@ class RetentionTrigger(Base):
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
     
+    # Phase 0: Added composite index for common queries
+    __table_args__ = (
+        Index("ix_retention_user_status", "user_id", "status"),
+    )
+    
     def to_dict(self):
         return {
             "id": str(self.id),
             "user_id": str(self.user_id),
             "trigger_type": self.trigger_type,
-            "status": self.status,
+            "status": self.status.value if isinstance(self.status, TriggerStatus) else self.status,
             "context": self.context,
             "expires_at": self.expires_at.isoformat() if self.expires_at else None,
             "created_at": self.created_at.isoformat() if self.created_at else None
@@ -75,18 +85,22 @@ class RetentionAction(Base):
     # Action type: push_notification only for V1
     action_type = Column(String(50), nullable=False)
     
-    # Prepared payload
-    payload = Column(JSONB, nullable=False)
+    # Prepared payload - Phase 0: Fixed mutable default
+    payload = Column(JSONB, nullable=False, default=dict)
     
     # Scheduling
     scheduled_for = Column(DateTime(timezone=True))
     
-    # Status
-    status = Column(String(50), nullable=False, default="prepared")
+    # Status - Phase 0: Using SQL Enum instead of String
+    status = Column(
+        SQLEnum(TriggerStatus, name='action_status', create_constraint=True),
+        nullable=False,
+        default=TriggerStatus.PENDING
+    )
     
     # Execution tracking
     executed_at = Column(DateTime(timezone=True))
-    execution_response = Column(JSONB)
+    execution_response = Column(JSONB, default=dict)  # Phase 0: Fixed mutable default
     
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
