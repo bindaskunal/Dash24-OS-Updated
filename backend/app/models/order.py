@@ -47,6 +47,10 @@ class Order(Base):
     tax_amount = Column(Numeric(10, 2), nullable=False, default=0)
     total = Column(Numeric(10, 2), nullable=False)
     
+    # Razorpay integration
+    razorpay_order_id = Column(String(100), nullable=True, index=True)
+    razorpay_payment_id = Column(String(100), nullable=True, index=True)
+    
     # Delivery
     delivery_slot = Column(JSONB)  # {date, start_time, end_time, is_same_day}
     cutoff_time = Column(DateTime(timezone=True))
@@ -74,7 +78,7 @@ class Order(Base):
     source = Column(String(50), default="web")
     notes = Column(Text)
     admin_notes = Column(Text)
-    extra_metadata = Column("metadata", JSONB, default=dict)  # Phase 0: Fixed mutable default
+    extra_metadata = Column("metadata", JSONB, default=dict)
     
     # Cancellation tracking
     cancelled_at = Column(DateTime(timezone=True))
@@ -152,6 +156,7 @@ class Order(Base):
                 "awb": self.easyecom_awb,
                 "status": self.easyecom_status
             } if self.easyecom_awb else None,
+            "razorpay_order_id": self.razorpay_order_id,
             "item_count": len(self.items) if self.items else 0,
             "created_at": self.created_at.isoformat() if self.created_at else None
         }
@@ -223,7 +228,7 @@ class OrderStatusLog(Base):
     changed_by = Column(UUID(as_uuid=True))  # User ID or null for system
     source = Column(String(50))  # 'system', 'admin', 'webhook', 'customer'
     notes = Column(Text)
-    extra_metadata = Column("metadata", JSONB, default=dict)  # Phase 0: Fixed mutable default
+    extra_metadata = Column("metadata", JSONB, default=dict)
     
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     
@@ -256,7 +261,7 @@ class Payment(Base):
     # Metadata
     failure_reason = Column(Text)
     refund_amount = Column(Numeric(10, 2), default=0)
-    extra_metadata = Column("metadata", JSONB, default=dict)  # Phase 0: Fixed mutable default
+    extra_metadata = Column("metadata", JSONB, default=dict)
     
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
