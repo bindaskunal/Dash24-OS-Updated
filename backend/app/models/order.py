@@ -172,9 +172,9 @@ class OrderItem(Base):
     __tablename__ = "order_items"
     
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    order_id = Column(UUID(as_uuid=True), ForeignKey("orders.id", ondelete="CASCADE"))
-    product_id = Column(UUID(as_uuid=True), ForeignKey("products.id"))
-    brand_id = Column(UUID(as_uuid=True), ForeignKey("brands.id"))
+    order_id = Column(UUID(as_uuid=True), ForeignKey("orders.id", ondelete="CASCADE"), nullable=False)
+    product_id = Column(UUID(as_uuid=True), ForeignKey("products.id"), nullable=False, index=True)
+    brand_id = Column(UUID(as_uuid=True), ForeignKey("brands.id"), nullable=False, index=True)
     
     # Snapshot at order time
     sku = Column(String(100), nullable=False)
@@ -193,6 +193,12 @@ class OrderItem(Base):
     # Relationships
     order = relationship("Order", back_populates="items")
     
+    # Phase 0: Indexes for common queries
+    __table_args__ = (
+        Index("ix_order_items_brand", "brand_id"),
+        Index("ix_order_items_product", "product_id"),
+    )
+    
     def to_dict(self):
         return {
             "id": str(self.id),
@@ -210,14 +216,14 @@ class OrderStatusLog(Base):
     __tablename__ = "order_status_logs"
     
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    order_id = Column(UUID(as_uuid=True), ForeignKey("orders.id", ondelete="CASCADE"))
+    order_id = Column(UUID(as_uuid=True), ForeignKey("orders.id", ondelete="CASCADE"), nullable=False)
     
     from_status = Column(String(50))
     to_status = Column(String(50), nullable=False)
     changed_by = Column(UUID(as_uuid=True))  # User ID or null for system
     source = Column(String(50))  # 'system', 'admin', 'webhook', 'customer'
     notes = Column(Text)
-    metadata = Column(JSONB)
+    metadata = Column(JSONB, default=dict)  # Phase 0: Fixed mutable default
     
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     
@@ -229,7 +235,7 @@ class Payment(Base):
     __tablename__ = "payments"
     
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    order_id = Column(UUID(as_uuid=True), ForeignKey("orders.id", ondelete="CASCADE"))
+    order_id = Column(UUID(as_uuid=True), ForeignKey("orders.id", ondelete="CASCADE"), nullable=False)
     
     # Razorpay references
     razorpay_order_id = Column(String(100), index=True)
@@ -240,12 +246,17 @@ class Payment(Base):
     amount = Column(Numeric(10, 2), nullable=False)
     currency = Column(String(3), default="INR")
     method = Column(String(50))  # 'card', 'upi', 'netbanking', 'wallet', 'cod'
-    status = Column(String(50), nullable=False, default=PaymentStatus.PENDING.value)
+    # Phase 0: Using SQL Enum instead of String
+    status = Column(
+        SQLEnum(PaymentStatus, name='payment_status_enum', create_constraint=True),
+        nullable=False,
+        default=PaymentStatus.PENDING
+    )
     
     # Metadata
     failure_reason = Column(Text)
     refund_amount = Column(Numeric(10, 2), default=0)
-    metadata = Column(JSONB)
+    metadata = Column(JSONB, default=dict)  # Phase 0: Fixed mutable default
     
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
