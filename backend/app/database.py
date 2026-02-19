@@ -9,14 +9,17 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-DATABASE_URL = "postgresql+asyncpg://neondb_owner:npg_tk0FumpVDJw7@ep-quiet-frost-a1ar67af-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require"
+DATABASE_URL = "postgresql+asyncpg://neondb_owner:npg_tk0FumpVDJw7@ep-quiet-frost-a1ar67af-pooler.ap-southeast-1.aws.neon.tech/neondb"
 
 # Create async engine
 engine = create_async_engine(
     DATABASE_URL,
-    echo=False,  # Set to True for SQL logging
+    echo=False,
     pool_size=5,
-    max_overflow=10
+    max_overflow=10,
+    connect_args={
+        "ssl": True
+    }
 )
 
 # Session factory
