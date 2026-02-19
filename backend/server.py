@@ -8,6 +8,7 @@ from pathlib import Path
 from app.database import engine, Base
 from app.redis_client import close_redis
 from app.core.exceptions import register_exception_handlers
+from app.models import *
 
 # Routers
 from app.routers.orders import router as orders_router
