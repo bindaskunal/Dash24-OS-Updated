@@ -1,15 +1,14 @@
 """
 Dash24 V1 - JWT Authentication & Security
-Phase 0 Foundation: Proper auth with get_current_user, get_current_brand
+Strict JWT validation with proper error handling
 """
-import os
 from datetime import datetime, timezone, timedelta
 from typing import Optional
 from uuid import UUID
 
-from fastapi import Depends, HTTPException, status, Header
+from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from jose import JWTError, jwt
+from jose import JWTError, jwt, ExpiredSignatureError
 from passlib.context import CryptContext
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -18,22 +17,15 @@ from sqlalchemy import select
 from app.database import get_db
 from app.models import User, Brand
 from app.models.enums import UserRole
+from app.core.settings import settings
 
-# Configuration from environment
-JWT_SECRET = os.environ.get("JWT_SECRET", "dash24-v1-secret-change-in-production")
-JWT_ALGORITHM = os.environ.get("JWT_ALGORITHM", "HS256")
-JWT_EXPIRY_HOURS = int(os.environ.get("JWT_EXPIRY_HOURS", 24))
-
-# Password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-# Bearer token extraction
 security = HTTPBearer(auto_error=False)
 
 
 class TokenPayload(BaseModel):
     """JWT token payload"""
-    sub: str  # user_id
+    sub: str
     role: str
     brand_id: Optional[str] = None
     exp: datetime
@@ -71,7 +63,7 @@ def create_access_token(
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
     else:
-        expire = datetime.now(timezone.utc) + timedelta(hours=JWT_EXPIRY_HOURS)
+        expire = datetime.now(timezone.utc) + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     
     payload = {
         "sub": str(user_id),
@@ -82,21 +74,36 @@ def create_access_token(
     if brand_id:
         payload["brand_id"] = str(brand_id)
     
-    return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
+    return jwt.encode(payload, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
 
 
 def decode_token(token: str) -> Optional[TokenPayload]:
-    """Decode and validate JWT token"""
+    """
+    Decode and validate JWT token with strict error handling
+    
+    Raises:
+        HTTPException: For expired or invalid tokens
+    """
     try:
-        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        payload = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
         return TokenPayload(
             sub=payload["sub"],
             role=payload["role"],
             brand_id=payload.get("brand_id"),
             exp=datetime.fromtimestamp(payload["exp"], tz=timezone.utc)
         )
+    except ExpiredSignatureError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token has expired",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
     except JWTError:
-        return None
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication token",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
 
 
 async def get_current_user(
@@ -104,95 +111,54 @@ async def get_current_user(
     db: AsyncSession = Depends(get_db)
 ) -> CurrentUser:
     """
-    Extract and validate current user from JWT token.
-    Raises 401 if not authenticated.
+    Get current authenticated user from JWT token
+    
+    Raises:
+        HTTPException: If authentication fails
     """
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    
     if not credentials:
-        raise credentials_exception
-    
-    token_payload = decode_token(credentials.credentials)
-    if not token_payload:
-        raise credentials_exception
-    
-    # Check expiration
-    if token_payload.exp < datetime.now(timezone.utc):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token has expired",
-            headers={"WWW-Authenticate": "Bearer"},
+            detail="Authentication required",
+            headers={"WWW-Authenticate": "Bearer"}
         )
     
-    # Fetch user from database
-    try:
-        user_id = UUID(token_payload.sub)
-    except ValueError:
-        raise credentials_exception
+    token_data = decode_token(credentials.credentials)
     
     result = await db.execute(
-        select(User).where(User.id == user_id)
+        select(User).where(User.id == UUID(token_data.sub))
     )
     user = result.scalar_one_or_none()
     
     if not user:
-        raise credentials_exception
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
     
     if not user.is_active:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="User account is disabled"
+            detail="Inactive user account"
         )
-    
-    # Parse brand_id if present
-    brand_id = None
-    if token_payload.brand_id:
-        try:
-            brand_id = UUID(token_payload.brand_id)
-        except ValueError:
-            pass
     
     return CurrentUser(
         id=user.id,
         email=user.email,
         phone=user.phone,
-        name=user.name,
-        role=UserRole(token_payload.role),
+        name=getattr(user, 'name', None),
+        role=user.role,
         is_active=user.is_active,
-        is_verified=user.is_verified,
-        brand_id=brand_id
+        is_verified=getattr(user, 'is_verified', True),
+        brand_id=getattr(user, 'brand_id', None)
     )
 
 
-async def get_current_user_optional(
-    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
-    db: AsyncSession = Depends(get_db)
-) -> Optional[CurrentUser]:
-    """
-    Extract current user from JWT if present.
-    Returns None if not authenticated (for optional auth routes).
-    """
-    if not credentials:
-        return None
-    
-    try:
-        return await get_current_user(credentials, db)
-    except HTTPException:
-        return None
-
-
-async def get_current_brand(
-    current_user: CurrentUser = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
-) -> Brand:
-    """
-    Get brand for authenticated brand user.
-    Raises 403 if user is not a brand user or brand not found.
-    """
+async def get_current_brand_user(
+    current_user: CurrentUser = Depends(get_current_user)
+) -> CurrentUser:
+    """Get current user ensuring they are brand role"""
     if current_user.role != UserRole.BRAND:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -201,62 +167,32 @@ async def get_current_brand(
     
     if not current_user.brand_id:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="No brand associated with this user"
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Brand ID not found"
         )
     
-    result = await db.execute(
-        select(Brand).where(Brand.id == current_user.brand_id)
-    )
-    brand = result.scalar_one_or_none()
-    
-    if not brand:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Brand not found"
-        )
-    
-    if not brand.is_active:
+    return current_user
+
+
+async def get_current_admin(
+    current_user: CurrentUser = Depends(get_current_user)
+) -> CurrentUser:
+    """Get current user ensuring they are admin"""
+    if current_user.role != UserRole.ADMIN:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Brand is inactive"
+            detail="Admin access required"
         )
-    
-    return brand
+    return current_user
 
 
 def require_role(*allowed_roles: UserRole):
-    """
-    Dependency factory for role-based access control.
-    
-    Usage:
-        @router.get("/admin-only")
-        async def admin_route(user: CurrentUser = Depends(require_role(UserRole.ADMIN))):
-            ...
-    """
-    async def role_checker(
-        current_user: CurrentUser = Depends(get_current_user)
-    ) -> CurrentUser:
+    """Dependency factory for role-based access control"""
+    async def role_checker(current_user: CurrentUser = Depends(get_current_user)):
         if current_user.role not in allowed_roles:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"Access denied. Required roles: {[r.value for r in allowed_roles]}"
+                detail=f"Required role: {', '.join(r.value for r in allowed_roles)}"
             )
         return current_user
-    
     return role_checker
-
-
-def require_admin():
-    """Shorthand for admin-only routes"""
-    return require_role(UserRole.ADMIN)
-
-
-def require_brand():
-    """Shorthand for brand-only routes"""
-    return require_role(UserRole.BRAND)
-
-
-def require_customer_or_admin():
-    """Shorthand for customer or admin routes"""
-    return require_role(UserRole.CUSTOMER, UserRole.ADMIN)
