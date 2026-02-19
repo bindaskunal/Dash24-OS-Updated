@@ -48,9 +48,7 @@ async def easyecom_webhook(
     - delivered → DELIVERED
     """
     
-    webhook_secret = os.environ.get("EASYECOM_WEBHOOK_SECRET")
-    
-    if webhook_secret and x_easyecom_signature != webhook_secret:
+    if x_easyecom_signature != settings.EASYECOM_WEBHOOK_SECRET:
         logger.warning(f"Invalid EasyEcom webhook signature")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
