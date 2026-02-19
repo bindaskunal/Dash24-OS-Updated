@@ -223,7 +223,7 @@ class OrderStatusLog(Base):
     changed_by = Column(UUID(as_uuid=True))  # User ID or null for system
     source = Column(String(50))  # 'system', 'admin', 'webhook', 'customer'
     notes = Column(Text)
-    metadata = Column(JSONB, default=dict)  # Phase 0: Fixed mutable default
+    extra_metadata = Column("metadata", JSONB, default=dict)  # Phase 0: Fixed mutable default
     
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     
