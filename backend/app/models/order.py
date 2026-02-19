@@ -256,7 +256,7 @@ class Payment(Base):
     # Metadata
     failure_reason = Column(Text)
     refund_amount = Column(Numeric(10, 2), default=0)
-    metadata = Column(JSONB, default=dict)  # Phase 0: Fixed mutable default
+    extra_metadata = Column("metadata", JSONB, default=dict)  # Phase 0: Fixed mutable default
     
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
