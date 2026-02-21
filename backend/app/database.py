@@ -1,15 +1,27 @@
 import json
 import os
 import logging
-from sqlalchemy.orm import declarative_base # <--- Add this import
+from sqlalchemy.orm import declarative_base
 
 logger = logging.getLogger(__name__)
 
-# Re-add this so your models (User, Order) don't crash on import
-Base = declarative_base() # <--- Add this line
+# 1. Base is needed for Models
+Base = declarative_base()
 
-# ... keep the rest of your get_db() logic below ...
+# 2. We create "Dummies" for Engine and SessionMaker 
+# so other files can import them without crashing.
+class MockObject:
+    def __getattr__(self, name):
+        return None
+    def __call__(self, *args, **kwargs):
+        return self
+
+engine = MockObject()
+async_session_maker = MockObject()
+
+# 3. Your new JSON-based data source
 async def get_db():
+    """Bypasses Neon and reads from catalog.json"""
     catalog_path = os.path.join(os.getcwd(), "catalog.json")
     try:
         if os.path.exists(catalog_path):
@@ -24,7 +36,9 @@ async def get_db():
         yield []
 
 async def init_db():
+    """Does nothing, but prevents 'import' errors"""
     pass
 
 async def check_db_health() -> bool:
+    """Always green for the demo"""
     return True
