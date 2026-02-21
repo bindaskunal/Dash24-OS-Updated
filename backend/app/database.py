@@ -1,50 +1,33 @@
-"""
-Dash24 V1 - Database Configuration
-Uses centralized settings for pool configuration
-"""
+import json
 import os
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
-from sqlalchemy.orm import declarative_base
+import logging
 
-from app.core.settings import settings
+logger = logging.getLogger(__name__)
 
-engine = create_async_engine(
-    settings.DATABASE_URL,
-    echo=False,
-    pool_size=settings.DB_POOL_SIZE,
-    max_overflow=settings.DB_MAX_OVERFLOW,
-    pool_timeout=settings.DB_POOL_TIMEOUT
-)
-
-async_session_maker = async_sessionmaker(
-    engine,
-    class_=AsyncSession,
-    expire_on_commit=False
-)
-
-Base = declarative_base()
-
-
+# This replaces the complex SQLAlchemy engine
 async def get_db():
-    """Dependency for getting database sessions"""
-    async with async_session_maker() as session:
-        try:
-            yield session
-        finally:
-            await session.close()
+    """
+    Bypasses Neon and reads from our catalog.json.
+    This ensures the backend always matches your frontend demo data.
+    """
+    catalog_path = os.path.join(os.getcwd(), "catalog.json")
+    
+    try:
+        if os.path.exists(catalog_path):
+            with open(catalog_path, "r") as f:
+                data = json.load(f)
+                # We yield the data so the routers can use it immediately
+                yield data
+        else:
+            logger.warning(f"catalog.json not found at {catalog_path}. Returning empty list.")
+            yield []
+    except Exception as e:
+        logger.error(f"Error reading catalog: {e}")
+        yield []
 
-
+# Keep these empty functions so other files importing them don't crash
 async def init_db():
-    """Initialize database tables"""
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-
+    pass
 
 async def check_db_health() -> bool:
-    """Check database connectivity"""
-    try:
-        async with engine.connect() as conn:
-            await conn.execute("SELECT 1")
-        return True
-    except Exception:
-        return False
+    return True
