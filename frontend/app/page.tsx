@@ -110,19 +110,19 @@ useEffect(() => {
       nearestDistanceKm: 1.2,
       brandsInZone: 42,
       highDemandBrands: 18,
-      demandBrands: ["Minimalist", "The Whole Truth", "Sleepy Owl", "Kapiva"],
+      demandBrands: ["Minimalist", "The Whole Truth", "What's Up Wellness", "Kapiva"],
     },
     Indiranagar: {
       nearestDistanceKm: 0.8,
       brandsInZone: 38,
       highDemandBrands: 24,
-      demandBrands: ["Sleepy Owl", "Minimalist", "Kapiva", "The Whole Truth"],
+      demandBrands: ["What's Up Wellness", "Minimalist", "Kapiva", "The Whole Truth"],
     },
     HSR: {
       nearestDistanceKm: 1.6,
       brandsInZone: 46,
       highDemandBrands: 12,
-      demandBrands: ["Kapiva", "The Whole Truth", "Minimalist", "Sleepy Owl"],
+      demandBrands: ["Kapiva", "The Whole Truth", "Minimalist", "What's Up Wellness"],
     },
   } as const;
 
