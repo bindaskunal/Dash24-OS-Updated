@@ -77,7 +77,15 @@ else:
 # -------------------------
 # Basic Routes
 # -------------------------
-
+@app.get("/api/products")
+async def get_all_products():
+    import json
+    import os
+    catalog_path = os.path.join(os.getcwd(), "catalog.json")
+    if os.path.exists(catalog_path):
+        with open(catalog_path, "r") as f:
+            return json.load(f)
+    return {"error": "catalog.json not found"}
 @app.get("/")
 async def root():
     return {"message": "Dash24 V1 API Running"}
