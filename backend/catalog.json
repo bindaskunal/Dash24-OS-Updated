@@ -3,5 +3,8 @@
   { "id": 2, "name": "Energy Bars (Pack of 6)", "brand": "The Whole Truth", "price": 599, "mrp": 699, "inventory": 23 },
   { "id": 3, "name": "Plant Protein Isolate", "brand": "The Whole Truth", "price": 1899, "mrp": 2099, "inventory": 7 },
   { "id": 4, "name": "Vitamin C Serum", "brand": "Minimalist", "price": 699, "mrp": 799, "inventory": 6 },
-  { "id": 5, "name": "Face Wash", "brand": "Minimalist", "price": 499, "mrp": 599, "inventory": 10 }
+  { "id": 5, "name": "Face Wash", "brand": "Minimalist", "price": 499, "mrp": 599, "inventory": 10 },
+  { "id": 6, "name": "Ashwagandha Gummies", "brand": "What's Up Wellness", "price": 899, "mrp": 999, "inventory": 12 },
+  { "id": 7, "name": "Amla Juice (1L)", "brand": "Kapiva", "price": 349, "mrp": 399, "inventory": 30 },
+  { "id": 8, "name": "Biotin Gummies", "brand": "What's Up Wellness", "price": 799, "mrp": 899, "inventory": 5 }
 ]
