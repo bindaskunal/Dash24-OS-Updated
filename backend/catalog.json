@@ -1,16 +1,7 @@
 [
-  {
-    "id": "prod_001",
-    "name": "Eco-Friendly Bottle",
-    "price": 25.00,
-    "inventory": 150,
-    "category": "Lifestyle"
-  },
-  {
-    "id": "prod_002",
-    "name": "Smart Watch Series 5",
-    "price": 299.00,
-    "inventory": 45,
-    "category": "Electronics"
-  }
+  { "id": 1, "name": "Protein Shake", "brand": "The Whole Truth", "price": 1499, "mrp": 1799, "inventory": 15 },
+  { "id": 2, "name": "Energy Bars (Pack of 6)", "brand": "The Whole Truth", "price": 599, "mrp": 699, "inventory": 23 },
+  { "id": 3, "name": "Plant Protein Isolate", "brand": "The Whole Truth", "price": 1899, "mrp": 2099, "inventory": 7 },
+  { "id": 4, "name": "Vitamin C Serum", "brand": "Minimalist", "price": 699, "mrp": 799, "inventory": 6 },
+  { "id": 5, "name": "Face Wash", "brand": "Minimalist", "price": 499, "mrp": 599, "inventory": 10 }
 ]
