@@ -1,0 +1,16 @@
+[
+  {
+    "id": "prod_001",
+    "name": "Eco-Friendly Bottle",
+    "price": 25.00,
+    "inventory": 150,
+    "category": "Lifestyle"
+  },
+  {
+    "id": "prod_002",
+    "name": "Smart Watch Series 5",
+    "price": 299.00,
+    "inventory": 45,
+    "category": "Electronics"
+  }
+]
