@@ -662,15 +662,24 @@ const handleAddToCart = (productOrName: any) => {
                                 {/* Clickable Image Area */}
                                 <div
                                   onClick={() => setActiveProduct(item)}
-                                  className="aspect-square bg-gray-50 rounded-xl mb-4 relative cursor-pointer group overflow-hidden"
+                                  className="aspect-square bg-white rounded-xl mb-4 relative cursor-pointer group overflow-hidden border border-gray-100 flex items-center justify-center"
                                 >
-                                  <div className="absolute inset-0 flex items-center justify-center text-4xl text-gray-300 group-hover:scale-110 transition-transform duration-300">📦</div>
+                                  {item.image_url ? (
+                                    <img 
+                                      src={item.image_url} 
+                                      alt={item.name} 
+                                      className="object-contain w-full h-full p-4 group-hover:scale-105 transition-transform duration-300" 
+                                    />
+                                  ) : (
+                                    <div className="absolute inset-0 flex items-center justify-center text-4xl text-gray-300 group-hover:scale-110 transition-transform duration-300">📦</div>
+                                  )}
+                                  
                                   {item.localAvailable && item.low && (
                                     <div className="absolute top-2 right-2 text-[10px] px-2 py-1 bg-[#F97316]/10 text-[#F97316] rounded-full font-medium z-10">
                                       Reorder Window Active
                                     </div>
                                   )}
-                                </div>
+                                </div>  
 
                                 {/* Clickable Title */}
                                 <p
@@ -825,8 +834,12 @@ const handleAddToCart = (productOrName: any) => {
                 ✕
               </button>
 
-              <div className="w-72 h-72 bg-white rounded-3xl shadow-sm border border-gray-100 flex items-center justify-center text-7xl relative">
-                📦
+              <div className="w-72 h-72 bg-white rounded-3xl shadow-sm border border-gray-100 flex items-center justify-center text-7xl relative overflow-hidden p-6">
+                {activeProduct.image_url ? (
+                  <img src={activeProduct.image_url} alt={activeProduct.name} className="object-contain w-full h-full" />
+                ) : (
+                  "📦"
+                )}
                 {activeProduct.localAvailable && activeProduct.low && (
                   <div className="absolute top-4 right-4 text-xs px-3 py-1 bg-[#F97316]/10 text-[#F97316] rounded-full font-semibold">
                     Running Low

@@ -1,10 +1,74 @@
 [
-  { "id": 1, "name": "Protein Shake", "brand": "The Whole Truth", "price": 1499, "mrp": 1799, "inventory": 15 },
-  { "id": 2, "name": "Energy Bars (Pack of 6)", "brand": "The Whole Truth", "price": 599, "mrp": 699, "inventory": 23 },
-  { "id": 3, "name": "Plant Protein Isolate", "brand": "The Whole Truth", "price": 1899, "mrp": 2099, "inventory": 7 },
-  { "id": 4, "name": "Vitamin C Serum", "brand": "Minimalist", "price": 699, "mrp": 799, "inventory": 6 },
-  { "id": 5, "name": "Face Wash", "brand": "Minimalist", "price": 499, "mrp": 599, "inventory": 10 },
-  { "id": 6, "name": "Ashwagandha Gummies", "brand": "What's Up Wellness", "price": 899, "mrp": 999, "inventory": 12 },
-  { "id": 7, "name": "Amla Juice (1L)", "brand": "Kapiva", "price": 349, "mrp": 399, "inventory": 30 },
-  { "id": 8, "name": "Biotin Gummies", "brand": "What's Up Wellness", "price": 799, "mrp": 899, "inventory": 5 }
+  { 
+    "id": 1, 
+    "name": "Protein Shake", 
+    "brand": "The Whole Truth", 
+    "price": 1499, 
+    "mrp": 1799, 
+    "inventory": 15,
+    "image_url": "https://www.google.com/aclk?sa=L&ai=DChsSEwj__pr_leuSAxVGo2YCHYp4CoIYACICCAEQARoCc20&co=1&ase=2&gclid=CjwKCAiAzOXMBhASEiwAe14SaQR6JcY5zfs6iuImjV3RhOeUygHmSKmu7yxuZJaZjUFycUC_jeut8BoCR3MQAvD_BwE&cid=CAAS9gHkaAxaXzkjW4i-hkPG75rIvPNzJbqhw4fPxWzPagFpXV-QIf3tTALw5mRKIebPv0RucvbTTSg247QHmtbtKjXm2vRNxQ3m3RpUOKzvtqQFF6764IPsjmyCAR5gVs9IhRiKpwfdjo_M9bfYeord2KXRL7te_TZ11DP0vJe1s0xcJ0a3_82NOVi_f5ET23YY84DR4-FRtqgNCrVAfWT2KAnPzBFd5ehXIXMIj3-PoMXP8hzOUwA9_aMuoOtNFBSAf8Nigk0CsaJoYeuImPa8HEJGzDxRHv3YT2onl5gKyAb-blycvTMSsyANax4iXIukl2Ad8INLolE&cce=2&category=acrcp_v1_32&sig=AOD64_1z_PElQGY1bZdSoqczf0akldJRIw&ctype=5&q=&nis=4&ved=2ahUKEwir1Zf_leuSAxU4a2wGHQoLDUkQ9aACKAB6BAgEEBA&adurl="
+  },
+  { 
+    "id": 2, 
+    "name": "Energy Bars (Pack of 6)", 
+    "brand": "The Whole Truth", 
+    "price": 599, 
+    "mrp": 699, 
+    "inventory": 23,
+    "image_url": "https://www.google.com/aclk?sa=L&ai=DChsSEwipyrzPk-uSAxV_qGYCHXhTG8MYACICCAEQARoCc20&co=1&ase=2&gclid=CjwKCAiAzOXMBhASEiwAe14SaWAr4vZcEtlQQ71-Pg-ZSSBC1TEsZWKT-CsKa4gVShd_9WJLWdNXqBoCdHYQAvD_BwE&cid=CAAS0wHkaDvLeJmCwQCTpEwPQP4lc834adOVMrrGNwXFLlqHimEwNbalkt8FqkGlNyuI-cAjvsqvGTyBJTBgtd0k1MJdoQavpJDNf79tC0bgZCQZVSajvsjacsayuQkRIXfWvLBoL4zgoa7lL3_tb0MZQz6kbhQUY1ULswfJceTszM7s3Rw1sQxJO06ld05roXj4hE17-AfeQoL5jSa42NXlDdsUabZQjk8IaY0lET4wTLLdP8ZknbneR3kK3urSqbHHvY5luullB154W0FTzgyQDUYBoOfK&cce=2&category=acrcp_v1_32&sig=AOD64_02XuH1CkivKX64gQsEKnl7p_o0QA&ctype=5&q=&nis=4&ved=2ahUKEwj4h7jPk-uSAxUWVmwGHeo5B9QQ9aACKAB6BAgEEBE&adurl="
+  },
+  { 
+    "id": 3, 
+    "name": "Plant Protein Isolate", 
+    "brand": "The Whole Truth", 
+    "price": 1899, 
+    "mrp": 2099, 
+    "inventory": 7,
+    "image_url": "https://www.google.com/imgres?q=the%20whole%20truth%20Plant%20Protein%20Isolate&imgurl=https%3A%2F%2Fmedia.thewholetruthfoods.com%2Fpublic%2Fbackend-assets%2F01K13EVF2K7B4CZ6BDHWPSCPTZ.png%3Fw%3D128%26q%3D75%26f%3Dwebp&imgrefurl=https%3A%2F%2Fthewholetruthfoods.com%2Fproducts%2Fplant-protein-pack-of-12-sachets%3Fsrsltid%3DAfmBOorAz27XGiD2Eb2HfosLWfx0ZEHLkWpdEaW0ZG2ScUAYx_axIjka&docid=Bk7TLfUYIR4AZM&tbnid=i_YcN_zmMVtbfM&vet=12ahUKEwiK27aglOuSAxV0RmwGHU6zFCgQnPAOegQIIRAB..i&w=1500&h=1500&hcb=2&ved=2ahUKEwiK27aglOuSAxV0RmwGHU6zFCgQnPAOegQIIRAB"
+  },
+  { 
+    "id": 4, 
+    "name": "Vitamin C Serum", 
+    "brand": "Minimalist", 
+    "price": 699, 
+    "mrp": 799, 
+    "inventory": 6,
+    "image_url": "https://www.google.com/aclk?sa=L&ai=DChsSEwiImPazlOuSAxUxuksFHVUbDsoYACICCAEQBRoCc2Y&co=1&ase=2&gclid=CjwKCAiAzOXMBhASEiwAe14SaSQTls5MTYYFUiCwOEQvqWy7ftV25VUB0R3K2AeGb0lMnVx5gSCbzBoCJe8QAvD_BwE&cid=CAAS9gHkaLL2ua4uptt6QOSCCMivkVBZHJBEL7mt0xAuCPuKcRpcm7N9BGldj1QbjtnQPzg3935s3wIv7eUaRnXmSuDSI25l73wSlJ9Gub3wi0Y7LvFEHfQ0sNo3FMkIxPQtu5NdyYLmkEXrU27ZY_K1sZBM8AGT1dNpQo-leVZgUICJblOD7t3lVNc-GSNhQd1O-qBJHd9anBM3YKuHQCDBvifqQ8IJ0a3G3WQlGL1DrrJFc7BBze1gcSPq4IV9xgVXwGrhrA7Tes7dCmmfsMgNwAQAuik2ImJk4SlPTjO9xxTS7_lYg36WhXm9FFnFdWYKeW35dxsjhu8&cce=2&category=acrcp_v1_32&sig=AOD64_1kaI8db8BirPFUDGsfZQ_QWws4KA&ctype=5&q=&nis=4&ved=2ahUKEwiilPKzlOuSAxUkTWwGHRNNLTsQ9aACKAB6BAgHECY&adurl="
+  },
+  { 
+    "id": 5, 
+    "name": "Face Wash", 
+    "brand": "Minimalist", 
+    "price": 499, 
+    "mrp": 599, 
+    "inventory": 10,
+    "image_url": "https://www.google.com/aclk?sa=L&ai=DChsSEwiz8sPDlOuSAxUnDYMDHZjxBtkYACICCAEQDxoCc2Y&co=1&ase=2&gclid=CjwKCAiAzOXMBhASEiwAe14SadG5qEemdadm-xmP7i89ccz5S6XLrlbxAONu6oduurImOgua7kWolRoC5NoQAvD_BwE&cid=CAAS9gHkaD7g1DD9HLDA7nXGrp5TQI7pxgWuEq8WLPpB3mRGGKpqD8IvYNYTRhk3UWOuM8uvLR3MRCvW8fn9UIl_C3J_3ZXqukMVy-tMICst2JfGDOczU1tNR5G2QJ6QwoPv8Xv5Z4xdU5om7oqOUuMdpQXU70ieY5o2XzT7l54gBsQ5EFZhxcM6Rb7urvUKXz-MeiTgjD_jxF7YAkMAZjtT-y9xv1T8hnw6Y8sqzDmIURzGsoKApA_GSbN3xPp9CDNFKYtbODr5YAXutYmcLrWBjc-w3dh4SsFCE9t5h4uIyeKpbD7xNQ_WjpPt14d6FzRUbkYypPy9FgU&cce=2&category=acrcp_v1_32&sig=AOD64_0JPJjd46Unqv2GymCkd9HkAtoCbw&ctype=5&q=&nis=4&ved=2ahUKEwipj8DDlOuSAxXrUGcHHc3gM_oQ9aACKAB6BAgIEE8&adurl="
+  },
+  { 
+    "id": 6, 
+    "name": "Ashwagandha Gummies", 
+    "brand": "What's Up Wellness", 
+    "price": 899, 
+    "mrp": 999, 
+    "inventory": 12,
+    "image_url": "https://whatsupwellness.in/cdn/shop/files/stress_51da983c-837f-429d-b235-fb15692d44c0.png?v=1769849561&width=640"
+  },
+  { 
+    "id": 7, 
+    "name": "Amla Juice (1L)", 
+    "brand": "Kapiva", 
+    "price": 349, 
+    "mrp": 399, 
+    "inventory": 30,
+    "image_url": "https://www.google.com/aclk?sa=L&ai=DChsSEwjivafkleuSAxXYGoMDHcRuBJgYACICCAEQARoCc2Y&co=1&ase=2&gclid=CjwKCAiAzOXMBhASEiwAe14Saag0IvcmrXdvchlMXgxqhHf8df6quHtyLvrgu8oj80e3ME1lzROvJBoCbNsQAvD_BwE&cid=CAAS9gHkaAuSmXcbaxBaj9z4Ec8om9VW3Jhq22whoob_xMs1ukYU-FAnE1FP4EfuMhAfuDtpn0Ww8yFJnyEmWCW0Dhwhv8bLYJQXbf3TY5QzkePksWhDIOBBw6yHY-7PFcha-JafkpFp5QfoAbz4UQCNPDEMhWwyfI0p6Qyr9c6Rw-JhLSBUZvDSWLIT-br_aWy7eoGpY-t7sY9GWe23qtUtzlxMj8d9xcoe89LpZ0S9YElj7noxi_1y_Px0eGtibNoo-kIr1vXTGR1HGSOcMDQRB0TG4j16pr0gycuTCZ53JRLcH5VJyZKtnf_CJuvm0sZ47rqrNlppGyg&cce=2&category=acrcp_v1_32&sig=AOD64_0Xcc1hVjn2dDKIbsTqV1q4h9UflA&ctype=5&q=&nis=4&ved=2ahUKEwil_KLkleuSAxWJRmwGHQIkGEAQwg8oAXoECAQQDA&adurl="
+  },
+  { 
+    "id": 8, 
+    "name": "Biotin Gummies", 
+    "brand": "What's Up Wellness", 
+    "price": 799, 
+    "mrp": 899, 
+    "inventory": 5,
+    "image_url": "https://www.google.com/imgres?q=what%27s%20up%20wellness%20Biotin%20Gummies&imgurl=https%3A%2F%2Fm.media-amazon.com%2Fimages%2FI%2F513MzZFVmoL._AC_UF1000%2C1000_QL80_.jpg&imgrefurl=https%3A%2F%2Fwww.amazon.in%2FWhats-Up-Wellness-Natural-Gummies%2Fdp%2FB0CWY298VK&docid=smcmWJX1H_gfMM&tbnid=zD75sm43z1yV5M&vet=12ahUKEwjq6bXxleuSAxVuS2wGHeqnGdsQnPAOegQIGhAB..i&w=769&h=1000&hcb=2&ved=2ahUKEwjq6bXxleuSAxVuS2wGHeqnGdsQnPAOegQIGhAB"
+  }
 ]
