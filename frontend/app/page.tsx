@@ -4,15 +4,14 @@
 import { useState, useEffect, useRef } from "react";
 
 const MASTER_CATALOG = [
-  { name: "Protein Shake", brand: "The Whole Truth", price: 1499, mrp: 1799, rating: 4.6, low: true, lastPurchased: 12, consumptionCycle: 15, inventory: { Koramangala: 3, Indiranagar: 0, HSR: 12 } },
-  { name: "Energy Bars (Pack of 6)", brand: "The Whole Truth", price: 599, mrp: 699, rating: 4.8, low: false, lastPurchased: 5, consumptionCycle: 20, inventory: { Koramangala: 15, Indiranagar: 8, HSR: 0 } },
-  { name: "Plant Protein Isolate", brand: "The Whole Truth", price: 1899, mrp: 2099, rating: 4.5, low: false, lastPurchased: 6, consumptionCycle: 30, inventory: { Koramangala: 0, Indiranagar: 5, HSR: 2 } },
-  { name: "Vitamin C Serum", brand: "Minimalist", price: 699, mrp: 799, rating: 4.7, low: true, lastPurchased: 28, consumptionCycle: 30, inventory: { Koramangala: 5, Indiranagar: 1, HSR: 0 } },
-  { name: "Face Wash", brand: "Minimalist", price: 399, mrp: 499, rating: 4.4, low: false, lastPurchased: 10, consumptionCycle: 45, inventory: { Koramangala: 0, Indiranagar: 12, HSR: 8 } },
-  { name: "Coffee Pods", brand: "Sleepy Owl", price: 699, mrp: 799, rating: 4.7, low: true, lastPurchased: 6, consumptionCycle: 7, inventory: { Koramangala: 2, Indiranagar: 0, HSR: 5 } },
-  { name: "Cold Brew Bags", brand: "Sleepy Owl", price: 500, mrp: 600, rating: 4.6, low: false, lastPurchased: 15, consumptionCycle: 30, inventory: { Koramangala: 10, Indiranagar: 15, HSR: 0 } },
-  { name: "Ashwagandha Gummies", brand: "Kapiva", price: 499, mrp: 599, rating: 4.5, low: true, lastPurchased: 25, consumptionCycle: 30, inventory: { Koramangala: 0, Indiranagar: 4, HSR: 10 } },
-  { name: "Amla Juice 1L", brand: "Kapiva", price: 299, mrp: 350, rating: 4.3, low: false, lastPurchased: 12, consumptionCycle: 20, inventory: { Koramangala: 8, Indiranagar: 0, HSR: 6 } }
+  { name: "Protein Shake", brand: "The Whole Truth", price: 1499, mrp: 1799, rating: 4.6, low: true, lastPurchased: 12, consumptionCycle: 15, inventory: { Koramangala: 3, Indiranagar: 0, HSR: 12 }, image_url: "https://www.jiomart.com/images/product/original/rvekvhwpxb/the-whole-truth_light-cocoa-whey-protein-isolate-concentrate-24g-protein-product-images-orvekvhwpxb-p606367622-0-202311282004.jpg?im=Resize=(420,420)" },
+  { name: "Energy Bars (Pack of 6)", brand: "The Whole Truth", price: 599, mrp: 699, rating: 4.8, low: false, lastPurchased: 5, consumptionCycle: 20, inventory: { Koramangala: 15, Indiranagar: 8, HSR: 0 }, image_url: "https://www.bbassets.com/media/uploads/p/l/40201406_10-the-whole-truth-protein-bars-all-in-one.jpg" },
+  { name: "Plant Protein Isolate", brand: "The Whole Truth", price: 1899, mrp: 2099, rating: 4.5, low: false, lastPurchased: 6, consumptionCycle: 30, inventory: { Koramangala: 0, Indiranagar: 5, HSR: 2 }, image_url: "https://media.thewholetruthfoods.com/public/backend-assets/01K13EVF2K7B4CZ6BDHWPSCPTZ.png" },
+  { name: "Vitamin C Serum", brand: "Minimalist", price: 699, mrp: 799, rating: 4.7, low: true, lastPurchased: 28, consumptionCycle: 30, inventory: { Koramangala: 5, Indiranagar: 1, HSR: 0 }, image_url: "https://images-static.nykaa.com/media/catalog/product/3/9/394e9c5MINIM00000008_a.jpg?tr=w-344,h-344,cm-pad_resize" },
+  { name: "Face Wash", brand: "Minimalist", price: 399, mrp: 499, rating: 4.4, low: false, lastPurchased: 10, consumptionCycle: 45, inventory: { Koramangala: 0, Indiranagar: 12, HSR: 8 }, image_url: "https://images-static.nykaa.com/media/catalog/product/3/9/394e9c5MINIM00000041_a.jpg?tr=w-344,h-344,cm-pad_resize" },
+  { name: "Ashwagandha Gummies", brand: "What's Up Wellness", price: 899, mrp: 999, rating: 4.5, low: true, lastPurchased: 25, consumptionCycle: 30, inventory: { Koramangala: 0, Indiranagar: 4, HSR: 10 }, image_url: "https://whatsupwellness.in/cdn/shop/files/stress_51da983c-837f-429d-b235-fb15692d44c0.png?v=1769849561&width=640" },
+  { name: "Amla Juice (1L)", brand: "Kapiva", price: 349, mrp: 399, rating: 4.3, low: false, lastPurchased: 12, consumptionCycle: 20, inventory: { Koramangala: 8, Indiranagar: 0, HSR: 6 }, image_url: "https://cdn.zeptonow.com/production/ik-seo/tr:w-470,ar-1200-1200,pr-true,f-auto,,q-40,dpr-2/cms/product_variant/e24d3023-db58-49b0-b0c5-20dd428e54f6/Kapiva-Wild-Amla-Juice.jpeg" },
+  { name: "Biotin Gummies", brand: "What's Up Wellness", price: 799, mrp: 899, rating: 4.6, low: false, lastPurchased: 5, consumptionCycle: 30, inventory: { Koramangala: 10, Indiranagar: 5, HSR: 2 }, image_url: "https://m.media-amazon.com/images/I/513MzZFVmoL._AC_UF1000,1000_QL80_.jpg" }
 ];
 
 const generateNodeItems = (nodeName: string) => {
