@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 const BRAND_LOGOS: Record<string, string> = {
   "The Whole Truth": "https://miro.medium.com/v2/resize:fit:720/format:webp/1*rM8a2mpgfcZc4WtiHJYC0A.png",
   "Minimalist": "https://media.licdn.com/dms/image/v2/C4D0BAQGEeX1h2U7TwQ/company-logo_200_200/company-logo_200_200/0/1646895741612/beminimalist_logo?e=1773273600&v=beta&t=nMyqQ-FzZJtt9HfVEdLpi9Os7txGkLB92DQYz5TA_0Q",
@@ -687,13 +688,17 @@ const handleAddToCart = (productOrName: any) => {
                                   )}
                                 </div>  
 
-                                {/* Clickable Title */}
-                                <p
-                                  onClick={() => setActiveProduct(item)}
-                                  className="text-sm font-medium cursor-pointer hover:text-[#1E3A8A] transition"
+                                {/* Clickable Title (Now SEO Friendly for LLMs) */}
+                                <Link
+                                  href={`/product/${item.name}`}
+                                  onClick={(e) => {
+                                    e.preventDefault(); // Stop page load for humans
+                                    setActiveProduct(item); // Open the fast popup instead
+                                  }}
+                                  className="text-sm font-medium cursor-pointer hover:text-[#1E3A8A] transition block"
                                 >
                                   {item.name}
-                                </p>
+                                </Link>
 
                                 <div className="flex items-center gap-2 mt-2">
                                   <p className="text-sm font-semibold">
