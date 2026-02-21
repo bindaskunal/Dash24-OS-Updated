@@ -39,9 +39,9 @@ redoc_url = "/redoc" if (settings.DEBUG or settings.ENABLE_DOCS) else None
 
 app = FastAPI(
     title="Dash24 V1 - Bangalore Pilot",
-    debug=settings.DEBUG,
-    docs_url=docs_url,
-    redoc_url=redoc_url
+    debug=True,
+    docs_url="/docs",
+    redoc_url="/redoc"
 )
 
 app.add_middleware(RequestIDMiddleware)
