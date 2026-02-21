@@ -86,6 +86,19 @@ async def get_all_products():
         with open(catalog_path, "r") as f:
             return json.load(f)
     return {"error": "catalog.json not found"}
+@app.get("/api/products")
+async def get_products():
+    import json
+    import os
+    # This looks for the catalog.json file we created in the backend folder
+    catalog_path = os.path.join(os.getcwd(), "catalog.json")
+    try:
+        if os.path.exists(catalog_path):
+            with open(catalog_path, "r") as f:
+                return json.load(f)
+        return []
+    except Exception as e:
+        return {"error": str(e)}
 @app.get("/")
 async def root():
     return {"message": "Dash24 V1 API Running"}
