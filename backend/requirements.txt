@@ -12,3 +12,5 @@ httpx
 razorpay
 redis
 email-validator
+psycopg2-binary
+asyncpg
