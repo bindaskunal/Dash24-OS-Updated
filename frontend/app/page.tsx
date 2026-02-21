@@ -2,9 +2,6 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-"use client";
-
-import { useState, useEffect, useRef } from "react";
 
 const MASTER_CATALOG = [
   { name: "Protein Shake", brand: "The Whole Truth", price: 1499, mrp: 1799, rating: 4.6, low: true, lastPurchased: 12, consumptionCycle: 15, inventory: { Koramangala: 3, Indiranagar: 0, HSR: 12 } },
