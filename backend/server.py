@@ -97,7 +97,7 @@ async def health_check():
 
 @app.on_event("startup")
 async def startup_event():
-    logger.info("Starting Dash24 V1 API (DB disabled)")
+ logger.info("Starting Dash24 V1 API (Sync Mode: Catalog JSON)")
     logger.info(f"Debug mode: {settings.DEBUG}")
     logger.info(f"Docs enabled: {settings.DEBUG or settings.ENABLE_DOCS}")
     logger.info(f"Log level: {settings.LOG_LEVEL}")
