@@ -254,7 +254,8 @@ useEffect(() => {
             product_id: item.id || 1, 
             quantity: item.quantity
           })),
-          total_amount: total
+          // Calculate the total right here
+          total_amount: cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)
         }),
       });
 
