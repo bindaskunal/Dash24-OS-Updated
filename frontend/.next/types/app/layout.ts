@@ -1,4 +1,4 @@
-// File: C:\Users\binda\Documents\Kuch to kar hi lenge\Dash24 Web App\Dash24-webApp-main\Dash24-webApp-main\frontend\app\layout.tsx
+// File: C:\Users\binda\Documents\Kuch to kar hi lenge\Dash24 Web App\Github_Dash24-webApp\frontend\app\layout.tsx
 import * as entry from '../../../app/layout.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

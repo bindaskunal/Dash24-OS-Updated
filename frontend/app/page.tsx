@@ -216,19 +216,29 @@ useEffect(() => {
       )
     );
   };
-  const handleAddToCart = (product: any) => {
-    // 1. Visual Feedback
+const handleAddToCart = (productOrName: any) => {
+    // 1. Smart Lookup: If a text string was passed, find the full product object.
+    const product = typeof productOrName === 'string' 
+      ? userItems.find(p => p.name === productOrName) || products.find(p => p.name === productOrName)
+      : productOrName;
+
+    if (!product) return; // Failsafe
+
+    // 2. Visual Feedback
     setAddedItem(product.name);
     setCartOpen(true);
     setCartCount((prev) => prev + 1);
 
-    // 2. Logic using IDs (Matches your new Backend)
+    // 3. Robust Cart Logic (Handles both Backend IDs and Local Names)
     setCartItems((prev) => {
-      const existing = prev.find((item) => item.id === product.id);
+      // Find if the item is already in the cart (using ID if available, otherwise Name)
+      const existing = prev.find((item) => 
+        (product.id && item.id === product.id) || (item.name === product.name)
+      );
 
       if (existing) {
         return prev.map((item) =>
-          item.id === product.id
+          (product.id && item.id === product.id) || (item.name === product.name)
             ? { ...item, quantity: item.quantity + 1 }
             : item
         );
@@ -238,7 +248,7 @@ useEffect(() => {
       return [...prev, { ...product, quantity: 1 }];
     });
 
-  // 3. Auto-hide "Added" toast after 2 seconds
+    // 4. Auto-hide "Added" toast after 2 seconds
     setTimeout(() => setAddedItem(null), 2000);
   };
 
