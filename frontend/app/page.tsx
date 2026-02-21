@@ -2,6 +2,13 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+const BRAND_LOGOS: Record<string, string> = {
+  "The Whole Truth": "https://miro.medium.com/v2/resize:fit:720/format:webp/1*rM8a2mpgfcZc4WtiHJYC0A.png",
+  "Minimalist": "https://media.licdn.com/dms/image/v2/C4D0BAQGEeX1h2U7TwQ/company-logo_200_200/company-logo_200_200/0/1646895741612/beminimalist_logo?e=1773273600&v=beta&t=nMyqQ-FzZJtt9HfVEdLpi9Os7txGkLB92DQYz5TA_0Q",
+  "What's Up Wellness": "https://whatsupwellness.in/cdn/shop/files/rectangle_WUW_logo1x_120x.svg?v=1708696270",
+  "Kapiva": "https://bazaar5.com/image/catalog/pro/category/100631.jpg",
+  "Sleepy Owl": "https://cdn.prod.website-files.com/6502a82cff431778b5d82829/65151ac6741ed951a4d6c965_Sleepy-Owl-unit-Wide-2__FitMaxWzQwMCw0MDBd.png"
+};
 
 const MASTER_CATALOG = [
   { name: "Protein Shake", brand: "The Whole Truth", price: 1499, mrp: 1799, rating: 4.6, low: true, lastPurchased: 12, consumptionCycle: 15, inventory: { Koramangala: 3, Indiranagar: 0, HSR: 12 }, image_url: "https://www.jiomart.com/images/product/original/rvekvhwpxb/the-whole-truth_light-cocoa-whey-protein-isolate-concentrate-24g-protein-product-images-orvekvhwpxb-p606367622-0-202311282004.jpg?im=Resize=(420,420)" },
@@ -768,11 +775,19 @@ const handleAddToCart = (productOrName: any) => {
                         {currentNode.demandBrands.map((brand) => (
                           <div
                             key={brand}
-                            className="bg-white rounded-2xl p-6 hover:shadow-md transition"
+                            className="bg-white rounded-2xl p-6 hover:shadow-md transition flex flex-col items-center text-center border border-gray-50"
                           >
-                            <div className="aspect-square bg-gray-50 rounded-xl mb-4"></div>
-                            <p className="text-sm font-medium">{brand}</p>
-                            <p className="text-xs text-gray-500 mt-1">
+                            {/* Logo Container */}
+                            <div className="aspect-square w-full bg-white rounded-xl mb-4 flex items-center justify-center p-4 border border-gray-100 shadow-sm">
+                              {BRAND_LOGOS[brand] ? (
+                                <img src={BRAND_LOGOS[brand]} alt={brand} className="object-contain w-full h-full" />
+                              ) : (
+                                <span className="text-3xl">🏢</span>
+                              )}
+                            </div>
+                            
+                            <p className="text-sm font-bold text-gray-900">{brand}</p>
+                            <p className="text-[11px] text-gray-500 mt-1">
                               Strong local traction
                             </p>
                             <button onClick={() => setActiveBrand(brand)} className="mt-3 text-xs px-3 py-1 rounded-full bg-black text-white hover:opacity-90 transition">
@@ -935,8 +950,13 @@ const handleAddToCart = (productOrName: any) => {
               >
                 ✕
               </button>
-              <div className="w-20 h-20 bg-white/10 backdrop-blur-md rounded-2xl mb-4 border border-white/20 flex items-center justify-center text-2xl">
-                📦
+              
+              <div className="w-20 h-20 bg-white rounded-2xl mb-4 border border-white/20 flex items-center justify-center overflow-hidden p-3 shadow-lg">
+                {activeBrand && BRAND_LOGOS[activeBrand] ? (
+                  <img src={BRAND_LOGOS[activeBrand]} alt={activeBrand} className="object-contain w-full h-full" />
+                ) : (
+                  <span className="text-3xl">🏢</span>
+                )}
               </div>
               <h2 className="text-3xl font-bold tracking-tight">{activeBrand}</h2>
               <p className="text-sm text-blue-200 mt-2 flex items-center gap-2">
