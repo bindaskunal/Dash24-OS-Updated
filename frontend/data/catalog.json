@@ -126,5 +126,37 @@
       "attribute_format": ["biotin zinc and folic acid blend", "mixed berry flavor", "chewable hair supplement"],
       "hyperlocal_speed": ["biotin gummies instant delivery Bangalore", "hair vitamins near me same day", "whats up wellness fast delivery"]
     }
+  },
+  { 
+    "id": 9, 
+    "name": "Titan Smart 3 Premium", 
+    "brand": "Titan", 
+    "price": 4995, 
+    "mrp": 7995, 
+    "inventory": 3,
+    "image_url": "https://m.media-amazon.com/images/I/61AwGvgG5-L._SX679_.jpg",
+    "llm_intent_matrix": {
+      "symptom_problem": ["lost my watch need replacement today", "last minute tech gift", "fitness tracking running", "missed calls during workout"],
+      "constraint_avoidance": ["amoled display smartwatch", "fast charging wearable", "waterproof smart watch", "bluetooth calling watch"],
+      "occasion_routine": ["anniversary gift emergency", "starting marathon training", "daily step tracking"],
+      "attribute_format": ["1.96 inch super amoled", "metal strap premium", "AI voice assistant built in"],
+      "hyperlocal_speed": ["smartwatch delivery in 60 mins Bangalore", "buy titan smart watch nearby", "instant electronics delivery"]
+    }
+  },
+  { 
+    "id": 10, 
+    "name": "Nothing Ear (2)", 
+    "brand": "Nothing", 
+    "price": 8999, 
+    "mrp": 12999, 
+    "inventory": 2,
+    "image_url": "https://m.media-amazon.com/images/I/61P0QfXoXNL._SX679_.jpg",
+    "llm_intent_matrix": {
+      "symptom_problem": ["lost my earbuds", "noise in office cannot focus", "flight tomorrow need headphones", "broken airpods replacement"],
+      "constraint_avoidance": ["active noise cancellation earbuds", "transparent design headphones", "hi res audio certified", "lightweight wireless buds"],
+      "occasion_routine": ["deep work focus mode", "daily metro commute", "gym music routine"],
+      "attribute_format": ["custom 11.6mm driver", "dual connection bluetooth", "transparent charging case"],
+      "hyperlocal_speed": ["nothing ear 2 fast delivery bangalore", "noise cancelling earbuds 60 min drop", "premium audio instant delivery"]
+    }
   }
 ]
