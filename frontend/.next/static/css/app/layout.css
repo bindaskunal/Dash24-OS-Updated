@@ -572,6 +572,9 @@ video {
 [hidden]:where(:not([hidden="until-found"])) {
   display: none;
 }
+.invisible {
+  visibility: hidden;
+}
 .fixed {
   position: fixed;
 }
@@ -699,9 +702,6 @@ video {
 .mt-auto {
   margin-top: auto;
 }
-.mb-8 {
-  margin-bottom: 2rem;
-}
 .block {
   display: block;
 }
@@ -746,9 +746,6 @@ video {
 }
 .h-full {
   height: 100%;
-}
-.h-auto {
-  height: auto;
 }
 .max-h-96 {
   max-height: 24rem;
@@ -881,9 +878,6 @@ video {
 }
 .gap-6 {
   gap: 1.5rem;
-}
-.gap-12 {
-  gap: 3rem;
 }
 .space-x-2 > :not([hidden]) ~ :not([hidden]) {
   --tw-space-x-reverse: 0;
@@ -1148,6 +1142,10 @@ video {
 .bg-orange-200\/50 {
   background-color: rgb(254 215 170 / 0.5);
 }
+.bg-orange-500 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(249 115 22 / var(--tw-bg-opacity, 1));
+}
 .bg-red-100 {
   --tw-bg-opacity: 1;
   background-color: rgb(254 226 226 / var(--tw-bg-opacity, 1));
@@ -1360,9 +1358,6 @@ video {
 .font-semibold {
   font-weight: 600;
 }
-.font-extrabold {
-  font-weight: 800;
-}
 .uppercase {
   text-transform: uppercase;
 }
@@ -1524,9 +1519,6 @@ video {
 .opacity-60 {
   opacity: 0.6;
 }
-.mix-blend-multiply {
-  mix-blend-mode: multiply;
-}
 .shadow {
   --tw-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   --tw-shadow-colored: 0 1px 3px 0 var(--tw-shadow-color), 0 1px 2px -1px var(--tw-shadow-color);
@@ -1601,11 +1593,6 @@ video {
 }
 .transition-transform {
   transition-property: transform;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 150ms;
-}
-.transition-colors {
-  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
 }
@@ -1696,10 +1683,6 @@ video {
 .hover\:bg-green-700:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(21 128 61 / var(--tw-bg-opacity, 1));
-}
-.hover\:bg-gray-800:hover {
-  --tw-bg-opacity: 1;
-  background-color: rgb(31 41 55 / var(--tw-bg-opacity, 1));
 }
 .hover\:text-\[\#1E3A8A\]:hover {
   --tw-text-opacity: 1;

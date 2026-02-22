@@ -1,86 +1,87 @@
-// @ts-nocheck
-import Link from 'next/link';
-
-// Simulating a backend fetch for the SSR page
-const getProductByName = (productName: string) => {
-  const catalog = [
-    { name: "Protein Shake", brand: "The Whole Truth", price: 1499, mrp: 1799, rating: 4.6, image_url: "https://placehold.co/600x600/f8f9fa/1e3a8a.png?text=Protein+Shake" },
-    { name: "Ashwagandha Gummies", brand: "What's Up Wellness", price: 899, mrp: 999, rating: 4.5, image_url: "https://whatsupwellness.in/cdn/shop/files/stress_51da983c-837f-429d-b235-fb15692d44c0.png?v=1769849561&width=640" },
-    { name: "Amla Juice (1L)", brand: "Kapiva", price: 349, mrp: 399, rating: 4.3, image_url: "https://placehold.co/600x600/f8f9fa/1e3a8a.png?text=Amla+Juice" }
-  ];
-  // Decodes the URL (e.g., "Protein%20Shake" -> "Protein Shake")
-  return catalog.find(p => p.name === decodeURIComponent(productName));
-};
+import Head from 'next/head';
+import catalog from '../../../data/catalog.json';
 
 export default function ProductPage({ params }: { params: { id: string } }) {
-  const product = getProductByName(params.id);
+  // 1. Fetch the specific product from our updated catalog
+  const product = catalog.find((p: any) => p.id === parseInt(params.id));
 
   if (!product) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-xl font-medium">
-        Product not found.
-      </div>
-    );
+    return <div>Product not found</div>;
   }
 
-  // THIS IS THE SECRET WEAPON: Hidden JSON-LD Schema for AI & Google Bots
-  const jsonLd = {
-    "@context": "https://schema.org",
+  // 2. Flatten the 5-bucket intent matrix into a powerful keyword string for the AI
+  const aiKeywords = [
+    ...product.llm_intent_matrix.symptom_problem,
+    ...product.llm_intent_matrix.constraint_avoidance,
+    ...product.llm_intent_matrix.occasion_routine,
+    ...product.llm_intent_matrix.attribute_format,
+    ...product.llm_intent_matrix.hyperlocal_speed
+  ].join(', ');
+
+  // 3. Build the Structured Data (JSON-LD) object
+  const jsonLdSchema = {
+    "@context": "https://schema.org/",
     "@type": "Product",
     "name": product.name,
+    "brand": {
+      "@type": "Brand",
+      "name": product.brand
+    },
     "image": product.image_url,
-    "brand": { "@type": "Brand", "name": product.brand },
+    // We feed the AI the exact intent hits it is looking for
+    "description": `Dash24 Instant Delivery: ${product.name} by ${product.brand}. Solutions for: ${aiKeywords}`,
+    "keywords": aiKeywords,
     "offers": {
       "@type": "Offer",
+      "url": `https://dash24.com/product/${product.id}`,
       "priceCurrency": "INR",
       "price": product.price,
-      "availability": "https://schema.org/InStock",
+      "availability": product.inventory > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      // This is the Quick Commerce / Local Moat trigger
+      "availableDeliveryMethod": {
+        "@type": "DeliveryMethod",
+        "identifier": "http://purl.org/goodrelations/v1#DeliveryModeDirectDownload",
+        "name": "60-Minute Hyperlocal Delivery in Bangalore"
+      },
       "shippingDetails": {
         "@type": "OfferShippingDetails",
+        "shippingRate": {
+          "@type": "MonetaryAmount",
+          "value": "0",
+          "currency": "INR"
+        },
         "deliveryTime": {
           "@type": "ShippingDeliveryTime",
-          "transitTime": { "@type": "QuantitativeValue", "minValue": 0, "maxValue": 1, "unitCode": "HUR" }
+          "transitTime": {
+            "@type": "QuantitativeValue",
+            "minValue": 15,
+            "maxValue": 60,
+            "unitCode": "MIN"
+          }
         }
       }
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 font-sans p-10">
-      {/* Invisible script block that AI reads immediately upon crawl */}
+    <>
+      {/* 4. Inject the invisible schema into the head of the page */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdSchema) }}
       />
       
-      <div className="max-w-4xl mx-auto bg-white rounded-3xl shadow-sm p-12 flex gap-12">
-        <div className="w-1/2 bg-gray-50 rounded-2xl flex items-center justify-center p-8 border border-gray-100">
-          <img src={product.image_url} alt={product.name} className="w-full h-auto object-contain mix-blend-multiply" />
-        </div>
+      {/* Your standard UI code goes here (The visual part for humans) */}
+      <div className="product-container">
+        <h1>{product.brand} - {product.name}</h1>
+        <img src={product.image_url} alt={product.name} width="344" />
+        <p className="price">₹{product.price} <strike>₹{product.mrp}</strike></p>
         
-        <div className="w-1/2 flex flex-col justify-center">
-          <p className="text-xs font-bold text-gray-400 tracking-widest uppercase mb-3">{product.brand}</p>
-          <h1 className="text-4xl font-bold mb-4 tracking-tight">{product.name}</h1>
-          
-          <div className="flex items-center gap-4 mb-8">
-            <span className="text-3xl font-extrabold text-gray-900">₹{product.price}</span>
-            <span className="text-lg text-gray-400 line-through font-medium">₹{product.mrp}</span>
-          </div>
-          
-          <div className="bg-[#EEF2FF] border border-[#1E3A8A]/10 rounded-2xl p-6 mb-10">
-            <p className="font-bold text-[#1E3A8A] mb-1 flex items-center gap-2">
-              <span className="text-lg">⚡</span> Instant Commerce Active
-            </p>
-            <p className="text-sm text-[#1E3A8A]/80 leading-relaxed">
-              Stocked in a local Dash24 dark store. Delivered to your door in under 60 minutes.
-            </p>
-          </div>
-
-          <Link href="/" className="bg-gray-900 text-white text-center py-4 rounded-full font-semibold hover:bg-gray-800 transition-colors shadow-md">
-            ← Back to Dash24 Dashboard
-          </Link>
-        </div>
+        {/* The Apartment Cart / Society Sprint UI trigger would go here */}
+        <button className="bg-orange-500 text-white font-bold py-2 px-4 rounded">
+          Add to Apartment Cart - Delivery in ~45 mins
+        </button>
       </div>
-    </div>
+    </>
   );
 }

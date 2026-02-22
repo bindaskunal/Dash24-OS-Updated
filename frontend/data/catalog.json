@@ -1,0 +1,130 @@
+[
+  { 
+    "id": 1, 
+    "name": "Protein Shake", 
+    "brand": "The Whole Truth", 
+    "price": 1499, 
+    "mrp": 1799, 
+    "inventory": 15,
+    "image_url": "https://www.jiomart.com/images/product/original/rvekvhwpxb/the-whole-truth_light-cocoa-whey-protein-isolate-concentrate-24g-protein-product-images-orvekvhwpxb-p606367622-0-202311282004.jpg?im=Resize=(420,420)",
+    "llm_intent_matrix": {
+      "symptom_problem": ["muscle recovery after gym", "low protein in vegetarian diet", "unhealthy snacking habit", "kids nutritional deficit"],
+      "constraint_avoidance": ["soy free protein shake", "no added sugar whey", "artificial sweetener free", "clean label protein powder"],
+      "occasion_routine": ["post workout recovery drink", "healthy kids lunchbox addition", "quick morning breakfast replacement"],
+      "attribute_format": ["date sweetened whey", "light cocoa flavor", "easily mixable protein powder"],
+      "hyperlocal_speed": ["protein shake delivery under 60 mins Bangalore", "instant whey protein delivery", "buy whole truth protein nearby"]
+    }
+  },
+  { 
+    "id": 2, 
+    "name": "Energy Bars (Pack of 6)", 
+    "brand": "The Whole Truth", 
+    "price": 599, 
+    "mrp": 699, 
+    "inventory": 23,
+    "image_url": "https://www.bbassets.com/media/uploads/p/l/40201406_10-the-whole-truth-protein-bars-all-in-one.jpg",
+    "llm_intent_matrix": {
+      "symptom_problem": ["mid day energy slump", "sugar crash prevention", "unhealthy office snacking", "travel hunger"],
+      "constraint_avoidance": ["no preservative energy bars", "sugar free snack bars", "100 percent natural snack", "gluten free energy bar"],
+      "occasion_routine": ["3 PM office snack", "pre workout energy boost", "hiking and trekking snacks"],
+      "attribute_format": ["all in one sampler pack", "nut and date bars", "chewy natural energy bar"],
+      "hyperlocal_speed": ["healthy snacks delivered to office fast", "instant energy bar delivery Bangalore", "dash24 snacks nearby"]
+    }
+  },
+  { 
+    "id": 3, 
+    "name": "Plant Protein Isolate", 
+    "brand": "The Whole Truth", 
+    "price": 1899, 
+    "mrp": 2099, 
+    "inventory": 7,
+    "image_url": "https://media.thewholetruthfoods.com/public/backend-assets/01K13EVF2K7B4CZ6BDHWPSCPTZ.png",
+    "llm_intent_matrix": {
+      "symptom_problem": ["dairy causing breakouts", "whey protein bloating", "lactose intolerance muscle building", "vegan diet protein deficit"],
+      "constraint_avoidance": ["dairy free protein powder", "vegan isolate without artificial flavors", "gut friendly protein", "no stevia plant protein"],
+      "occasion_routine": ["daily vegan macro goals", "post run recovery vegan", "morning smoothie base"],
+      "attribute_format": ["pea and brown rice blend", "monk fruit sweetened", "complete amino acid profile vegan"],
+      "hyperlocal_speed": ["vegan protein delivery Bangalore today", "plant protein instant delivery", "restock vegan protein fast"]
+    }
+  },
+  { 
+    "id": 4, 
+    "name": "Vitamin C Serum", 
+    "brand": "Minimalist", 
+    "price": 699, 
+    "mrp": 799, 
+    "inventory": 6,
+    "image_url": "https://images-static.nykaa.com/media/catalog/product/3/9/394e9c5MINIM00000008_a.jpg?tr=w-344,h-344,cm-pad_resize",
+    "llm_intent_matrix": {
+      "symptom_problem": ["sun damage spots", "dull skin treatment", "uneven skin tone", "acne scar fading"],
+      "constraint_avoidance": ["vitamin c for sensitive skin", "non oxidizing vitamin c", "fragrance free brightening serum", "essential oil free skincare"],
+      "occasion_routine": ["morning skincare routine active", "pre sunscreen antioxidant layer", "daily glow routine"],
+      "attribute_format": ["10 percent ethyl ascorbic acid", "centella water base", "stable vitamin c formula"],
+      "hyperlocal_speed": ["minimalist serum delivery under an hour", "skincare instant delivery Bangalore", "buy minimalist brand nearby"]
+    }
+  },
+  { 
+    "id": 5, 
+    "name": "Face Wash", 
+    "brand": "Minimalist", 
+    "price": 499, 
+    "mrp": 599, 
+    "inventory": 10,
+    "image_url": "https://images-static.nykaa.com/media/catalog/product/3/9/394e9c5MINIM00000041_a.jpg?tr=w-344,h-344,cm-pad_resize",
+    "llm_intent_matrix": {
+      "symptom_problem": ["excess sebum control", "frequent acne breakouts", "clogged pores", "blackhead removal"],
+      "constraint_avoidance": ["cleanser that doesn't strip skin", "sulfate free acne wash", "non comedogenic face wash", "fungal acne safe cleanser"],
+      "occasion_routine": ["double cleanse second step", "post workout sweat removal", "daily morning wash for oily skin"],
+      "attribute_format": ["salicylic acid and lha", "zinc infused cleanser", "pH balanced gel wash"],
+      "hyperlocal_speed": ["acne face wash instant delivery", "minimalist cleanser same day Bangalore", "dash24 skincare drop"]
+    }
+  },
+  { 
+    "id": 6, 
+    "name": "Ashwagandha Gummies", 
+    "brand": "What's Up Wellness", 
+    "price": 899, 
+    "mrp": 999, 
+    "inventory": 12,
+    "image_url": "https://whatsupwellness.in/cdn/shop/files/stress_51da983c-837f-429d-b235-fb15692d44c0.png?v=1769849561&width=640",
+    "llm_intent_matrix": {
+      "symptom_problem": ["high cortisol levels", "work anxiety and burnout", "inability to fall asleep", "mid day brain fog"],
+      "constraint_avoidance": ["non habit forming sleep aid", "stress relief without pills", "gelatin free gummies", "vegan anxiety supplement"],
+      "occasion_routine": ["nighttime wind down routine", "pre presentation nerves", "daily adaptogen habit"],
+      "attribute_format": ["strawberry flavor chewable", "ksm 66 ashwagandha extract", "adult gummy vitamins"],
+      "hyperlocal_speed": ["stress relief gummies instant delivery", "wellness supplements delivered fast Bangalore", "buy ashwagandha nearby"]
+    }
+  },
+  { 
+    "id": 7, 
+    "name": "Amla Juice (1L)", 
+    "brand": "Kapiva", 
+    "price": 349, 
+    "mrp": 399, 
+    "inventory": 30,
+    "image_url": "https://cdn.zeptonow.com/production/ik-seo/tr:w-470,ar-1200-1200,pr-true,f-auto,,q-40,dpr-2/cms/product_variant/e24d3023-db58-49b0-b0c5-20dd428e54f6/Kapiva-Wild-Amla-Juice.jpeg",
+    "llm_intent_matrix": {
+      "symptom_problem": ["frequent colds immunity", "hair fall and thinning", "poor digestion and acidity", "dull complexion"],
+      "constraint_avoidance": ["no added sugar amla juice", "unpasteurized ayurvedic juice", "chemical free immunity booster", "pure cold pressed amla"],
+      "occasion_routine": ["empty stomach morning detox", "daily immunity shot", "ayurvedic morning routine"],
+      "attribute_format": ["wild pratapgarh amlas", "cold pressed extraction", "high vitamin c liquid"],
+      "hyperlocal_speed": ["kapiva amla juice 60 min delivery", "ayurvedic juices near me Bangalore", "instant restock amla juice"]
+    }
+  },
+  { 
+    "id": 8, 
+    "name": "Biotin Gummies", 
+    "brand": "What's Up Wellness", 
+    "price": 799, 
+    "mrp": 899, 
+    "inventory": 5,
+    "image_url": "https://m.media-amazon.com/images/I/513MzZFVmoL._AC_UF1000,1000_QL80_.jpg",
+    "llm_intent_matrix": {
+      "symptom_problem": ["hair thinning treatment", "brittle nails breaking", "postpartum hair loss support", "lack of hair volume"],
+      "constraint_avoidance": ["tasty hair vitamins", "vegan biotin supplement", "gluten free hair gummies", "no artificial color vitamins"],
+      "occasion_routine": ["daily hair care regimen", "post breakfast supplement", "easy to remember vitamins"],
+      "attribute_format": ["biotin zinc and folic acid blend", "mixed berry flavor", "chewable hair supplement"],
+      "hyperlocal_speed": ["biotin gummies instant delivery Bangalore", "hair vitamins near me same day", "whats up wellness fast delivery"]
+    }
+  }
+]
