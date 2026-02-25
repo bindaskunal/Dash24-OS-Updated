@@ -40,6 +40,11 @@ export default function LivePulseCard({ product, handleAddToCart, handleCardClic
                         Selling Fast
                     </span>
                 )}
+                {product.fulfilledBy === 'Brand' && (
+                    <span className="absolute top-2 right-2 md:top-4 md:right-4 bg-red-600 text-white text-[9px] md:text-[10px] font-black uppercase tracking-wider px-2 py-0.5 md:py-1 rounded-full shadow-md z-10 transition-transform hover:scale-105">
+                        FBB
+                    </span>
+                )}
                 <div className="w-[80px] md:w-[140px] h-[80px] md:h-[140px] relative group-hover:scale-105 transition-transform duration-500 md:mt-2">
                     <img src={product.image_url} alt={product.name} loading="lazy" className="w-full h-full object-contain filter drop-shadow-sm" />
                 </div>
@@ -76,9 +81,9 @@ export default function LivePulseCard({ product, handleAddToCart, handleCardClic
                             </p>
                         </div>
 
-                        {/* Intent Pills - Single Row (Desktop only shows top 3) */}
-                        <div className="flex flex-row items-center justify-start gap-1 mb-1 relative">
-                            {['clarification', 'risk', 'comparison'].map((layer) => (
+                        {/* Intent Pills - Flex Wrap (Shows max 3) */}
+                        <div className="flex flex-row items-center justify-start gap-1 mb-1 relative flex-wrap">
+                            {Object.keys(intentData).slice(0, 3).map((layer) => (
                                 <div
                                     key={layer}
                                     className="relative group/pill flex-shrink-0"
@@ -121,11 +126,12 @@ export default function LivePulseCard({ product, handleAddToCart, handleCardClic
 
                 {/* Desktop Action Button / Mobile Compact Plus Button */}
                 <div className="mt-auto pt-2">
-                    {/* 60Mins Badge Nudge */}
+                    {/* Delivery Badge Nudge */}
                     {((product.name.charCodeAt(0) * 13 + product.name.length) % 10) < 7 && (
                         <div className="mb-2">
-                            <span className="inline-flex bg-yellow-400 text-yellow-900 text-[9px] font-black uppercase md:tracking-widest tracking-wider px-1.5 py-0.5 md:py-1 md:px-2 rounded md:rounded-md shadow-sm items-center gap-0.5 md:gap-1 w-max">
-                                <span className="text-[10px] md:text-[12px] drop-shadow-sm leading-none">⚡</span><span className="leading-tight">60Mins</span>
+                            <span className={`inline-flex ${product.fulfilledBy === 'Brand' ? 'bg-blue-50 text-blue-700' : 'bg-yellow-400 text-yellow-900'} text-[9px] font-black uppercase md:tracking-widest tracking-wider px-1.5 py-0.5 md:py-1 md:px-2 rounded md:rounded-md shadow-sm items-center gap-0.5 md:gap-1 w-max`}>
+                                {product.fulfilledBy !== 'Brand' && <span className="text-[10px] md:text-[12px] drop-shadow-sm leading-none">⚡</span>}
+                                <span className="leading-tight">{product.fulfilledBy === 'Brand' ? '3-5 Days Delivery' : '60 Mins Delivery'}</span>
                             </span>
                         </div>
                     )}

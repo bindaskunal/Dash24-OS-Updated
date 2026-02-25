@@ -29,11 +29,15 @@ export default function RootLayout({
         <LocationProvider>
           <CartProvider>
             <GlobalHeader />
-            <CartDrawer />
             <main className="pb-[80px] md:pb-0">
               {children}
             </main>
             <MobileBottomNav />
+            <div style={{ position: 'fixed', inset: 0, zIndex: 99999, pointerEvents: 'none' }}>
+              <div style={{ pointerEvents: 'auto' }}>
+                <CartDrawer />
+              </div>
+            </div>
           </CartProvider>
         </LocationProvider>
       </body>

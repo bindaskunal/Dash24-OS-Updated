@@ -54,6 +54,8 @@ export default function GlobalHeader() {
         { name: "Track", path: "/track" },
     ];
 
+    if (pathname?.startsWith('/dashboard')) return null;
+
     return (
         <>
             {/* ============ WEB VIEW HEADER ============ */}

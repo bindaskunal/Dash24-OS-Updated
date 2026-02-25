@@ -41,8 +41,8 @@ const generateNodeItems = (nodeName: string) => {
   // Track which brands already have a "brand direct" product
   const brandDirectAssigned = new Set<string>();
 
-  return MASTER_CATALOG.map(item => {
-    const enrichedData = ENRICHED_CATALOG.find(e => e.id === item.id);
+  return ENRICHED_CATALOG.map(item => {
+    const enrichedData = item;
     let stock = 0;
     if (item.inventory && nodeName in item.inventory) {
       stock = item.inventory[nodeName as keyof typeof item.inventory];
@@ -59,11 +59,12 @@ const generateNodeItems = (nodeName: string) => {
       ...item,
       id: enrichedData?.id || item.id,
       ai_intent_layers: enrichedData?.ai_intent_layers || null,
+      fulfilledBy: enrichedData?.fulfilledBy || "Dash24",
       stock: stock,
       localAvailable: stock > 0,
       refillInDays: stock === 0 ? 1 : 0,
-      brandDeliveryDays: brandDeliveryDays,
-      isBrandDirect: brandDeliveryDays === 4,
+      brandDeliveryDays: enrichedData?.fulfilledBy === "Brand" ? 4 : 0,
+      isBrandDirect: enrichedData?.fulfilledBy === "Brand",
     };
   });
 };
@@ -77,13 +78,13 @@ const AGENTIC_DROPS = [
 export default function Home({ searchParams }: { searchParams?: { preview?: string; search?: string } }) {
   const isPreviewRenderer = searchParams?.preview === "1";
   const router = useRouter();
-  const [products, setProducts] = useState(MASTER_CATALOG);
+  const [products, setProducts] = useState(ENRICHED_CATALOG);
   const [isLoading, setIsLoading] = useState(true);
   const [greeting, setGreeting] = useState("Good morning");
 
   // USE CONTEXTS
   const { selectedNode, setSelectedNode, setNodeOpen } = useLocation();
-  const { cartItems, cartCount, cartOpen, setCartOpen, handleAddToCart, handleDecrease, handleRemoveItem, clearCart, total, subtotal, localShipping, brandShipping, amountRemaining, progressPercentage } = useCart();
+  const { cartItems, cartCount, cartOpen, setCartOpen, handleAddToCart, handleDecrease, handleRemoveItem, clearCart, total, subtotal, localShipping, brandShipping, amountRemaining, progressPercentage, showCartToast, toastItem } = useCart();
 
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [addedItem, setAddedItem] = useState<string | null>(null);
@@ -96,21 +97,26 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
   const [activeBrand, setActiveBrand] = useState<string | null>(null);
   const [activeProduct, setActiveProduct] = useState<any | null>(null);
   const [detectedCategory, setDetectedCategory] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+  // Agentic Search States
+  const [isSearching, setIsSearching] = useState(false);
+  const [agenticMatches, setAgenticMatches] = useState<string[]>([]);
+  const [agenticReasoning, setAgenticReasoning] = useState<string | null>(null);
 
   const [showBattle, setShowBattle] = useState(false);
   const [battleStep, setBattleStep] = useState(0);
   const [battleAnswer, setBattleAnswer] = useState<boolean | null>(null);
   const [lockedProducts, setLockedProducts] = useState<Set<string>>(new Set());
-  const [showCartToast, setShowCartToast] = useState(false);
-  const [toastItem, setToastItem] = useState<any>(null);
 
   // NEW: Floating Mobile Insight Bubble State
   const [showInsight, setShowInsight] = useState(false);
   const [insightData, setInsightData] = useState({ title: "", text: "", icon: "" });
+  const [opsAlertActive, setOpsAlertActive] = useState(true);
 
   useEffect(() => {
-    // Show insight bubble 5 seconds after load
-    const timer = setTimeout(() => {
+    // Show insight bubble every 45 to 60 seconds (throttled)
+    const interval = setInterval(() => {
       const insights = [
         { title: "Trending Locally", text: "Demand for Protein supplements is up 18% in your tower today.", icon: "📈" },
         { title: "Weather Alert", text: "Looks like rain. Get your hot snacks delivered in 15 mins.", icon: "🌧️" },
@@ -118,7 +124,10 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
       ];
       setInsightData(insights[Math.floor(Math.random() * insights.length)]);
       setShowInsight(true);
-    }, 5000);
+
+      // Auto-hide the bubble after 8 seconds
+      setTimeout(() => setShowInsight(false), 8000);
+    }, 45000); // 45 seconds
 
     const handleOpenSearch = () => setSearchFocused(true);
     window.addEventListener('open-pulse-search', handleOpenSearch);
@@ -129,7 +138,7 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
     }
 
     return () => {
-      clearTimeout(timer);
+      clearInterval(interval);
       window.removeEventListener('open-pulse-search', handleOpenSearch);
     };
   }, []);
@@ -235,6 +244,38 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
     }
   }, [searchParams?.search]);
 
+  // Debounced Agentic Search Fetch
+  useEffect(() => {
+    if (!searchQuery || !searchFocused) {
+      setAgenticMatches([]);
+      setAgenticReasoning(null);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      setIsSearching(true);
+      try {
+        const response = await fetch('/api/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: searchQuery })
+        });
+        const data = await response.json();
+
+        if (data.matchedProductIds) {
+          setAgenticMatches(data.matchedProductIds);
+          setAgenticReasoning(data.aiReasoning || null);
+          setDetectedCategory(data.suggestedCategory || null);
+        }
+      } catch (err) {
+        console.error("Search API failed", err);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 400); // 400ms debounce
+
+    return () => clearTimeout(timer);
+  }, [searchQuery, searchFocused]);
 
   const currentNode = NODE_DATA[selectedNode as keyof typeof NODE_DATA];
 
@@ -344,56 +385,39 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
         </button>
       )}
 
-      {/* MOBILE MINI CART BAR (compact bottom bar) */}
-      {cartCount > 0 && !cartOpen && (
-        <div className="md:hidden fixed bottom-0 left-0 right-0 z-[110] animate-in slide-in-from-bottom-4 duration-300">
-          <div
-            onClick={() => setCartOpen(true)}
-            className="bg-blue-600 text-white mx-3 mb-3 rounded-2xl px-5 py-3.5 shadow-2xl flex items-center justify-between cursor-pointer active:scale-[0.98] transition"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center text-sm font-black">
-                {cartCount}
-              </div>
-              <span className="text-sm font-bold">{cartCount} item{cartCount > 1 ? 's' : ''} added</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-lg font-black">₹{total}</span>
-              <span className="text-xs font-bold opacity-80">View →</span>
-            </div>
-          </div>
-        </div>
-      )}
 
-      {/* MOBILE ADD TO CART TOAST FEEDBACK */}
-      {showCartToast && toastItem && (
-        <div className="md:hidden fixed bottom-20 left-4 right-4 z-[150] animate-in slide-in-from-bottom-10 duration-300">
-          <div className="bg-[#111827] text-white rounded-2xl p-3 shadow-2xl flex items-center justify-between border border-white/10 backdrop-blur-md">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center p-1 shrink-0 overflow-hidden">
-                <img src={toastItem.image_url} alt="" className="w-full h-full object-contain mix-blend-multiply" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-[9px] text-green-400 font-bold uppercase tracking-widest">Added ✓</span>
-                <span className="text-xs font-bold line-clamp-1">{toastItem.name}</span>
-              </div>
-            </div>
-            <span className="text-sm font-black">₹{toastItem.price}</span>
-          </div>
-        </div>
-      )}
 
       <main className="min-h-screen bg-white md:bg-[#F8FAFC]">
+
+        {/* Ops Alert Banner */}
+        {opsAlertActive && (
+          <div className="bg-red-600 text-white px-4 py-3 flex items-start md:items-center justify-between text-xs md:text-sm font-bold shadow-md z-[100] relative animate-in slide-in-from-top-4">
+            <div className="flex items-center gap-3 max-w-[1200px] mx-auto w-full pr-2">
+              <span className="text-xl animate-pulse">🚨</span>
+              <span className="leading-tight">
+                <span className="uppercase tracking-widest text-red-200 mr-2 md:inline hidden">Dynamic Ops Alert:</span>
+                Heavy traffic detected in Indiranagar. Dash24 ETAs temporarily adjusted from 60 mins to 90 mins.
+              </span>
+              <button onClick={() => setOpsAlertActive(false)} className="ml-auto w-7 h-7 shrink-0 flex items-center justify-center bg-white/20 rounded-full hover:bg-white/30 transition shadow-sm text-sm">✕</button>
+            </div>
+          </div>
+        )}
 
         {/* Mobile Quick Categories (Hidden on Desktop) */}
         <div className="md:hidden w-full mb-2 px-1 pb-2">
           <ScrollableRow className="flex gap-4 w-max px-3">
             {QUICK_CATEGORIES.map((cat, idx) => (
-              <div key={idx} onClick={() => router.push(`/brands?category=${encodeURIComponent(cat.name)}`)} className="flex flex-col items-center gap-1.5 cursor-pointer group">
-                <div className="w-16 h-16 rounded-[18px] overflow-hidden shadow-[0_2px_10px_rgba(0,0,0,0.06)] border border-gray-100 p-0 bg-white group-active:scale-95 group-hover:shadow-md transition-all flex items-center justify-center">
+              <div key={idx} onClick={() => {
+                if (cat.name === "Top Brands") {
+                  router.push("/brands");
+                } else {
+                  setSelectedCategory(selectedCategory === cat.name ? null : cat.name);
+                }
+              }} className="flex flex-col items-center gap-1.5 cursor-pointer group">
+                <div className={`w-16 h-16 rounded-[18px] overflow-hidden shadow-[0_2px_10px_rgba(0,0,0,0.06)] border p-0 bg-white group-active:scale-95 group-hover:shadow-md transition-all flex items-center justify-center ${selectedCategory === cat.name ? 'border-orange-500 ring-2 ring-orange-200' : 'border-gray-100'}`}>
                   <img src={cat.img} alt={cat.name} className="w-[85%] h-[85%] object-contain" />
                 </div>
-                <span className="text-[10px] font-bold text-gray-700 text-center w-16 leading-tight break-words">{cat.name}</span>
+                <span className={`text-[10px] font-bold text-center w-16 leading-tight break-words ${selectedCategory === cat.name ? 'text-orange-600' : 'text-gray-700'}`}>{cat.name}</span>
               </div>
             ))}
           </ScrollableRow>
@@ -412,9 +436,9 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
         <div className="hidden md:flex max-w-[1200px] mx-auto px-6 py-3 items-center justify-between">
           <div className="flex items-center gap-4">
             <span className="text-sm font-bold text-gray-600">{greeting}, Kunal 👋</span>
-            <div className="flex items-center gap-1.5 bg-yellow-50 border border-yellow-200 px-3 py-1.5 rounded-lg text-xs font-bold text-yellow-800">
-              <span>⚡</span>
-              <span>60Mins to {selectedNode}</span>
+            <div className={`flex items-center gap-1.5 border px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${opsAlertActive ? 'bg-red-50 border-red-200 text-red-800' : 'bg-yellow-50 border-yellow-200 text-yellow-800'}`}>
+              <span className={opsAlertActive ? "animate-pulse" : ""}>{opsAlertActive ? "🚨" : "⚡"}</span>
+              <span>{opsAlertActive ? "90Mins" : "60Mins"} to {selectedNode}</span>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -449,9 +473,9 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
               {/* Dash24 ⚡ branding for 60min fulfillment */}
               {banner.speedAnimation && (
                 <div className="absolute right-4 md:right-12 top-1/2 -translate-y-1/2 flex flex-col items-center gap-1 md:gap-2 opacity-80">
-                  <span className="text-[48px] md:text-[100px] leading-none drop-shadow-[0_0_30px_rgba(249,115,22,0.6)] animate-pulse">⚡</span>
+                  <span className={`text-[48px] md:text-[100px] leading-none animate-pulse ${opsAlertActive ? 'drop-shadow-[0_0_30px_rgba(239,68,68,0.6)]' : 'drop-shadow-[0_0_30px_rgba(249,115,22,0.6)]'}`}>{opsAlertActive ? '🚨' : '⚡'}</span>
                   <span className="text-lg md:text-3xl font-black tracking-tighter text-white drop-shadow-lg">DASH24</span>
-                  <span className="text-[8px] md:text-xs font-bold uppercase tracking-[0.3em] text-orange-400">60 Minutes</span>
+                  <span className={`text-[8px] md:text-xs font-bold uppercase tracking-[0.3em] ${opsAlertActive ? 'text-red-400' : 'text-orange-400'}`}>{opsAlertActive ? '90 Minutes' : '60 Minutes'}</span>
                 </div>
               )}
 
@@ -492,261 +516,345 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
           </div>
         </div>
 
+        {/* Desktop Quick Categories (Hidden on Mobile) */}
+        <div className="hidden md:block max-w-[1200px] mx-auto px-6 mb-6">
+          <div className="flex justify-between items-center bg-white rounded-3xl p-4 shadow-sm border border-gray-100">
+            {QUICK_CATEGORIES.map((cat, idx) => (
+              <div key={idx} onClick={() => {
+                if (cat.name === "Top Brands") {
+                  router.push("/brands");
+                } else {
+                  setSelectedCategory(selectedCategory === cat.name ? null : cat.name);
+                }
+              }} className="flex flex-col items-center gap-2 cursor-pointer group px-4">
+                <div className={`w-20 h-20 rounded-2xl overflow-hidden shadow-sm border p-0 bg-gray-50 group-active:scale-95 group-hover:shadow-md transition-all flex items-center justify-center ${selectedCategory === cat.name ? 'border-orange-500 ring-4 ring-orange-200 bg-orange-50' : 'border-gray-100'}`}>
+                  <img src={cat.img} alt={cat.name} className="w-[80%] h-[80%] object-contain mix-blend-multiply" />
+                </div>
+                <span className={`text-xs font-bold text-center leading-tight ${selectedCategory === cat.name ? 'text-orange-600' : 'text-gray-700 group-hover:text-gray-900'}`}>{cat.name}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
         <div className="max-w-[1200px] mx-auto md:px-6 py-6 max-md:pt-2">
+          {/* ========================================================= */}
+          {/* CATEGORY VIEW (Independent blocks for Desktop/Mobile)       */}
+          {/* ========================================================= */}
+          {selectedCategory && (
+            <>
+              {/* Mobile Category View */}
+              <div className="md:hidden px-4 md:px-10 py-2 space-y-6 mb-8 animate-in slide-in-from-top-4 duration-300">
+                <div className="flex items-center gap-2">
+                  <h2 className="text-xl font-black text-gray-900 tracking-tight">Top Brands</h2>
+                  <span className="text-[10px] bg-orange-100 text-orange-600 px-2 py-0.5 rounded-md font-bold uppercase">{selectedCategory}</span>
+                </div>
+                <ScrollableRow className="w-full">
+                  <div className="flex gap-4 snap-x hide-scrollbar pb-2 w-max px-1">
+                    {Object.keys(BRAND_LOGOS).map(brand => {
+                      const hasBrand = scoredItems.some(item =>
+                        item.category?.trim().toLowerCase() === selectedCategory.trim().toLowerCase() &&
+                        item.brand?.trim().toLowerCase() === brand.trim().toLowerCase()
+                      );
+                      if (!hasBrand) return null;
+                      return (
+                        <div key={brand} onClick={() => { setSearchFocused(false); setActiveBrand(brand); }} className="snap-start flex-shrink-0 w-[100px] h-[100px] bg-white border border-gray-100 rounded-2xl shadow-sm flex items-center justify-center p-3 cursor-pointer active:scale-95 transition-transform">
+                          <img src={BRAND_LOGOS[brand]} alt={brand} className="max-w-full max-h-full object-contain mix-blend-multiply" />
+                        </div>
+                      );
+                    })}
+                  </div>
+                </ScrollableRow>
+
+                <h2 className="text-xl font-black text-gray-900 tracking-tight mt-6">Top Products</h2>
+                <div className="grid grid-cols-2 gap-3">
+                  {scoredItems.filter(item => item.category?.trim().toLowerCase() === selectedCategory.trim().toLowerCase()).slice(0, 10).map((item) => (
+                    <div key={item.id} className="w-full">
+                      <LivePulseCard
+                        product={item}
+                        handleAddToCart={(p: any) => { handleAddToCart(p.name); setCartOpen(true); }}
+                        handleCardClick={() => router.push(`/product/${item.id}`)}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Desktop Category View */}
+              <div className="hidden md:block px-4 md:px-10 py-2 space-y-8 mb-10 animate-in slide-in-from-top-4 duration-300">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <h2 className="text-3xl font-black text-gray-900 tracking-tight">Top Brands</h2>
+                    <span className="text-xs bg-orange-100 text-orange-600 px-3 py-1 rounded-md font-bold uppercase tracking-widest">{selectedCategory}</span>
+                  </div>
+                </div>
+                <ScrollableRow className="w-full">
+                  <div className="flex gap-6 snap-x hide-scrollbar pb-4 w-max px-1">
+                    {Object.keys(BRAND_LOGOS).map(brand => {
+                      const hasBrand = scoredItems.some(item =>
+                        item.category?.trim().toLowerCase() === selectedCategory.trim().toLowerCase() &&
+                        item.brand?.trim().toLowerCase() === brand.trim().toLowerCase()
+                      );
+                      if (!hasBrand) return null;
+                      return (
+                        <div key={brand} onClick={() => { setSearchFocused(false); setActiveBrand(brand); }} className="snap-start flex-shrink-0 w-[140px] h-[140px] bg-white border border-gray-200 hover:border-orange-400 hover:shadow-lg rounded-[24px] flex items-center justify-center p-4 cursor-pointer transition-all hover:-translate-y-1">
+                          <img src={BRAND_LOGOS[brand]} alt={brand} className="max-w-full max-h-full object-contain mix-blend-multiply" />
+                        </div>
+                      );
+                    })}
+                  </div>
+                </ScrollableRow>
+
+                <h2 className="text-3xl font-black text-gray-900 tracking-tight mt-8">Top Products</h2>
+                <div className="grid grid-cols-4 gap-6">
+                  {scoredItems.filter(item => item.category?.trim().toLowerCase() === selectedCategory.trim().toLowerCase()).slice(0, 12).map((item) => (
+                    <div key={item.id} className="w-full">
+                      <LivePulseCard
+                        product={item}
+                        handleAddToCart={(p: any) => handleAddToCart(p.name)}
+                        handleCardClick={() => router.push(`/product/${item.id}`)}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+
           {/* ========================================================= */}
           {/* 4. CONTENT & HORIZONTAL SCROLL                            */}
           {/* ========================================================= */}
-          <div className={`px-4 md:px-10 py-6 md:py-8 space-y-10 md:space-y-14 transition-opacity duration-200 ${isTransitioning ? "opacity-60" : "opacity-100"}`}>
+          {!selectedCategory && (
+            <div className={`px-4 md:px-10 py-6 md:py-8 space-y-10 md:space-y-14 transition-opacity duration-200 ${isTransitioning ? "opacity-60" : "opacity-100"}`}>
 
 
 
-            {/* REORDER / FOR YOU (Horizontal Scroll) */}
-            <div className="space-y-6">
-              <div className="flex items-center gap-3">
-                <h2 className="text-xl font-black text-gray-900 tracking-tight">🛒 For You</h2>
-                <span className="text-[10px] bg-gray-100 text-gray-600 px-3 py-1 rounded-full font-bold uppercase tracking-wider">Based on order history</span>
+              {/* REORDER / FOR YOU (Horizontal Scroll) */}
+              <div className="space-y-6">
+                <div className="flex items-center gap-3">
+                  <h2 className="text-xl font-black text-gray-900 tracking-tight">🛒 For You</h2>
+                  <span className="text-[10px] bg-gray-100 text-gray-600 px-3 py-1 rounded-full font-bold uppercase tracking-wider">Based on order history</span>
+                </div>
+
+                {/* Unified Responsive Feed (Scrollable) */}
+                <ScrollableRow className="w-full">
+                  <div className="flex gap-3 md:gap-5 snap-x hide-scrollbar pb-2 md:pb-6 w-max px-0.5 md:px-0">
+                    {scoredItems.filter((item) => searchQuery ? (item.name.toLowerCase().includes(searchQuery.toLowerCase()) || (item.brand && item.brand.toLowerCase().includes(searchQuery.toLowerCase())) || (item.category && item.category.toLowerCase().includes(searchQuery.toLowerCase()))) : true).map((item) => {
+                      return (
+                        <div key={item.name} className="snap-start flex-shrink-0 w-[140px] md:w-[260px]">
+                          <LivePulseCard
+                            product={item}
+                            handleAddToCart={(p: any) => { handleAddToCart(p.name); setCartOpen(true); }}
+                            handleCardClick={() => router.push(`/product/${item.id}`)}
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+                </ScrollableRow>
               </div>
 
-              {/* Mobile Feed (Scrollable) */}
-              <ScrollableRow className="md:hidden w-full">
-                <div className="flex gap-3 snap-x hide-scrollbar pb-2 w-max px-0.5">
-                  {scoredItems.filter((item) => searchQuery ? (item.name.toLowerCase().includes(searchQuery.toLowerCase()) || (item.brand && item.brand.toLowerCase().includes(searchQuery.toLowerCase())) || (item.category && item.category.toLowerCase().includes(searchQuery.toLowerCase()))) : true).map((item) => {
-                    return (
-                      <div key={item.name} className="snap-start flex-shrink-0 w-[140px]">
-                        <LivePulseCard
-                          product={item}
-                          handleAddToCart={(p: any) => {
-                            handleAddToCart(p.name);
-                            const found = userItems.find(u => u.name === p.name);
-                            if (found) {
-                              setToastItem(found);
-                              setShowCartToast(true);
-                              setTimeout(() => setShowCartToast(false), 3000);
-                            }
-                          }}
-                          handleCardClick={() => router.push(`/product/${item.id}`)}
-                        />
+              {/* ========================================================= */}
+              {/* THE PULSE MATRIX (Now rendered inline for Continuous Scroll) */}
+              {/* ========================================================= */}
+              <div className="space-y-6">
+                <div className="flex items-center gap-3">
+                  <h2 className="text-xl font-black text-gray-900 tracking-tight">⚡ The Pulse Matrix</h2>
+                  <span className="text-[10px] bg-red-100 text-red-600 px-3 py-1 rounded-full font-bold uppercase tracking-wider animate-pulse">Live Operations</span>
+                </div>
+
+                {/* Pulse matrix uses grid on both mobile and desktop for equal symmetry */}
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 md:gap-6 hide-scrollbar pb-4 md:pb-0 w-full mb-2">
+
+                  {/* Block 1: Agentic Drop (Compact & Vertical) */}
+                  <div className="bg-gradient-to-br from-red-950 via-red-900 to-[#111827] rounded-[16px] md:rounded-[32px] p-3 md:p-6 shadow-xl relative overflow-hidden flex flex-col justify-between border border-red-500/30 group hover:border-red-500/60 transition-colors aspect-square md:aspect-auto">
+                    <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20 mix-blend-overlay"></div>
+
+                    <div className="relative flex flex-col items-center text-center h-full">
+                      <div className="w-full flex justify-between items-center mb-1.5 md:mb-4">
+                        <span className="text-[9px] md:text-[10px] font-bold text-red-400 uppercase tracking-widest flex items-center gap-1 md:gap-1.5 leading-none">
+                          <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping shrink-0 hidden md:block"></span> Drop
+                        </span>
+                        <span className="text-[10px] md:text-[12px] bg-red-600 text-white px-1.5 md:px-2.5 py-0.5 md:py-1 rounded font-mono font-bold shadow-sm inline-block">
+                          00:{agenticSecondsLeft < 10 ? `0${agenticSecondsLeft}` : agenticSecondsLeft}
+                        </span>
                       </div>
-                    );
-                  })}
-                </div>
-              </ScrollableRow>
 
-              {/* Desktop Snap Scroll */}
-              <ScrollableRow className="hidden md:block w-full">
-                <div className="flex gap-5 snap-x hide-scrollbar pb-6 w-max">
-                  {scoredItems.filter((item) => searchQuery ? (item.name.toLowerCase().includes(searchQuery.toLowerCase()) || (item.brand && item.brand.toLowerCase().includes(searchQuery.toLowerCase())) || (item.category && item.category.toLowerCase().includes(searchQuery.toLowerCase()))) : true).map((item) => {
-                    return (
-                      <div key={item.name} className="snap-start flex-shrink-0 w-[260px]">
-                        <LivePulseCard product={item} handleAddToCart={(p: any) => { handleAddToCart(p.name); setCartOpen(true); }} handleCardClick={() => router.push(`/product/${item.id}`)} />
+                      <div className="w-10 h-10 md:w-28 md:h-28 bg-white rounded-xl overflow-hidden p-1.5 shadow-lg mb-1.5 md:mb-4 group-hover:scale-105 transition-transform duration-500 mx-auto">
+                        <img src={AGENTIC_DROPS[agenticIndex].img} alt="Drop Item" className="w-full h-full object-contain mix-blend-multiply" />
                       </div>
-                    );
-                  })}
-                </div>
-              </ScrollableRow>
-            </div>
 
-            {/* ========================================================= */}
-            {/* THE PULSE MATRIX (Now rendered inline for Continuous Scroll) */}
-            {/* ========================================================= */}
-            <div className="space-y-6">
-              <div className="flex items-center gap-3">
-                <h2 className="text-xl font-black text-gray-900 tracking-tight">⚡ The Pulse Matrix</h2>
-                <span className="text-[10px] bg-red-100 text-red-600 px-3 py-1 rounded-full font-bold uppercase tracking-wider animate-pulse">Live Operations</span>
-              </div>
+                      <p className="text-[10px] md:text-sm text-gray-200 font-bold mb-0.5 truncate w-full px-1">{AGENTIC_DROPS[agenticIndex].name}</p>
 
-              {/* Pulse matrix uses grid on both mobile and desktop for equal symmetry */}
-              <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 md:gap-6 hide-scrollbar pb-4 md:pb-0 w-full mb-2">
-
-                {/* Block 1: Agentic Drop (Compact & Vertical) */}
-                <div className="bg-gradient-to-br from-red-950 via-red-900 to-[#111827] rounded-[16px] md:rounded-[32px] p-3 md:p-6 shadow-xl relative overflow-hidden flex flex-col justify-between border border-red-500/30 group hover:border-red-500/60 transition-colors aspect-square md:aspect-auto">
-                  <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20 mix-blend-overlay"></div>
-
-                  <div className="relative z-10 flex flex-col items-center text-center h-full">
-                    <div className="w-full flex justify-between items-center mb-1.5 md:mb-4">
-                      <span className="text-[9px] md:text-[10px] font-bold text-red-400 uppercase tracking-widest flex items-center gap-1 md:gap-1.5 leading-none">
-                        <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping shrink-0 hidden md:block"></span> Drop
-                      </span>
-                      <span className="text-[10px] md:text-[12px] bg-red-600 text-white px-1.5 md:px-2.5 py-0.5 md:py-1 rounded font-mono font-bold shadow-sm inline-block">
-                        00:{agenticSecondsLeft < 10 ? `0${agenticSecondsLeft}` : agenticSecondsLeft}
-                      </span>
-                    </div>
-
-                    <div className="w-10 h-10 md:w-28 md:h-28 bg-white rounded-xl overflow-hidden p-1.5 shadow-lg mb-1.5 md:mb-4 group-hover:scale-105 transition-transform duration-500 mx-auto">
-                      <img src={AGENTIC_DROPS[agenticIndex].img} alt="Drop Item" className="w-full h-full object-contain mix-blend-multiply" />
-                    </div>
-
-                    <p className="text-[10px] md:text-sm text-gray-200 font-bold mb-0.5 truncate w-full px-1">{AGENTIC_DROPS[agenticIndex].name}</p>
-
-                    <div className="font-mono text-[15px] md:text-3xl text-white font-black flex items-baseline justify-center gap-1 md:gap-2 mb-2 md:mb-6">
-                      <span className="text-red-400 font-sans tracking-tighter shadow-sm">₹{agenticPrice}</span>
-                    </div>
-
-                    <button
-                      onClick={() => { handleAddToCart(AGENTIC_DROPS[agenticIndex].name, agenticPrice); setLockedProducts(prev => new Set([...prev, AGENTIC_DROPS[agenticIndex].name])); setCartOpen(true); }}
-                      disabled={lockedProducts.has(AGENTIC_DROPS[agenticIndex].name)}
-                      className={`w-full py-1.5 md:py-3.5 rounded-lg md:rounded-xl text-[10px] md:text-sm font-bold transition-all shadow-lg hover:-translate-y-1 mt-auto ${lockedProducts.has(AGENTIC_DROPS[agenticIndex].name) ? 'bg-green-600 text-white shadow-green-600/40 cursor-default' : 'bg-red-600 text-white hover:bg-red-500 shadow-red-600/40'}`}
-                    >
-                      {lockedProducts.has(AGENTIC_DROPS[agenticIndex].name) ? "Locked ✓" : "Lock the Deal"}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Block 2: Daily Pulse Match (Hidden on Mobile) */}
-                <div className="hidden md:flex bg-[#111827] rounded-[20px] md:rounded-[32px] p-5 md:p-8 border border-gray-800 shadow-xl flex-col justify-between group hover:border-blue-500/50 transition-colors">
-                  <div>
-                    <div className="flex items-center gap-2 mb-2 md:mb-4">
-                      <span className="text-lg md:text-2xl">✨</span>
-                      <span className="text-[9px] md:text-[11px] font-bold text-blue-400 uppercase tracking-widest">Daily Pulse</span>
-                    </div>
-                    <h3 className="text-sm md:text-xl font-bold text-white mb-1.5 md:mb-3">1:1 Neighbor Battle</h3>
-                    <p className="text-[11px] md:text-sm text-gray-400 leading-snug md:leading-relaxed font-medium line-clamp-3">
-                      You and someone in {selectedNode} both follow cricket. Win for Free Shipping.
-                    </p>
-                  </div>
-                  <button
-                    onClick={handleStartBattle}
-                    className="w-full py-2.5 md:py-4 rounded-xl bg-blue-600 text-white text-xs md:text-sm font-bold shadow-lg shadow-blue-600/20 group-hover:bg-blue-500 transition-all mt-4 md:mt-6"
-                  >
-                    Enter Arena
-                  </button>
-                </div>
-
-                {/* Block 3: The Sunday Vault */}
-                <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-[16px] md:rounded-[32px] p-3 md:p-8 border border-gray-700 relative overflow-hidden flex flex-col justify-between shadow-xl aspect-square md:aspect-auto">
-                  <div className="absolute -right-4 -bottom-4 opacity-5 text-[80px] md:text-[140px] leading-none pointer-events-none">🔒</div>
-                  <div className="relative z-10 flex flex-col items-center text-center h-full w-full">
-                    <h2 className="text-[6px] md:text-[11px] font-bold tracking-widest text-[#F97316] mb-1 uppercase drop-shadow-sm">VIP INVENTORY • GADGETS</h2>
-                    <h1 className="text-[10px] md:text-2xl font-black tracking-tight text-white mb-1.5 md:mb-3">Sunday Vault</h1>
-                    <p className="text-[6px] md:text-sm font-medium text-gray-400 leading-snug line-clamp-2 md:line-clamp-none mb-1 md:mb-2">Exclusive high-demand gadget unlocks.</p>
-
-                    <div className="bg-gradient-to-r from-red-600/20 to-orange-500/20 rounded-lg md:rounded-2xl p-1.5 md:p-4 mt-auto w-full border border-red-500/30 shadow-inner backdrop-blur-sm flex flex-col justify-center items-center relative z-10 gap-0.5 md:gap-1.5 overflow-hidden">
-                      <span className="text-[6px] md:text-[10px] font-bold text-red-500 uppercase tracking-widest animate-pulse leading-none">Unlocking In</span>
-                      <span className="font-mono text-[10px] md:text-2xl font-black text-white tracking-wider drop-shadow-[0_0_8px_rgba(239,68,68,0.8)] flex items-center leading-none">
-                        {pad(vDays)}<span className="text-[6px] md:text-[10px] text-gray-400 ml-0.5 mr-1 md:ml-1 md:mr-1.5">D</span>:
-                        <span className="ml-1 md:ml-1.5">{pad(vHrs)}</span><span className="text-[6px] md:text-[10px] text-gray-400 ml-0.5 mr-1 md:ml-1 md:mr-1.5">H</span>:
-                        <span className="ml-1 md:ml-1.5">{pad(vMins)}</span><span className="text-[6px] md:text-[10px] text-gray-400 ml-0.5 mr-1 md:ml-1 md:mr-1.5">M</span>:
-                        <span className="ml-1 md:ml-1.5">{pad(vSecs)}</span><span className="text-[6px] md:text-[10px] text-gray-400 ml-0.5 md:ml-1">S</span>
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-
-            {/* Community Drop Gamification (Continuous Scroll) */}
-            <div className="bg-gradient-to-br from-[#1E3A8A] to-[#111827] rounded-[24px] md:rounded-[32px] p-6 md:p-8 mt-6 text-white shadow-xl border border-blue-500/30 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-400/10 blur-3xl rounded-full pointer-events-none"></div>
-              <div className="flex justify-between items-start mb-6 relative z-10 flex-col md:flex-row gap-6">
-                <div className="flex-1">
-                  <span className="bg-yellow-400 text-black px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-widest mb-3 inline-block shadow-sm">Brand in Focus</span>
-                  <h2 className="text-3xl md:text-4xl font-black tracking-tight mb-2 text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 to-yellow-500">Community Drop</h2>
-                  <p className="text-blue-200 font-medium text-sm md:text-base mb-4">50 curated products reserved for the {selectedNode} collective.</p>
-                </div>
-                {/* Progress bar instead of just diamond */}
-                <div className="bg-white/10 p-4 md:p-5 rounded-3xl border border-white/20 backdrop-blur-md w-full md:w-[320px]">
-                  <div className="flex justify-between items-center mb-3">
-                    <div>
-                      <p className="text-[10px] uppercase tracking-widest font-black text-yellow-400 mb-1">Community Drop</p>
-                      <p className="font-black text-white text-base">Nothing Ear (2)</p>
-                    </div>
-                    <span className="text-3xl drop-shadow-lg">💎</span>
-                  </div>
-                  <div className="bg-black/40 rounded-2xl p-4 border border-white/10">
-                    <div className="flex justify-between text-xs font-bold text-gray-300 mb-2.5">
-                      <span>₹12,999 currently</span>
-                      <span className="text-yellow-400">8 away</span>
-                    </div>
-                    <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden mb-3 shadow-inner">
-                      <div className="bg-gradient-to-r from-yellow-500 to-yellow-300 h-full w-[84%] rounded-full shadow-[0_0_10px_rgba(253,224,71,0.5)]"></div>
-                    </div>
-                    <p className="text-[10px] font-black text-gray-400 text-center uppercase tracking-widest">
-                      Unlock <span className="text-yellow-400 text-sm">₹7,500</span> Price
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-4 text-sm font-medium text-blue-100 flex items-start gap-3">
-                <span className="text-lg">🤝</span>
-                <p>Because you've purchased from this brand before, you hold early-access rights. Unlock the drop before it opens to the public.</p>
-              </div>
-
-              <button className="w-full mt-6 bg-yellow-400 text-black py-4 rounded-xl font-black uppercase tracking-widest hover:bg-yellow-300 transition shadow-lg shadow-yellow-400/20">
-                Unlock Drop
-              </button>
-            </div>
-
-            {/* TRENDING BRANDS & DEALS (Horizontal Scroll Sections)      */}
-            {/* ========================================================= */}
-            <div className="bg-gray-50/50 border border-gray-100 rounded-[24px] md:rounded-[32px] p-6 md:p-10 mb-8 mt-6">
-              <div className="flex flex-col mb-6">
-                <div className="flex justify-between items-center mb-1">
-                  <h2 className="text-xl font-black text-gray-900 tracking-tight">🏷️ Trending Brands</h2>
-                  <span className="text-[11px] text-orange-600 font-bold bg-orange-100 px-4 py-1.5 rounded-full uppercase tracking-wider shadow-sm">🔥 {zoneOrders} orders locally</span>
-                </div>
-                <p className="text-[10px] text-gray-500 font-medium">Over 234 customers shopped these today in your neighbourhood.</p>
-              </div>
-
-              <ScrollableRow className="grid grid-rows-2 grid-flow-col gap-4 pb-2 snap-x">
-                {Array.from(new Set([...currentNode.demandBrands, ...Object.keys(BRAND_LOGOS)])).slice(0, 10).map((brand) => (
-                  <div
-                    key={brand}
-                    className="w-[180px] snap-start bg-white rounded-3xl p-6 hover:shadow-xl transition-all duration-300 flex flex-col items-center text-center border border-gray-100 group cursor-pointer"
-                    onClick={() => setActiveBrand(brand)}
-                  >
-                    <div className="h-16 w-full flex items-center justify-center mb-4">
-                      {BRAND_LOGOS[brand] ? (
-                        <img
-                          src={BRAND_LOGOS[brand]}
-                          alt={brand}
-                          className="max-h-full max-w-full object-contain grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500"
-                        />
-                      ) : (
-                        <span className="text-3xl font-bold text-gray-300">{brand.substring(0, 2)}</span>
-                      )}
-                    </div>
-                    <p className="text-sm font-bold text-gray-900 mb-1">{brand}</p>
-                    <p className="text-[9px] text-gray-500 font-bold uppercase tracking-widest mb-4">
-                      Strong Local Traction
-                    </p>
-                    <button className="mt-auto text-[10px] font-bold px-6 py-2.5 rounded-xl bg-gray-100 text-gray-600 group-hover:bg-[#111827] group-hover:text-white transition-colors duration-300 w-full uppercase tracking-widest">
-                      Explore
-                    </button>
-                  </div>
-                ))}
-              </ScrollableRow>
-            </div>
-
-            {/* HORIZONTAL HOT DEALS CAROUSEL (Mobile UI Polishing) */}
-            <div className="space-y-6">
-              <div className="flex items-center gap-3">
-                <h2 className="text-xl font-black text-gray-900 tracking-tight">🔥 Hot Deals</h2>
-                <span className="text-[10px] bg-red-100 text-red-600 px-3 py-1 rounded-full font-bold uppercase tracking-wider animate-pulse">Ending Soon</span>
-              </div>
-              <ScrollableRow className="flex gap-4 pb-4 snap-x">
-                {scoredItems.slice(0, 8).map((item, idx) => (
-                  <div key={idx} className="min-w-[160px] max-w-[160px] snap-start bg-white border border-gray-100/60 rounded-2xl p-3 flex flex-col relative shadow-sm hover:shadow-md transition-shadow">
-                    <div className="w-full h-24 mb-3 flex items-center justify-center relative p-1 mix-blend-multiply">
-                      <span className="absolute top-0 right-0 bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded shadow-sm z-10">-25%</span>
-                      <img src={item.image_url} alt={item.name} loading="lazy" className="h-full w-full object-contain drop-shadow-sm group-hover:scale-105 transition-transform duration-300" />
-                    </div>
-                    <p className="text-[11px] font-bold text-gray-800 leading-snug mb-1 line-clamp-2 min-h-[32px] px-1">{item.name}</p>
-                    <div className="flex items-end justify-between mt-auto px-1">
-                      <div className="flex flex-col">
-                        <span className="text-[9px] text-gray-400 line-through leading-none mb-0.5">₹{item.mrp || Math.floor(item.price * 1.33)}</span>
-                        <span className="text-sm font-black text-gray-900 leading-none">₹{item.price}</span>
+                      <div className="font-mono text-[15px] md:text-3xl text-white font-black flex items-baseline justify-center gap-1 md:gap-2 mb-2 md:mb-6">
+                        <span className="text-red-400 font-sans tracking-tighter shadow-sm">₹{agenticPrice}</span>
                       </div>
-                      <button onClick={(e) => { e.stopPropagation(); handleAddToCart(item.name); setCartOpen(true); }} className="w-8 h-8 flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-md active:scale-95 flex-shrink-0 transition">
-                        <span className="text-lg leading-none">+</span>
+
+                      <button
+                        onClick={() => { handleAddToCart(AGENTIC_DROPS[agenticIndex].name, agenticPrice); setLockedProducts(prev => new Set([...prev, AGENTIC_DROPS[agenticIndex].name])); setCartOpen(true); }}
+                        disabled={lockedProducts.has(AGENTIC_DROPS[agenticIndex].name)}
+                        className={`w-full py-1.5 md:py-3.5 rounded-lg md:rounded-xl text-[10px] md:text-sm font-bold transition-all shadow-lg hover:-translate-y-1 mt-auto ${lockedProducts.has(AGENTIC_DROPS[agenticIndex].name) ? 'bg-green-600 text-white shadow-green-600/40 cursor-default' : 'bg-red-600 text-white hover:bg-red-500 shadow-red-600/40'}`}
+                      >
+                        {lockedProducts.has(AGENTIC_DROPS[agenticIndex].name) ? "Locked ✓" : "Lock the Deal"}
                       </button>
                     </div>
                   </div>
-                ))}
-              </ScrollableRow>
+
+                  {/* Block 2: Daily Pulse Match (Hidden on Mobile) */}
+                  <div className="hidden md:flex bg-[#111827] rounded-[20px] md:rounded-[32px] p-5 md:p-8 border border-gray-800 shadow-xl flex-col justify-between group hover:border-blue-500/50 transition-colors">
+                    <div>
+                      <div className="flex items-center gap-2 mb-2 md:mb-4">
+                        <span className="text-lg md:text-2xl">✨</span>
+                        <span className="text-[9px] md:text-[11px] font-bold text-blue-400 uppercase tracking-widest">Daily Pulse</span>
+                      </div>
+                      <h3 className="text-sm md:text-xl font-bold text-white mb-1.5 md:mb-3">1:1 Neighbor Battle</h3>
+                      <p className="text-[11px] md:text-sm text-gray-400 leading-snug md:leading-relaxed font-medium line-clamp-3">
+                        You and someone in {selectedNode} both follow cricket. Win for Free Shipping.
+                      </p>
+                    </div>
+                    <button
+                      onClick={handleStartBattle}
+                      className="w-full py-2.5 md:py-4 rounded-xl bg-blue-600 text-white text-xs md:text-sm font-bold shadow-lg shadow-blue-600/20 group-hover:bg-blue-500 transition-all mt-4 md:mt-6"
+                    >
+                      Enter Arena
+                    </button>
+                  </div>
+
+                  {/* Block 3: The Sunday Vault */}
+                  <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-[16px] md:rounded-[32px] p-3 md:p-8 border border-gray-700 relative overflow-hidden flex flex-col justify-between shadow-xl aspect-square md:aspect-auto">
+                    <div className="absolute -right-4 -bottom-4 opacity-5 text-[80px] md:text-[140px] leading-none pointer-events-none">🔒</div>
+                    <div className="relative flex flex-col items-center text-center h-full w-full">
+                      <h2 className="text-[6px] md:text-[11px] font-bold tracking-widest text-[#F97316] mb-1 uppercase drop-shadow-sm">VIP INVENTORY • GADGETS</h2>
+                      <h1 className="text-[10px] md:text-2xl font-black tracking-tight text-white mb-1.5 md:mb-3">Sunday Vault</h1>
+                      <p className="text-[6px] md:text-sm font-medium text-gray-400 leading-snug line-clamp-2 md:line-clamp-none mb-1 md:mb-2">Exclusive high-demand gadget unlocks.</p>
+
+                      <div className="bg-gradient-to-r from-red-600/20 to-orange-500/20 rounded-lg md:rounded-2xl p-1.5 md:p-4 mt-auto w-full border border-red-500/30 shadow-inner backdrop-blur-sm flex flex-col justify-center items-center relative gap-0.5 md:gap-1.5 overflow-hidden">
+                        <span className="text-[6px] md:text-[10px] font-bold text-red-500 uppercase tracking-widest animate-pulse leading-none">Unlocking In</span>
+                        <span className="font-mono text-[10px] md:text-2xl font-black text-white tracking-wider drop-shadow-[0_0_8px_rgba(239,68,68,0.8)] flex items-center leading-none">
+                          {pad(vDays)}<span className="text-[6px] md:text-[10px] text-gray-400 ml-0.5 mr-1 md:ml-1 md:mr-1.5">D</span>:
+                          <span className="ml-1 md:ml-1.5">{pad(vHrs)}</span><span className="text-[6px] md:text-[10px] text-gray-400 ml-0.5 mr-1 md:ml-1 md:mr-1.5">H</span>:
+                          <span className="ml-1 md:ml-1.5">{pad(vMins)}</span><span className="text-[6px] md:text-[10px] text-gray-400 ml-0.5 mr-1 md:ml-1 md:mr-1.5">M</span>:
+                          <span className="ml-1 md:ml-1.5">{pad(vSecs)}</span><span className="text-[6px] md:text-[10px] text-gray-400 ml-0.5 md:ml-1">S</span>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+              {/* Community Drop Gamification (Continuous Scroll) */}
+              <div className="bg-gradient-to-br from-[#1E3A8A] to-[#111827] rounded-[24px] md:rounded-[32px] p-6 md:p-8 mt-6 text-white shadow-xl border border-blue-500/30 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-400/10 blur-3xl rounded-full pointer-events-none"></div>
+                <div className="flex justify-between items-start mb-6 relative flex-col md:flex-row gap-6">
+                  <div className="flex-1">
+                    <span className="bg-yellow-400 text-black px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-widest mb-3 inline-block shadow-sm">Brand in Focus</span>
+                    <h2 className="text-3xl md:text-4xl font-black tracking-tight mb-2 text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 to-yellow-500">Community Drop</h2>
+                    <p className="text-blue-200 font-medium text-sm md:text-base mb-4">50 curated products reserved for the {selectedNode} collective.</p>
+                  </div>
+                  {/* Progress bar instead of just diamond */}
+                  <div className="bg-white/10 p-4 md:p-5 rounded-3xl border border-white/20 backdrop-blur-md w-full md:w-[320px]">
+                    <div className="flex justify-between items-center mb-3">
+                      <div>
+                        <p className="text-[10px] uppercase tracking-widest font-black text-yellow-400 mb-1">Community Drop</p>
+                        <p className="font-black text-white text-base">Nothing Ear (2)</p>
+                      </div>
+                      <span className="text-3xl drop-shadow-lg">💎</span>
+                    </div>
+                    <div className="bg-black/40 rounded-2xl p-4 border border-white/10">
+                      <div className="flex justify-between text-xs font-bold text-gray-300 mb-2.5">
+                        <span>₹12,999 currently</span>
+                        <span className="text-yellow-400">8 away</span>
+                      </div>
+                      <div className="w-full bg-gray-700 h-2.5 rounded-full overflow-hidden mb-3 shadow-inner">
+                        <div className="bg-gradient-to-r from-yellow-500 to-yellow-300 h-full w-[84%] rounded-full shadow-[0_0_10px_rgba(253,224,71,0.5)]"></div>
+                      </div>
+                      <p className="text-[10px] font-black text-gray-400 text-center uppercase tracking-widest">
+                        Unlock <span className="text-yellow-400 text-sm">₹7,500</span> Price
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white/5 border border-white/10 rounded-2xl p-4 text-sm font-medium text-blue-100 flex items-start gap-3">
+                  <span className="text-lg">🤝</span>
+                  <p>Because you've purchased from this brand before, you hold early-access rights. Unlock the drop before it opens to the public.</p>
+                </div>
+
+                <button className="w-full mt-6 bg-yellow-400 text-black py-4 rounded-xl font-black uppercase tracking-widest hover:bg-yellow-300 transition shadow-lg shadow-yellow-400/20">
+                  Unlock Drop
+                </button>
+              </div>
+
+              {/* TRENDING BRANDS & DEALS (Horizontal Scroll Sections)      */}
+              {/* ========================================================= */}
+              <div className="bg-gray-50/50 border border-gray-100 rounded-[24px] md:rounded-[32px] p-6 md:p-10 mb-8 mt-6">
+                <div className="flex flex-col mb-6">
+                  <div className="flex justify-between items-center mb-1">
+                    <h2 className="text-xl font-black text-gray-900 tracking-tight">🏷️ Trending Brands</h2>
+                    <span className="text-[11px] text-orange-600 font-bold bg-orange-100 px-4 py-1.5 rounded-full uppercase tracking-wider shadow-sm">🔥 {zoneOrders} orders locally</span>
+                  </div>
+                  <p className="text-[10px] text-gray-500 font-medium">Over 234 customers shopped these today in your neighbourhood.</p>
+                </div>
+
+                <ScrollableRow className="grid grid-rows-2 grid-flow-col gap-4 pb-2 snap-x">
+                  {Array.from(new Set([...currentNode.demandBrands, ...Object.keys(BRAND_LOGOS)])).slice(0, 10).map((brand) => (
+                    <div
+                      key={brand}
+                      className="w-[180px] snap-start bg-white rounded-3xl p-6 hover:shadow-xl transition-all duration-300 flex flex-col items-center text-center border border-gray-100 group cursor-pointer"
+                      onClick={() => setActiveBrand(brand)}
+                    >
+                      <div className="h-16 w-full flex items-center justify-center mb-4">
+                        {BRAND_LOGOS[brand] ? (
+                          <img
+                            src={BRAND_LOGOS[brand]}
+                            alt={brand}
+                            className="max-h-full max-w-full object-contain grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500"
+                          />
+                        ) : (
+                          <span className="text-3xl font-bold text-gray-300">{brand.substring(0, 2)}</span>
+                        )}
+                      </div>
+                      <p className="text-sm font-bold text-gray-900 mb-1">{brand}</p>
+                      <p className="text-[9px] text-gray-500 font-bold uppercase tracking-widest mb-4">
+                        Strong Local Traction
+                      </p>
+                      <button className="mt-auto text-[10px] font-bold px-6 py-2.5 rounded-xl bg-gray-100 text-gray-600 group-hover:bg-[#111827] group-hover:text-white transition-colors duration-300 w-full uppercase tracking-widest">
+                        Explore
+                      </button>
+                    </div>
+                  ))}
+                </ScrollableRow>
+              </div>
+
+              {/* HORIZONTAL HOT DEALS CAROUSEL (Mobile UI Polishing) */}
+              <div className="space-y-6">
+                <div className="flex items-center gap-3">
+                  <h2 className="text-xl font-black text-gray-900 tracking-tight">🔥 Hot Deals</h2>
+                  <span className="text-[10px] bg-red-100 text-red-600 px-3 py-1 rounded-full font-bold uppercase tracking-wider animate-pulse">Ending Soon</span>
+                </div>
+                <ScrollableRow className="flex gap-4 pb-4 snap-x">
+                  {scoredItems.slice(0, 8).map((item, idx) => (
+                    <div key={idx} className="min-w-[160px] max-w-[160px] snap-start bg-white border border-gray-100/60 rounded-2xl p-3 flex flex-col relative shadow-sm hover:shadow-md transition-shadow">
+                      <div className="w-full h-24 mb-3 flex items-center justify-center relative p-1 mix-blend-multiply">
+                        <span className="absolute top-0 right-0 bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded shadow-sm z-10">-25%</span>
+                        <img src={item.image_url} alt={item.name} loading="lazy" className="h-full w-full object-contain drop-shadow-sm group-hover:scale-105 transition-transform duration-300" />
+                      </div>
+                      <p className="text-[11px] font-bold text-gray-800 leading-snug mb-1 line-clamp-2 min-h-[32px] px-1">{item.name}</p>
+                      <div className="flex items-end justify-between mt-auto px-1">
+                        <div className="flex flex-col">
+                          <span className="text-[9px] text-gray-400 line-through leading-none mb-0.5">₹{item.mrp || Math.floor(item.price * 1.33)}</span>
+                          <span className="text-sm font-black text-gray-900 leading-none">₹{item.price}</span>
+                        </div>
+                        <button onClick={(e) => { e.stopPropagation(); handleAddToCart(item.name); }} className="w-8 h-8 flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-md active:scale-95 flex-shrink-0 transition">
+                          <span className="text-lg leading-none">+</span>
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </ScrollableRow>
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* ========================================================= */}
@@ -888,19 +996,37 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
         {
           searchFocused && (
             <div className="fixed inset-0 z-[120] bg-[#111827] text-white flex flex-col animate-in slide-in-from-bottom-full duration-300">
-              {/* Header / Input Area */}
-              <div className="p-4 md:p-8 border-b border-gray-800 bg-[#111827]/80 backdrop-blur-xl sticky top-0 z-10 flex items-center gap-4">
-                <button onClick={() => { setSearchFocused(false); setSearchQuery(''); }} className="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-800 rounded-full transition text-2xl font-black">✕</button>
-                <div className="relative flex-1">
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Ask Dash24 AI anything..."
-                    className="w-full bg-gray-900 border border-gray-700 text-white rounded-2xl py-4 pl-12 pr-4 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition text-lg font-medium shadow-inner"
-                    autoFocus
-                  />
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xl opacity-50">✨</span>
+              {/* Header / Input Area + Mobile Filters */}
+              <div className="p-4 md:p-8 border-b border-gray-800 bg-[#111827]/80 backdrop-blur-xl sticky top-0 z-10 flex flex-col gap-4">
+                <div className="flex items-center gap-4">
+                  <button onClick={() => { setSearchFocused(false); setSearchQuery(''); }} className="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-800 rounded-full transition text-2xl font-black shrink-0">✕</button>
+                  <div className="relative flex-1">
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Ask Dash24 AI anything..."
+                      className="w-full bg-gray-900 border border-gray-700 text-white rounded-2xl py-4 pl-12 pr-4 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition text-lg font-medium shadow-inner"
+                      autoFocus
+                    />
+                    {isSearching ? (
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xl opacity-50 animate-spin">⏳</span>
+                    ) : (
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xl opacity-50">✨</span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Mobile Quick Filters (Inside Search Overlay) */}
+                <div className="md:hidden hide-scrollbar overflow-x-auto flex gap-3 pb-1 -mx-4 px-4 w-[calc(100%+32px)]">
+                  {QUICK_CATEGORIES.map(cat => (
+                    <button key={cat.name} onClick={() => setSearchQuery(cat.name)} className="flex items-center gap-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-full px-4 py-2 whitespace-nowrap active:scale-95 transition text-xs text-white font-medium shadow-sm flex-shrink-0">
+                      <div className="w-5 h-5 bg-white rounded-full flex items-center justify-center overflow-hidden shrink-0">
+                        <img src={cat.img} alt={cat.name} className="w-[85%] h-[85%] object-contain mix-blend-multiply" />
+                      </div>
+                      {cat.name}
+                    </button>
+                  ))}
                 </div>
               </div>
 
@@ -950,8 +1076,22 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                       </div>
                     )}
 
+                    {/* Premium AI Reasoning Block */}
+                    {agenticReasoning && agenticMatches.length > 0 && (
+                      <div className="mb-6 bg-gradient-to-br from-sky-100 to-blue-50 border border-blue-200 rounded-2xl p-5 shadow-[0_0_25px_rgba(56,189,248,0.15)] relative overflow-hidden text-gray-900">
+                        <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/50 blur-2xl rounded-full pointer-events-none"></div>
+                        <div className="relative z-10 flex items-center gap-2 mb-2">
+                          <span className="text-blue-500 text-lg">✨</span>
+                          <span className="text-blue-700 font-black text-xs uppercase tracking-widest">Dash24 AI Insight:</span>
+                        </div>
+                        <p className="text-gray-800 text-sm font-semibold leading-relaxed relative z-10">
+                          {agenticReasoning}
+                        </p>
+                      </div>
+                    )}
+
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      {scoredItems.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()) || item.brand.toLowerCase().includes(searchQuery.toLowerCase()) || JSON.stringify(item.ai_intent_layers || {}).toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 8).map(item => (
+                      {scoredItems.filter(item => agenticMatches.includes(item.id) || item.name.toLowerCase().includes(searchQuery.toLowerCase()) || item.brand.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 8).map(item => (
                         <div key={item.name} onClick={() => { setSearchFocused(false); router.push(`/product/${item.id || 0}`); }} className="bg-white border border-gray-100 rounded-2xl p-3 flex flex-col relative cursor-pointer group hover:shadow-xl transition text-black">
                           <div className="w-full h-32 mb-3 bg-gray-50 rounded-xl p-2 relative overflow-hidden flex items-center justify-center">
                             <img src={item.image_url} alt={item.name} className="max-h-full max-w-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500" />
@@ -960,52 +1100,11 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                           <p className="text-sm font-black text-gray-900 mt-auto">₹{item.price}</p>
                         </div>
                       ))}
-                      {scoredItems.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()) || item.brand.toLowerCase().includes(searchQuery.toLowerCase()) || JSON.stringify(item.ai_intent_layers || {}).toLowerCase().includes(searchQuery.toLowerCase())).length === 0 && !Object.keys(BRAND_LOGOS).find(b => b.toLowerCase().includes(searchQuery.toLowerCase())) && (
+
+                      {!isSearching && scoredItems.filter(item => agenticMatches.includes(item.id) || item.name.toLowerCase().includes(searchQuery.toLowerCase()) || item.brand.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 && !Object.keys(BRAND_LOGOS).find(b => b.toLowerCase().includes(searchQuery.toLowerCase())) && (
                         <div className="col-span-2 md:col-span-4 space-y-6">
-                          {/* AI Recommendation using LLM.txt + enriched catalog */}
-                          <div className="bg-gradient-to-br from-blue-900/50 to-indigo-900/50 border border-blue-700/50 rounded-2xl p-5">
-                            <div className="flex items-center gap-2 mb-3">
-                              <span className="text-lg">✨</span>
-                              <h3 className="text-sm font-black text-blue-300 uppercase tracking-widest">Dash24 AI Recommends</h3>
-                            </div>
-                            <p className="text-sm text-gray-300 leading-relaxed mb-4">
-                              Based on your search for <span className="text-white font-bold">"{searchQuery}"</span>, here are products that might help:
-                            </p>
-                            <div className="space-y-3">
-                              {(() => {
-                                const q = searchQuery.toLowerCase();
-                                const intentMatches = scoredItems.filter(item => {
-                                  const layers = item.ai_intent_layers || {};
-                                  const allIntents = Object.values(layers).join(' ').toLowerCase();
-                                  return allIntents.includes(q) || q.split(' ').some((word: string) => word.length > 2 && allIntents.includes(word));
-                                }).slice(0, 3);
-
-                                const fallback = intentMatches.length > 0 ? intentMatches : scoredItems.slice(0, 3);
-
-                                return fallback.map(item => {
-                                  const layers = item.ai_intent_layers || {};
-                                  const relevantIntent = Object.values(layers).find((v: any) => {
-                                    const val = (v as string).toLowerCase();
-                                    return q.split(' ').some((word: string) => word.length > 2 && val.includes(word));
-                                  }) || (layers as any).outcome || (layers as any).clarification || 'A great product available for 60-minute delivery in Bangalore.';
-
-                                  return (
-                                    <div key={item.name} onClick={() => { setSearchFocused(false); router.push(`/product/${item.id || 0}`); }} className="bg-white/10 border border-white/10 rounded-xl p-4 cursor-pointer hover:bg-white/20 transition flex gap-4">
-                                      <div className="w-16 h-16 bg-white rounded-xl p-1.5 flex items-center justify-center shrink-0">
-                                        <img src={item.image_url} alt={item.name} className="w-full h-full object-contain" />
-                                      </div>
-                                      <div className="flex-1 min-w-0">
-                                        <p className="text-sm font-bold text-white mb-0.5">{item.name}</p>
-                                        <p className="text-xs text-gray-400 mb-1">{item.brand} • ₹{item.price}</p>
-                                        <p className="text-xs text-blue-300 leading-relaxed line-clamp-2">
-                                          💡 {relevantIntent as string}
-                                        </p>
-                                      </div>
-                                    </div>
-                                  );
-                                });
-                              })()}
-                            </div>
+                          <div className="bg-gray-800/80 border border-gray-700 p-4 rounded-2xl text-center text-gray-400">
+                            Hmm, couldn't find exactly that. Trying rewording?
                           </div>
                         </div>
                       )}
@@ -1094,7 +1193,7 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                         Auto-delivered every <span className="font-bold text-gray-900">{activeProduct.consumptionCycle} days</span>. Cancel anytime.
                       </p>
                       <button
-                        onClick={() => { handleAddToCart(activeProduct.name); setActiveProduct(null); setCartOpen(true); }}
+                        onClick={() => { handleAddToCart(activeProduct.name); setActiveProduct(null); }}
                         className="w-[calc(100%-2.5rem)] ml-10 bg-green-600 text-white py-4 rounded-xl text-sm font-bold group-hover:bg-green-500 transition shadow-lg shadow-green-600/20"
                       >
                         Set up Subscription
@@ -1110,7 +1209,7 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                         <span className="text-xl font-black text-gray-900">₹{activeProduct.price}</span>
                       </div>
                       <button
-                        onClick={() => { handleAddToCart(activeProduct.name); setActiveProduct(null); setCartOpen(true); }}
+                        onClick={() => { handleAddToCart(activeProduct.name); setActiveProduct(null); }}
                         className="w-[calc(100%-2.5rem)] ml-10 bg-[#111827] text-white py-4 rounded-xl text-sm font-bold group-hover:bg-gray-800 transition shadow-lg shadow-gray-900/20"
                       >
                         Add to Cart
@@ -1160,7 +1259,7 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                   </div>
 
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-4 md:gap-6">
-                    {userItems.filter(i => i.brand === activeBrand).map(item => (
+                    {userItems.filter(i => i.brand?.trim().toLowerCase() === activeBrand.trim().toLowerCase()).map(item => (
                       <div key={`brand-${item.name}`} className={`bg-white rounded-3xl p-6 shadow-sm border ${item.localAvailable ? 'border-gray-100' : 'border-blue-100 bg-blue-50/30'} hover:shadow-xl transition-all duration-300 flex flex-col`}>
                         <div className="aspect-square bg-[#F8FAFC] rounded-2xl mb-5 relative flex items-center justify-center p-4 overflow-hidden group">
                           {item.localAvailable && item.low && <span className="absolute top-3 right-3 text-[9px] bg-orange-100 text-orange-600 px-3 py-1 rounded-full font-bold z-10 shadow-sm">Running Low</span>}
@@ -1184,7 +1283,7 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                         )}
 
                         <button
-                          onClick={() => handleAddToCart(item.name)}
+                          onClick={() => { handleAddToCart(item.name); setCartOpen(true); }}
                           className={`w-full py-3.5 rounded-xl text-xs font-bold transition-all shadow-sm ${addedItem === item.name ? "bg-green-500 text-white shadow-green-500/20" : "bg-[#111827] text-white hover:bg-gray-800 hover:shadow-gray-900/20"}`}
                         >
                           {addedItem === item.name ? "Added ✓" : "Add to Cart"}
@@ -1202,7 +1301,7 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
         {/* Floating Insight Bubble */}
         {
           showInsight && (
-            <div className="fixed bottom-24 left-4 z-[100] bg-white border border-blue-100 rounded-2xl p-4 shadow-2xl w-[85%] md:w-80 animate-in slide-in-from-bottom-5">
+            <div className={`fixed bottom-24 left-4 z-[100] bg-white border border-blue-100 rounded-2xl p-4 shadow-2xl w-[85%] md:w-80 animate-in slide-in-from-bottom-5 ${cartCount > 0 ? 'max-md:hidden' : ''}`}>
               <div className="flex items-start justify-between gap-3 relative">
                 <div className="w-10 h-10 bg-blue-50 rounded-full flex flex-shrink-0 items-center justify-center text-xl shadow-inner border border-blue-100">
                   {insightData.icon}

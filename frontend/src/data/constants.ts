@@ -1,14 +1,22 @@
 // Automatically generated from CSV models
 export const BRAND_LOGOS: Record<string, string> = {
-  "The Whole Truth": "https://www.google.com/s2/favicons?domain=thewholetruthfoods.com&sz=128",
-  "Minimalist": "https://www.google.com/s2/favicons?domain=beminimalist.co&sz=128",
-  "What's Up Wellness": "https://www.google.com/s2/favicons?domain=whatsupwellness.in&sz=128",
-  "Kapiva": "https://www.google.com/s2/favicons?domain=kapiva.in&sz=128",
-  "Sleepy Owl": "https://www.google.com/s2/favicons?domain=sleepyowl.co&sz=128",
-  "Titan": "https://www.google.com/s2/favicons?domain=titan.co.in&sz=128",
-  "Nothing": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Nothing_Logo.webp/960px-Nothing_Logo.webp.png?20220322143235",
-  "Blue Tokai": "https://www.google.com/s2/favicons?domain=bluetokaicoffee.com&sz=128",
-  "Snitch": "https://images.yourstory.com/cs/images/companies/Snitch-1620061651111.jpg?fm=auto&ar=1%3A1&mode=fill&fill=solid&fill-color=fff&format=auto&w=256&q=85"
+  'Sleepy Owl': 'https://sleepyowl.co/cdn/shop/files/SO_Logo_Black.png',
+  'Minimalist': 'https://beminimalist.co/cdn/shop/files/logo_black_140x.png',
+  'The Whole Truth': 'https://thewholetruthfoods.com/cdn/shop/files/Logo_Final_Black_140x.png',
+  "What's Up Wellness": 'https://whatsupwellness.in/cdn/shop/files/WUW_Logo_Black.png',
+  'Kapiva': 'https://kapiva.in/cdn/shop/files/Kapiva_Logo_Black.png',
+  'Titan': 'https://upload.wikimedia.org/wikipedia/commons/e/e4/Titan_Company_Logo.jpg',
+  'Nothing': 'https://nothing.tech/cdn/shop/files/Nothing_Logo_Black_120x.png',
+  'Blue Tokai': 'https://bluetokaicoffee.com/cdn/shop/files/BT_Logo_200x.png',
+  'Snitch': 'https://snitch.co.in/cdn/shop/files/logo_black_180x.png',
+  'Cult Fit': 'https://images.seeklogo.com/logo-png/45/1/cult-fit-logo-png_seeklogo-454846.png',
+  'mCaffeine': 'https://mcaffeine.com/cdn/shop/files/mc_logo_black.png',
+  'Mamaearth': 'https://images.seeklogo.com/logo-png/48/1/mamaearth-logo-png_seeklogo-487672.png',
+  'Wow Skin Science': 'https://images.seeklogo.com/logo-png/46/1/wow-skin-science-logo-png_seeklogo-465591.png',
+  'Yoga Bar': 'https://yogabars.in/cdn/shop/files/YB_Logo_Black.png',
+  'Slurrp Farm': 'https://images.yourstory.com/cs/images/companies/Z55FeIHC400x400-1605082463894.jpg',
+  'Noise': 'https://gonoise.com/cdn/shop/files/Noise_Logo_Black.png',
+  'boAt': 'https://www.boat-lifestyle.com/cdn/shop/files/boAt_logo_small_300x.png',
 };
 
 export const MASTER_CATALOG = [
@@ -237,7 +245,7 @@ export const NODE_DATA = {
 } as const;
 
 export const QUICK_CATEGORIES = [
-  { name: "Home", img: "/icon-home.png" },
+  { name: "Top Brands", img: "https://cdn-icons-png.flaticon.com/512/3204/3204040.png" },
   { name: "Beauty", img: "/icon-beauty.PNG" },
   { name: "Electronics", img: "/icon-electronics.png" },
   { name: "Health & Wellness", img: "/icon-health.png" },

@@ -34,8 +34,10 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   const intentLayers = pAny.ai_intent_layers || {};
 
   const tabs = [
+    { id: "Overview", icon: "💡", key: "clarification", color: "text-amber-600", bg: "bg-amber-50", border: "border-amber-200" },
     { id: "Comparison", icon: "⚖️", key: "comparison", color: "text-blue-600", bg: "bg-blue-50", border: "border-blue-200" },
     { id: "Value", icon: "💎", key: "value", color: "text-purple-600", bg: "bg-purple-50", border: "border-purple-200" },
+    { id: "Outcome", icon: "📈", key: "outcome", color: "text-rose-600", bg: "bg-rose-50", border: "border-rose-200" },
     { id: "Risk", icon: "🛡️", key: "risk", color: "text-emerald-600", bg: "bg-emerald-50", border: "border-emerald-200" },
     { id: "Personalization", icon: "🎯", key: "personalization", color: "text-orange-600", bg: "bg-orange-50", border: "border-orange-200" },
   ];
@@ -131,21 +133,26 @@ export default function ProductPage({ params }: { params: { id: string } }) {
         </div>
       </div>
 
+      {/* Spacer to prevent content from hiding behind the taller sticky bar */}
+      <div className="h-44 md:h-32"></div>
+
       {/* Sticky Bottom Bar */}
-      <div className="fixed bottom-0 left-0 w-full bg-white border-t border-gray-100 p-4 pb-safe flex items-center justify-between gap-3 pt-4 shadow-[0_-10px_30px_rgba(0,0,0,0.05)] z-50">
-        <div className="flex gap-3 w-full max-w-[600px] mx-auto">
-          <button
-            onClick={onAddToCart}
-            className="flex-1 bg-white border border-[#111827] text-[#111827] font-black uppercase tracking-widest text-[11px] py-4 rounded-[16px] shadow-sm hover:bg-gray-50 transition active:scale-95 flex items-center justify-center"
-          >
-            Add to Cart <span className="text-lg leading-none ml-1 align-middle">+</span>
-          </button>
-          <button
-            onClick={() => { router.push(`/checkout?express=true&product=${params.id}`); }}
-            className="flex-1 bg-blue-600 text-white py-4 rounded-[16px] font-black uppercase tracking-widest text-[11px] shadow-lg hover:bg-blue-700 transition active:scale-95 flex items-center justify-center gap-1.5 focus:ring-4 hover:shadow-blue-600/30"
-          >
-            <span>⚡</span> Dash it Now
-          </button>
+      <div className="fixed bottom-0 left-0 w-full bg-white border-t border-gray-100 p-4 pb-safe flex flex-col items-center justify-center gap-3 shadow-[0_-10px_30px_rgba(0,0,0,0.05)] z-50">
+        <div className="w-full max-w-[600px] mx-auto flex flex-col gap-3">
+          <div className="flex gap-3 w-full">
+            <button
+              onClick={onAddToCart}
+              className="flex-1 bg-white border border-[#111827] text-[#111827] font-black uppercase tracking-widest text-[11px] py-4 rounded-[16px] shadow-sm hover:bg-gray-50 transition active:scale-95 flex items-center justify-center"
+            >
+              Add to Cart <span className="text-lg leading-none ml-1 align-middle">+</span>
+            </button>
+            <button
+              onClick={() => { router.push(`/checkout?express=true&product=${params.id}`); }}
+              className="flex-1 bg-blue-600 text-white py-4 rounded-[16px] font-black uppercase tracking-widest text-[11px] shadow-lg hover:bg-blue-700 transition active:scale-95 flex items-center justify-center gap-1.5 focus:ring-4 hover:shadow-blue-600/30"
+            >
+              <span>⚡</span> Dash it Now
+            </button>
+          </div>
         </div>
       </div>
 

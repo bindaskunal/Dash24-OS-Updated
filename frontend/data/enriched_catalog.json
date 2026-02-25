@@ -23,6 +23,12 @@
       "comparison": "Unlike mainstream 'diet' shakes, we use zero sugar alcohols or hidden chemicals. It's just clean nutrition.",
       "value": "Premium ingredients at a local price. 100% genuine quality, delivered to your doorstep in 60 mins.",
       "personalization": "Ideal for your active lifestyle. Pair it with your morning run at Cubbon Park or a workout at Cult.fit."
+    },
+    "fulfilledBy": "Dash24",
+    "node_inventory": {
+      "Prestige Koramangala": 100,
+      "Brigade Indiranagar": 100,
+      "Sobha HSR": 100
     }
   },
   {
@@ -49,6 +55,12 @@
       "comparison": "The only bar that lists its ingredients on the front. No 'maltodextrin' or syrups used here.",
       "value": "Economy pack saves 25% over individual units. Bulk stock for your weekly health goals.",
       "personalization": "Keep these in your bag for those meetings in Indiranagar that always run late. healthy snacking, solved."
+    },
+    "fulfilledBy": "Dash24",
+    "node_inventory": {
+      "Prestige Koramangala": 100,
+      "Brigade Indiranagar": 100,
+      "Sobha HSR": 100
     }
   },
   {
@@ -75,6 +87,12 @@
       "comparison": "Isolates are superior to blends for purity. This is 90% protein per scoop with zero fillers.",
       "value": "Best-in-class cost per gram of protein. High-density nutrition for professional-grade recovery.",
       "personalization": "You train hard. Give your body the cleanest recovery available. Genuine stock guaranteed by Dash24."
+    },
+    "fulfilledBy": "Dash24",
+    "node_inventory": {
+      "Prestige Koramangala": 100,
+      "Brigade Indiranagar": 100,
+      "Sobha HSR": 100
     }
   },
   {
@@ -101,6 +119,12 @@
       "comparison": "More stable and effective than acidic Vitamin C powders. Science-first skincare.",
       "value": "Dermatologist-grade formula at a fraction of high-end clinical prices.",
       "personalization": "Essential for your morning routine to fight urban pollution in Bangalore's electronics city."
+    },
+    "fulfilledBy": "Dash24",
+    "node_inventory": {
+      "Prestige Koramangala": 100,
+      "Brigade Indiranagar": 100,
+      "Sobha HSR": 100
     }
   },
   {
@@ -127,6 +151,12 @@
       "comparison": "Better for acne-prone skin than soaps or oil-based cleansers. No 'tight' skin feeling.",
       "value": "High active concentration for under ₹300. Incredible daily value.",
       "personalization": "Beat the dust and grime after your commute along the Outer Ring Road."
+    },
+    "fulfilledBy": "Dash24",
+    "node_inventory": {
+      "Prestige Koramangala": 100,
+      "Brigade Indiranagar": 100,
+      "Sobha HSR": 100
     }
   },
   {
@@ -153,6 +183,12 @@
       "comparison": "Much easier to take than bitter powders or large capsules. Same herbal potency.",
       "value": "30-day supply of wellness. Cheaper than a single spa session.",
       "personalization": "Stay calm and focused through your HSR Layout workdays."
+    },
+    "fulfilledBy": "Dash24",
+    "node_inventory": {
+      "Prestige Koramangala": 100,
+      "Brigade Indiranagar": 100,
+      "Sobha HSR": 100
     }
   },
   {
@@ -179,6 +215,12 @@
       "comparison": "Wild Amlas have 4x the Vitamin C of standard farm-grown Amlas.",
       "value": "1 Liter bottle lasts 30 servings. Pure health for less than ₹10/day.",
       "personalization": "A perfect traditional start to your day in the Garden City."
+    },
+    "fulfilledBy": "Dash24",
+    "node_inventory": {
+      "Prestige Koramangala": 100,
+      "Brigade Indiranagar": 100,
+      "Sobha HSR": 100
     }
   },
   {
@@ -205,6 +247,12 @@
       "comparison": "Synergistic blend of multivitamins for hair, unlike single-ingredient Biotin tabs.",
       "value": "Complete hair-care supplement in a single convenient gummy.",
       "personalization": "Maintain your glow despite Bangalore's hard water challenges."
+    },
+    "fulfilledBy": "Dash24",
+    "node_inventory": {
+      "Prestige Koramangala": 100,
+      "Brigade Indiranagar": 100,
+      "Sobha HSR": 100
     }
   },
   {
@@ -231,6 +279,12 @@
       "comparison": "Craft coffee quality in a can. Tastes like what you get at a Blue Tokai cafe.",
       "value": "Pack of 6 saves you ₹200 vs buying individual cafe cups.",
       "personalization": "Your favorite Bangalore cafe experience, delivered to your Koramangala office."
+    },
+    "fulfilledBy": "Dash24",
+    "node_inventory": {
+      "Prestige Koramangala": 100,
+      "Brigade Indiranagar": 100,
+      "Sobha HSR": 100
     }
   },
   {
@@ -257,6 +311,12 @@
       "comparison": "Higher GSM fabric than high-street brands. Holds its shape after multiple washes.",
       "value": "High-end urban fashion at a competitive accessible price point.",
       "personalization": "The uniform of Bangalore's tech-startup scene. Perfect for Friday chill."
+    },
+    "fulfilledBy": "Dash24",
+    "node_inventory": {
+      "Prestige Koramangala": 100,
+      "Brigade Indiranagar": 100,
+      "Sobha HSR": 100
     }
   },
   {
@@ -283,6 +343,12 @@
       "comparison": "Titan's build quality and after-sales service beats generic smartwatches.",
       "value": "Flagship features at a mid-range price. 1-year warranty included.",
       "personalization": "Track your walks around Lalbagh or your daily step count in the office."
+    },
+    "fulfilledBy": "Dash24",
+    "node_inventory": {
+      "Prestige Koramangala": 100,
+      "Brigade Indiranagar": 100,
+      "Sobha HSR": 100
     }
   },
   {
@@ -309,6 +375,1032 @@
       "comparison": "The most unique design in the market with acoustic performance matching leaders.",
       "value": "A design masterpiece that delivers top-tier tech for under ₹10k.",
       "personalization": "Block out the noise of MG Road and get into your flow state."
+    },
+    "fulfilledBy": "Dash24",
+    "node_inventory": {
+      "Prestige Koramangala": 100,
+      "Brigade Indiranagar": 100,
+      "Sobha HSR": 100
     }
+  },
+  {
+    "id": "NEW_CSV_PROD_13",
+    "name": "Whey Protein 1kg",
+    "brand": "Cult Fit",
+    "category": "Health & Wellness",
+    "price": 1899,
+    "mrp": 2499,
+    "image_url": "https://cultstore.com/cdn/shop/files/gE1Ld6ye4G1pQXi1sLy18Bcb.jpg?v=1726208456&width=5000",
+    "rating": 4.7,
+    "low": false,
+    "lastPurchased": 59,
+    "consumptionCycle": 32,
+    "inventory": {
+      "Prestige Koramangala": 500,
+      "Brigade Indiranagar": 500,
+      "Sobha HSR": 500
+    },
+    "ai_intent_layers": {
+      "clarification": "Whey Protein 1kg by Cult Fit. Perfect for immunity needs.",
+      "risk": "100% genuine product. Secure checkout and fast delivery.",
+      "outcome": "Associated keywords for search: immunity, energy, fitness, organic, recovery, whey, protein, 1kg",
+      "comparison": "A top choice in the Health & Wellness category with verified local inventory.",
+      "value": "High quality at competitive pricing.",
+      "personalization": "Great addition to your daily health & wellness routine in Bangalore."
+    },
+    "fulfilledBy": "Dash24",
+    "node_inventory": {
+      "Prestige Koramangala": 500,
+      "Brigade Indiranagar": 500,
+      "Sobha HSR": 500
+    },
+    "localAvailable": true,
+    "brandDeliveryDays": 3
+  },
+  {
+    "id": "NEW_CSV_PROD_14",
+    "name": "Cult Sport Sipper",
+    "brand": "Cult Fit",
+    "category": "Health & Wellness",
+    "price": 299,
+    "mrp": 499,
+    "image_url": "https://cultstore.com/cdn/shop/files/1_bd1b0fef-7d5a-446a-bcd1-21f71e91176d.jpg?v=1749034197&width=5000",
+    "rating": 4.2,
+    "low": false,
+    "lastPurchased": 43,
+    "consumptionCycle": 27,
+    "inventory": {
+      "Prestige Koramangala": 500,
+      "Brigade Indiranagar": 500,
+      "Sobha HSR": 500
+    },
+    "ai_intent_layers": {
+      "clarification": "Cult Sport Sipper by Cult Fit. Perfect for immunity needs.",
+      "risk": "100% genuine product. Secure checkout and fast delivery.",
+      "outcome": "Associated keywords for search: immunity, energy, fitness, organic, recovery, cult, sport, sipper",
+      "comparison": "A top choice in the Health & Wellness category with verified local inventory.",
+      "value": "High quality at competitive pricing.",
+      "personalization": "Great addition to your daily health & wellness routine in Bangalore."
+    },
+    "fulfilledBy": "Dash24",
+    "node_inventory": {
+      "Prestige Koramangala": 500,
+      "Brigade Indiranagar": 500,
+      "Sobha HSR": 500
+    },
+    "localAvailable": true,
+    "brandDeliveryDays": 4
+  },
+  {
+    "id": "NEW_CSV_PROD_15",
+    "name": "Yoga Mat 6mm",
+    "brand": "Cult Fit",
+    "category": "Health & Wellness",
+    "price": 799,
+    "mrp": 1299,
+    "image_url": "https://cultstore.com/cdn/shop/files/805414.jpg?v=1759211509&width=5000",
+    "rating": 4.7,
+    "low": false,
+    "lastPurchased": 54,
+    "consumptionCycle": 34,
+    "inventory": {
+      "Prestige Koramangala": 0,
+      "Brigade Indiranagar": 0,
+      "Sobha HSR": 0
+    },
+    "ai_intent_layers": {
+      "clarification": "Yoga Mat 6mm by Cult Fit. Perfect for immunity needs.",
+      "risk": "100% genuine product. Secure checkout and fast delivery.",
+      "outcome": "Associated keywords for search: immunity, energy, fitness, organic, recovery, yoga, mat, 6mm",
+      "comparison": "A top choice in the Health & Wellness category with verified local inventory.",
+      "value": "High quality at competitive pricing.",
+      "personalization": "Great addition to your daily health & wellness routine in Bangalore."
+    },
+    "fulfilledBy": "Brand",
+    "node_inventory": {
+      "Prestige Koramangala": 0,
+      "Brigade Indiranagar": 0,
+      "Sobha HSR": 0
+    },
+    "localAvailable": false,
+    "brandDeliveryDays": 3
+  },
+  {
+    "id": "NEW_CSV_PROD_16",
+    "name": "Hazelnut Cold Brew",
+    "brand": "Sleepy Owl",
+    "category": "Snacks",
+    "price": 150,
+    "mrp": 200,
+    "image_url": "https://m.media-amazon.com/images/I/61Hz4Upy7PL._SL1080_.jpg",
+    "rating": 4.2,
+    "low": false,
+    "lastPurchased": 33,
+    "consumptionCycle": 35,
+    "inventory": {
+      "Prestige Koramangala": 500,
+      "Brigade Indiranagar": 500,
+      "Sobha HSR": 500
+    },
+    "ai_intent_layers": {
+      "clarification": "Hazelnut Cold Brew by Sleepy Owl. Perfect for healthy snacking needs.",
+      "risk": "100% genuine product. Secure checkout and fast delivery.",
+      "outcome": "Associated keywords for search: healthy snacking, guilt-free, delicious, quick bite, craving, hazelnut, cold, brew",
+      "comparison": "A top choice in the Snacks category with verified local inventory.",
+      "value": "High quality at competitive pricing.",
+      "personalization": "Great addition to your daily snacks routine in Bangalore."
+    },
+    "fulfilledBy": "Dash24",
+    "node_inventory": {
+      "Prestige Koramangala": 500,
+      "Brigade Indiranagar": 500,
+      "Sobha HSR": 500
+    },
+    "localAvailable": true,
+    "brandDeliveryDays": 3
+  },
+  {
+    "id": "NEW_CSV_PROD_17",
+    "name": "French Vanilla Premium Coffee",
+    "brand": "Sleepy Owl",
+    "category": "Snacks",
+    "price": 350,
+    "mrp": 400,
+    "image_url": "https://m.media-amazon.com/images/I/61JtVDc9X9L._SL1080_.jpg",
+    "rating": 4.9,
+    "low": false,
+    "lastPurchased": 42,
+    "consumptionCycle": 21,
+    "inventory": {
+      "Prestige Koramangala": 500,
+      "Brigade Indiranagar": 500,
+      "Sobha HSR": 500
+    },
+    "ai_intent_layers": {
+      "clarification": "French Vanilla Premium Coffee by Sleepy Owl. Perfect for healthy snacking needs.",
+      "risk": "100% genuine product. Secure checkout and fast delivery.",
+      "outcome": "Associated keywords for search: healthy snacking, guilt-free, delicious, quick bite, craving, french, vanilla, premium, coffee",
+      "comparison": "A top choice in the Snacks category with verified local inventory.",
+      "value": "High quality at competitive pricing.",
+      "personalization": "Great addition to your daily snacks routine in Bangalore."
+    },
+    "fulfilledBy": "Dash24",
+    "node_inventory": {
+      "Prestige Koramangala": 500,
+      "Brigade Indiranagar": 500,
+      "Sobha HSR": 500
+    },
+    "localAvailable": true,
+    "brandDeliveryDays": 3
+  },
+  {
+    "id": "NEW_CSV_PROD_18",
+    "name": "Dark Roast Filter Coffee",
+    "brand": "Sleepy Owl",
+    "category": "Snacks",
+    "price": 450,
+    "mrp": 500,
+    "image_url": "https://m.media-amazon.com/images/I/61N5qwVYh9L._SL1080_.jpg",
+    "rating": 4.4,
+    "low": false,
+    "lastPurchased": 17,
+    "consumptionCycle": 18,
+    "inventory": {
+      "Prestige Koramangala": 0,
+      "Brigade Indiranagar": 0,
+      "Sobha HSR": 0
+    },
+    "ai_intent_layers": {
+      "clarification": "Dark Roast Filter Coffee by Sleepy Owl. Perfect for healthy snacking needs.",
+      "risk": "100% genuine product. Secure checkout and fast delivery.",
+      "outcome": "Associated keywords for search: healthy snacking, guilt-free, delicious, quick bite, craving, dark, roast, filter, coffee",
+      "comparison": "A top choice in the Snacks category with verified local inventory.",
+      "value": "High quality at competitive pricing.",
+      "personalization": "Great addition to your daily snacks routine in Bangalore."
+    },
+    "fulfilledBy": "Brand",
+    "node_inventory": {
+      "Prestige Koramangala": 0,
+      "Brigade Indiranagar": 0,
+      "Sobha HSR": 0
+    },
+    "localAvailable": false,
+    "brandDeliveryDays": 2
+  },
+  {
+    "id": "NEW_CSV_PROD_19",
+    "name": "Niacinamide Body Lotion",
+    "brand": "Minimalist",
+    "category": "Beauty",
+    "price": 299,
+    "mrp": 399,
+    "image_url": "https://images-static.nykaa.com/media/catalog/product/b/2/b21a46bMINIM00000037_2.jpg",
+    "rating": 4.3,
+    "low": false,
+    "lastPurchased": 42,
+    "consumptionCycle": 41,
+    "inventory": {
+      "Prestige Koramangala": 500,
+      "Brigade Indiranagar": 500,
+      "Sobha HSR": 500
+    },
+    "ai_intent_layers": {
+      "clarification": "Niacinamide Body Lotion by Minimalist. Perfect for glowing needs.",
+      "risk": "100% genuine product. Secure checkout and fast delivery.",
+      "outcome": "Associated keywords for search: glowing, skincare, acne, hydration, routine, niacinamide, body, lotion",
+      "comparison": "A top choice in the Beauty category with verified local inventory.",
+      "value": "High quality at competitive pricing.",
+      "personalization": "Great addition to your daily beauty routine in Bangalore."
+    },
+    "fulfilledBy": "Dash24",
+    "node_inventory": {
+      "Prestige Koramangala": 500,
+      "Brigade Indiranagar": 500,
+      "Sobha HSR": 500
+    },
+    "localAvailable": true,
+    "brandDeliveryDays": 3
+  },
+  {
+    "id": "NEW_CSV_PROD_20",
+    "name": "Coffee Body Scrub",
+    "brand": "mCaffeine",
+    "category": "Beauty",
+    "price": 349,
+    "mrp": 399,
+    "image_url": "https://images-static.nykaa.com/media/catalog/product/1/1/1185643NYKMCF0000002_2.jpg",
+    "rating": 4.3,
+    "low": false,
+    "lastPurchased": 48,
+    "consumptionCycle": 33,
+    "inventory": {
+      "Prestige Koramangala": 500,
+      "Brigade Indiranagar": 500,
+      "Sobha HSR": 500
+    },
+    "ai_intent_layers": {
+      "clarification": "Coffee Body Scrub by mCaffeine. Perfect for glowing needs.",
+      "risk": "100% genuine product. Secure checkout and fast delivery.",
+      "outcome": "Associated keywords for search: glowing, skincare, acne, hydration, routine, coffee, body, scrub",
+      "comparison": "A top choice in the Beauty category with verified local inventory.",
+      "value": "High quality at competitive pricing.",
+      "personalization": "Great addition to your daily beauty routine in Bangalore."
+    },
+    "fulfilledBy": "Dash24",
+    "node_inventory": {
+      "Prestige Koramangala": 500,
+      "Brigade Indiranagar": 500,
+      "Sobha HSR": 500
+    },
+    "localAvailable": true,
+    "brandDeliveryDays": 4
+  },
+  {
+    "id": "NEW_CSV_PROD_21",
+    "name": "Coffee Face Wash",
+    "brand": "mCaffeine",
+    "category": "Beauty",
+    "price": 224,
+    "mrp": 299,
+    "image_url": "https://images-static.nykaa.com/media/catalog/product/8/b/8b5cf3fNYKMCF0000003_01.jpg",
+    "rating": 4.4,
+    "low": false,
+    "lastPurchased": 52,
+    "consumptionCycle": 30,
+    "inventory": {
+      "Prestige Koramangala": 500,
+      "Brigade Indiranagar": 500,
+      "Sobha HSR": 500
+    },
+    "ai_intent_layers": {
+      "clarification": "Coffee Face Wash by mCaffeine. Perfect for glowing needs.",
+      "risk": "100% genuine product. Secure checkout and fast delivery.",
+      "outcome": "Associated keywords for search: glowing, skincare, acne, hydration, routine, coffee, face, wash",
+      "comparison": "A top choice in the Beauty category with verified local inventory.",
+      "value": "High quality at competitive pricing.",
+      "personalization": "Great addition to your daily beauty routine in Bangalore."
+    },
+    "fulfilledBy": "Dash24",
+    "node_inventory": {
+      "Prestige Koramangala": 500,
+      "Brigade Indiranagar": 500,
+      "Sobha HSR": 500
+    },
+    "localAvailable": true,
+    "brandDeliveryDays": 2
+  },
+  {
+    "id": "NEW_CSV_PROD_22",
+    "name": "Coffee Under Eye Cream",
+    "brand": "mCaffeine",
+    "category": "Beauty",
+    "price": 299,
+    "mrp": 399,
+    "image_url": "https://images-static.nykaa.com/media/catalog/product/8/b/8b5cf3fMCAFF00000222_1.jpg",
+    "rating": 4.2,
+    "low": false,
+    "lastPurchased": 54,
+    "consumptionCycle": 15,
+    "inventory": {
+      "Prestige Koramangala": 0,
+      "Brigade Indiranagar": 0,
+      "Sobha HSR": 0
+    },
+    "ai_intent_layers": {
+      "clarification": "Coffee Under Eye Cream by mCaffeine. Perfect for glowing needs.",
+      "risk": "100% genuine product. Secure checkout and fast delivery.",
+      "outcome": "Associated keywords for search: glowing, skincare, acne, hydration, routine, coffee, under, eye, cream",
+      "comparison": "A top choice in the Beauty category with verified local inventory.",
+      "value": "High quality at competitive pricing.",
+      "personalization": "Great addition to your daily beauty routine in Bangalore."
+    },
+    "fulfilledBy": "Brand",
+    "node_inventory": {
+      "Prestige Koramangala": 0,
+      "Brigade Indiranagar": 0,
+      "Sobha HSR": 0
+    },
+    "localAvailable": false,
+    "brandDeliveryDays": 3
+  },
+  {
+    "id": "NEW_CSV_PROD_23",
+    "name": "Onion Hair Oil",
+    "brand": "Mamaearth",
+    "category": "Beauty",
+    "price": 359,
+    "mrp": 399,
+    "image_url": "https://images.mamaearth.in/catalog/product/o/n/onion_hair_oil_200ml_fop_1200x1200.png?format=auto&height=600",
+    "rating": 4.8,
+    "low": false,
+    "lastPurchased": 58,
+    "consumptionCycle": 31,
+    "inventory": {
+      "Prestige Koramangala": 500,
+      "Brigade Indiranagar": 500,
+      "Sobha HSR": 500
+    },
+    "ai_intent_layers": {
+      "clarification": "Onion Hair Oil by Mamaearth. Perfect for glowing needs.",
+      "risk": "100% genuine product. Secure checkout and fast delivery.",
+      "outcome": "Associated keywords for search: glowing, skincare, acne, hydration, routine, onion, hair, oil",
+      "comparison": "A top choice in the Beauty category with verified local inventory.",
+      "value": "High quality at competitive pricing.",
+      "personalization": "Great addition to your daily beauty routine in Bangalore."
+    },
+    "fulfilledBy": "Dash24",
+    "node_inventory": {
+      "Prestige Koramangala": 500,
+      "Brigade Indiranagar": 500,
+      "Sobha HSR": 500
+    },
+    "localAvailable": true,
+    "brandDeliveryDays": 2
+  },
+  {
+    "id": "NEW_CSV_PROD_24",
+    "name": "Ubtan Face Wash",
+    "brand": "Mamaearth",
+    "category": "Beauty",
+    "price": 224,
+    "mrp": 249,
+    "image_url": "https://images.mamaearth.in/catalog/product/1/_/1_197_2.jpg?format=auto&height=600",
+    "rating": 4.3,
+    "low": false,
+    "lastPurchased": 57,
+    "consumptionCycle": 39,
+    "inventory": {
+      "Prestige Koramangala": 500,
+      "Brigade Indiranagar": 500,
+      "Sobha HSR": 500
+    },
+    "ai_intent_layers": {
+      "clarification": "Ubtan Face Wash by Mamaearth. Perfect for glowing needs.",
+      "risk": "100% genuine product. Secure checkout and fast delivery.",
+      "outcome": "Associated keywords for search: glowing, skincare, acne, hydration, routine, ubtan, face, wash",
+      "comparison": "A top choice in the Beauty category with verified local inventory.",
+      "value": "High quality at competitive pricing.",
+      "personalization": "Great addition to your daily beauty routine in Bangalore."
+    },
+    "fulfilledBy": "Dash24",
+    "node_inventory": {
+      "Prestige Koramangala": 500,
+      "Brigade Indiranagar": 500,
+      "Sobha HSR": 500
+    },
+    "localAvailable": true,
+    "brandDeliveryDays": 2
+  },
+  {
+    "id": "NEW_CSV_PROD_25",
+    "name": "Vitamin C Face Cream",
+    "brand": "Mamaearth",
+    "category": "Beauty",
+    "price": 224,
+    "mrp": 249,
+    "image_url": "https://images.mamaearth.in/catalog/product/v/i/vit-c-glow-cream1_1_1.jpg?format=auto&height=600",
+    "rating": 4,
+    "low": false,
+    "lastPurchased": 20,
+    "consumptionCycle": 18,
+    "inventory": {
+      "Prestige Koramangala": 0,
+      "Brigade Indiranagar": 0,
+      "Sobha HSR": 0
+    },
+    "ai_intent_layers": {
+      "clarification": "Vitamin C Face Cream by Mamaearth. Perfect for glowing needs.",
+      "risk": "100% genuine product. Secure checkout and fast delivery.",
+      "outcome": "Associated keywords for search: glowing, skincare, acne, hydration, routine, vitamin, c, face, cream",
+      "comparison": "A top choice in the Beauty category with verified local inventory.",
+      "value": "High quality at competitive pricing.",
+      "personalization": "Great addition to your daily beauty routine in Bangalore."
+    },
+    "fulfilledBy": "Brand",
+    "node_inventory": {
+      "Prestige Koramangala": 0,
+      "Brigade Indiranagar": 0,
+      "Sobha HSR": 0
+    },
+    "localAvailable": false,
+    "brandDeliveryDays": 4
+  },
+  {
+    "id": "NEW_CSV_PROD_26",
+    "name": "Apple Cider Vinegar Face Wash",
+    "brand": "Wow Skin Science",
+    "category": "Beauty",
+    "price": 299,
+    "mrp": 399,
+    "image_url": "https://media.buywow.in/public/1882f108-4335-40c3-87f4-ddbbb8646750?w=900&q=75&f=webp",
+    "rating": 4.5,
+    "low": false,
+    "lastPurchased": 56,
+    "consumptionCycle": 15,
+    "inventory": {
+      "Prestige Koramangala": 500,
+      "Brigade Indiranagar": 500,
+      "Sobha HSR": 500
+    },
+    "ai_intent_layers": {
+      "clarification": "Apple Cider Vinegar Face Wash by Wow Skin Science. Perfect for glowing needs.",
+      "risk": "100% genuine product. Secure checkout and fast delivery.",
+      "outcome": "Associated keywords for search: glowing, skincare, acne, hydration, routine, apple, cider, vinegar, face, wash",
+      "comparison": "A top choice in the Beauty category with verified local inventory.",
+      "value": "High quality at competitive pricing.",
+      "personalization": "Great addition to your daily beauty routine in Bangalore."
+    },
+    "fulfilledBy": "Dash24",
+    "node_inventory": {
+      "Prestige Koramangala": 500,
+      "Brigade Indiranagar": 500,
+      "Sobha HSR": 500
+    },
+    "localAvailable": true,
+    "brandDeliveryDays": 2
+  },
+  {
+    "id": "NEW_CSV_PROD_27",
+    "name": "Onion Black Seed Hair Oil",
+    "brand": "Wow Skin Science",
+    "category": "Beauty",
+    "price": 449,
+    "mrp": 599,
+    "image_url": "https://media.buywow.in/public/products/ecfb0477-ab9f-4f8d-8fe6-a65d254e4f4c/f728b720-5bd4-449b-9197-e8bc1589aaed.png?w=900&q=75&f=webp",
+    "rating": 4.4,
+    "low": false,
+    "lastPurchased": 28,
+    "consumptionCycle": 41,
+    "inventory": {
+      "Prestige Koramangala": 500,
+      "Brigade Indiranagar": 500,
+      "Sobha HSR": 500
+    },
+    "ai_intent_layers": {
+      "clarification": "Onion Black Seed Hair Oil by Wow Skin Science. Perfect for glowing needs.",
+      "risk": "100% genuine product. Secure checkout and fast delivery.",
+      "outcome": "Associated keywords for search: glowing, skincare, acne, hydration, routine, onion, black, seed, hair, oil",
+      "comparison": "A top choice in the Beauty category with verified local inventory.",
+      "value": "High quality at competitive pricing.",
+      "personalization": "Great addition to your daily beauty routine in Bangalore."
+    },
+    "fulfilledBy": "Dash24",
+    "node_inventory": {
+      "Prestige Koramangala": 500,
+      "Brigade Indiranagar": 500,
+      "Sobha HSR": 500
+    },
+    "localAvailable": true,
+    "brandDeliveryDays": 2
+  },
+  {
+    "id": "NEW_CSV_PROD_28",
+    "name": "Aloe Vera Gel",
+    "brand": "Wow Skin Science",
+    "category": "Beauty",
+    "price": 249,
+    "mrp": 299,
+    "image_url": "https://media.buywow.in/public/ed12a9b3-aa11-4d5b-97f1-440a8907e1df?w=900&q=75&f=webp",
+    "rating": 4.1,
+    "low": false,
+    "lastPurchased": 56,
+    "consumptionCycle": 20,
+    "inventory": {
+      "Prestige Koramangala": 0,
+      "Brigade Indiranagar": 0,
+      "Sobha HSR": 0
+    },
+    "ai_intent_layers": {
+      "clarification": "Aloe Vera Gel by Wow Skin Science. Perfect for glowing needs.",
+      "risk": "100% genuine product. Secure checkout and fast delivery.",
+      "outcome": "Associated keywords for search: glowing, skincare, acne, hydration, routine, aloe, vera, gel",
+      "comparison": "A top choice in the Beauty category with verified local inventory.",
+      "value": "High quality at competitive pricing.",
+      "personalization": "Great addition to your daily beauty routine in Bangalore."
+    },
+    "fulfilledBy": "Brand",
+    "node_inventory": {
+      "Prestige Koramangala": 0,
+      "Brigade Indiranagar": 0,
+      "Sobha HSR": 0
+    },
+    "localAvailable": false,
+    "brandDeliveryDays": 3
+  },
+  {
+    "id": "NEW_CSV_PROD_29",
+    "name": "Multigrain Energy Bars (Pack of 6)",
+    "brand": "Yoga Bar",
+    "category": "Snacks",
+    "price": 240,
+    "mrp": 300,
+    "image_url": "https://www.yogabars.in/cdn/shop/files/variety-pack-energy-bar-pack-of-6.jpg?v=1770964210&width=1100",
+    "rating": 4.1,
+    "low": false,
+    "lastPurchased": 26,
+    "consumptionCycle": 44,
+    "inventory": {
+      "Prestige Koramangala": 500,
+      "Brigade Indiranagar": 500,
+      "Sobha HSR": 500
+    },
+    "ai_intent_layers": {
+      "clarification": "Multigrain Energy Bars (Pack of 6) by Yoga Bar. Perfect for healthy snacking needs.",
+      "risk": "100% genuine product. Secure checkout and fast delivery.",
+      "outcome": "Associated keywords for search: healthy snacking, guilt-free, delicious, quick bite, craving, multigrain, energy, bars, (pack, of, 6)",
+      "comparison": "A top choice in the Snacks category with verified local inventory.",
+      "value": "High quality at competitive pricing.",
+      "personalization": "Great addition to your daily snacks routine in Bangalore."
+    },
+    "fulfilledBy": "Dash24",
+    "node_inventory": {
+      "Prestige Koramangala": 500,
+      "Brigade Indiranagar": 500,
+      "Sobha HSR": 500
+    },
+    "localAvailable": true,
+    "brandDeliveryDays": 2
+  },
+  {
+    "id": "NEW_CSV_PROD_30",
+    "name": "Dark Chocolate Peanut Butter",
+    "brand": "Yoga Bar",
+    "category": "Snacks",
+    "price": 349,
+    "mrp": 499,
+    "image_url": "https://www.yogabars.in/cdn/shop/files/20g-choco-peanut-butter-protein-bar-pack-of-5.jpg?v=1770963213",
+    "rating": 4.4,
+    "low": false,
+    "lastPurchased": 48,
+    "consumptionCycle": 43,
+    "inventory": {
+      "Prestige Koramangala": 500,
+      "Brigade Indiranagar": 500,
+      "Sobha HSR": 500
+    },
+    "ai_intent_layers": {
+      "clarification": "Dark Chocolate Peanut Butter by Yoga Bar. Perfect for healthy snacking needs.",
+      "risk": "100% genuine product. Secure checkout and fast delivery.",
+      "outcome": "Associated keywords for search: healthy snacking, guilt-free, delicious, quick bite, craving, dark, chocolate, peanut, butter",
+      "comparison": "A top choice in the Snacks category with verified local inventory.",
+      "value": "High quality at competitive pricing.",
+      "personalization": "Great addition to your daily snacks routine in Bangalore."
+    },
+    "fulfilledBy": "Dash24",
+    "node_inventory": {
+      "Prestige Koramangala": 500,
+      "Brigade Indiranagar": 500,
+      "Sobha HSR": 500
+    },
+    "localAvailable": true,
+    "brandDeliveryDays": 3
+  },
+  {
+    "id": "NEW_CSV_PROD_31",
+    "name": "Muesli Dark Chocolate",
+    "brand": "Yoga Bar",
+    "category": "Snacks",
+    "price": 299,
+    "mrp": 350,
+    "image_url": "https://www.yogabars.in/cdn/shop/files/dark-chocolate-cranberry-muesli-700g.jpg?v=1770964425&width=1100",
+    "rating": 4.9,
+    "low": false,
+    "lastPurchased": 11,
+    "consumptionCycle": 42,
+    "inventory": {
+      "Prestige Koramangala": 0,
+      "Brigade Indiranagar": 0,
+      "Sobha HSR": 0
+    },
+    "ai_intent_layers": {
+      "clarification": "Muesli Dark Chocolate by Yoga Bar. Perfect for healthy snacking needs.",
+      "risk": "100% genuine product. Secure checkout and fast delivery.",
+      "outcome": "Associated keywords for search: healthy snacking, guilt-free, delicious, quick bite, craving, muesli, dark, chocolate",
+      "comparison": "A top choice in the Snacks category with verified local inventory.",
+      "value": "High quality at competitive pricing.",
+      "personalization": "Great addition to your daily snacks routine in Bangalore."
+    },
+    "fulfilledBy": "Brand",
+    "node_inventory": {
+      "Prestige Koramangala": 0,
+      "Brigade Indiranagar": 0,
+      "Sobha HSR": 0
+    },
+    "localAvailable": false,
+    "brandDeliveryDays": 2
+  },
+  {
+    "id": "NEW_CSV_PROD_32",
+    "name": "Millet Pancake Mix",
+    "brand": "Slurrp Farm",
+    "category": "Snacks",
+    "price": 149,
+    "mrp": 199,
+    "image_url": "https://m.media-amazon.com/images/I/71XCQC1i+KL._SL1500_.jpg",
+    "rating": 4.7,
+    "low": false,
+    "lastPurchased": 48,
+    "consumptionCycle": 26,
+    "inventory": {
+      "Prestige Koramangala": 500,
+      "Brigade Indiranagar": 500,
+      "Sobha HSR": 500
+    },
+    "ai_intent_layers": {
+      "clarification": "Millet Pancake Mix by Slurrp Farm. Perfect for healthy snacking needs.",
+      "risk": "100% genuine product. Secure checkout and fast delivery.",
+      "outcome": "Associated keywords for search: healthy snacking, guilt-free, delicious, quick bite, craving, millet, pancake, mix",
+      "comparison": "A top choice in the Snacks category with verified local inventory.",
+      "value": "High quality at competitive pricing.",
+      "personalization": "Great addition to your daily snacks routine in Bangalore."
+    },
+    "fulfilledBy": "Dash24",
+    "node_inventory": {
+      "Prestige Koramangala": 500,
+      "Brigade Indiranagar": 500,
+      "Sobha HSR": 500
+    },
+    "localAvailable": true,
+    "brandDeliveryDays": 4
+  },
+  {
+    "id": "NEW_CSV_PROD_33",
+    "name": "Strawberry Crunch Macaron",
+    "brand": "Slurrp Farm",
+    "category": "Snacks",
+    "price": 99,
+    "mrp": 150,
+    "image_url": "https://slurrpfarm.com/cdn/shop/files/1_Strawberry-Cereal_D2C_1500x1500_ed0d95c2-8a78-4208-a28e-11a009940df9_576x.jpg?v=1752574186",
+    "rating": 4.4,
+    "low": false,
+    "lastPurchased": 12,
+    "consumptionCycle": 36,
+    "inventory": {
+      "Prestige Koramangala": 500,
+      "Brigade Indiranagar": 500,
+      "Sobha HSR": 500
+    },
+    "ai_intent_layers": {
+      "clarification": "Strawberry Crunch Macaron by Slurrp Farm. Perfect for healthy snacking needs.",
+      "risk": "100% genuine product. Secure checkout and fast delivery.",
+      "outcome": "Associated keywords for search: healthy snacking, guilt-free, delicious, quick bite, craving, strawberry, crunch, macaron",
+      "comparison": "A top choice in the Snacks category with verified local inventory.",
+      "value": "High quality at competitive pricing.",
+      "personalization": "Great addition to your daily snacks routine in Bangalore."
+    },
+    "fulfilledBy": "Dash24",
+    "node_inventory": {
+      "Prestige Koramangala": 500,
+      "Brigade Indiranagar": 500,
+      "Sobha HSR": 500
+    },
+    "localAvailable": true,
+    "brandDeliveryDays": 2
+  },
+  {
+    "id": "NEW_CSV_PROD_34",
+    "name": "Sprouted Ragi Powder",
+    "brand": "Slurrp Farm",
+    "category": "Snacks",
+    "price": 199,
+    "mrp": 249,
+    "image_url": "https://slurrpfarm.com/cdn/shop/files/1_Sprouted-Ragi-Cereal_D2C_1500x1500_9a1484c9-75e4-4481-b56d-71ddb087b063_576x.jpg?v=1752574172",
+    "rating": 4.2,
+    "low": false,
+    "lastPurchased": 49,
+    "consumptionCycle": 26,
+    "inventory": {
+      "Prestige Koramangala": 0,
+      "Brigade Indiranagar": 0,
+      "Sobha HSR": 0
+    },
+    "ai_intent_layers": {
+      "clarification": "Sprouted Ragi Powder by Slurrp Farm. Perfect for healthy snacking needs.",
+      "risk": "100% genuine product. Secure checkout and fast delivery.",
+      "outcome": "Associated keywords for search: healthy snacking, guilt-free, delicious, quick bite, craving, sprouted, ragi, powder",
+      "comparison": "A top choice in the Snacks category with verified local inventory.",
+      "value": "High quality at competitive pricing.",
+      "personalization": "Great addition to your daily snacks routine in Bangalore."
+    },
+    "fulfilledBy": "Brand",
+    "node_inventory": {
+      "Prestige Koramangala": 0,
+      "Brigade Indiranagar": 0,
+      "Sobha HSR": 0
+    },
+    "localAvailable": false,
+    "brandDeliveryDays": 3
+  },
+  {
+    "id": "NEW_CSV_PROD_35",
+    "name": "ColorFit Pulse Smartwatch",
+    "brand": "Noise",
+    "category": "Wearables",
+    "price": 1999,
+    "mrp": 4999,
+    "image_url": "https://www.gonoise.com/cdn/shop/files/Artboard_1_result_0f35dacb-f9bb-4520-aa38-54032d7d9304-removebg-preview.png?v=1758450036",
+    "rating": 4.7,
+    "low": false,
+    "lastPurchased": 48,
+    "consumptionCycle": 24,
+    "inventory": {
+      "Prestige Koramangala": 500,
+      "Brigade Indiranagar": 500,
+      "Sobha HSR": 500
+    },
+    "ai_intent_layers": {
+      "clarification": "ColorFit Pulse Smartwatch by Noise. Perfect for smart needs.",
+      "risk": "100% genuine product. Secure checkout and fast delivery.",
+      "outcome": "Associated keywords for search: smart, connected, battery life, premium, tech, colorfit, pulse, smartwatch",
+      "comparison": "A top choice in the Wearables category with verified local inventory.",
+      "value": "High quality at competitive pricing.",
+      "personalization": "Great addition to your daily wearables routine in Bangalore."
+    },
+    "fulfilledBy": "Dash24",
+    "node_inventory": {
+      "Prestige Koramangala": 500,
+      "Brigade Indiranagar": 500,
+      "Sobha HSR": 500
+    },
+    "localAvailable": true,
+    "brandDeliveryDays": 4
+  },
+  {
+    "id": "NEW_CSV_PROD_36",
+    "name": "Buds VS102 Wireless Earbuds",
+    "brand": "Noise",
+    "category": "Electronics",
+    "price": 999,
+    "mrp": 2999,
+    "image_url": "https://www.gonoise.com/cdn/shop/files/1_3562ade0-33c5-4818-958d-5a72e0e3be63.webp?v=1722313458",
+    "rating": 4.2,
+    "low": false,
+    "lastPurchased": 51,
+    "consumptionCycle": 19,
+    "inventory": {
+      "Prestige Koramangala": 500,
+      "Brigade Indiranagar": 500,
+      "Sobha HSR": 500
+    },
+    "ai_intent_layers": {
+      "clarification": "Buds VS102 Wireless Earbuds by Noise. Perfect for smart needs.",
+      "risk": "100% genuine product. Secure checkout and fast delivery.",
+      "outcome": "Associated keywords for search: smart, connected, battery life, premium, tech, buds, vs102, wireless, earbuds",
+      "comparison": "A top choice in the Electronics category with verified local inventory.",
+      "value": "High quality at competitive pricing.",
+      "personalization": "Great addition to your daily electronics routine in Bangalore."
+    },
+    "fulfilledBy": "Dash24",
+    "node_inventory": {
+      "Prestige Koramangala": 500,
+      "Brigade Indiranagar": 500,
+      "Sobha HSR": 500
+    },
+    "localAvailable": true,
+    "brandDeliveryDays": 2
+  },
+  {
+    "id": "NEW_CSV_PROD_37",
+    "name": "ColorFit Pro 4",
+    "brand": "Noise",
+    "category": "Wearables",
+    "price": 2499,
+    "mrp": 5999,
+    "image_url": "https://www.gonoise.com/cdn/shop/files/1_c95e5561-4f66-413d-b143-42d31821e554.webp?v=1721392308",
+    "rating": 4.5,
+    "low": false,
+    "lastPurchased": 40,
+    "consumptionCycle": 15,
+    "inventory": {
+      "Prestige Koramangala": 0,
+      "Brigade Indiranagar": 0,
+      "Sobha HSR": 0
+    },
+    "ai_intent_layers": {
+      "clarification": "ColorFit Pro 4 by Noise. Perfect for smart needs.",
+      "risk": "100% genuine product. Secure checkout and fast delivery.",
+      "outcome": "Associated keywords for search: smart, connected, battery life, premium, tech, colorfit, pro, 4",
+      "comparison": "A top choice in the Wearables category with verified local inventory.",
+      "value": "High quality at competitive pricing.",
+      "personalization": "Great addition to your daily wearables routine in Bangalore."
+    },
+    "fulfilledBy": "Brand",
+    "node_inventory": {
+      "Prestige Koramangala": 0,
+      "Brigade Indiranagar": 0,
+      "Sobha HSR": 0
+    },
+    "localAvailable": false,
+    "brandDeliveryDays": 3
+  },
+  {
+    "id": "NEW_CSV_PROD_38",
+    "name": "Airdopes 141",
+    "brand": "boAt",
+    "category": "Electronics",
+    "price": 1299,
+    "mrp": 4490,
+    "image_url": "https://www.boat-lifestyle.com/cdn/shop/files/AD141-FI_Black01_600x.png?v=1698391770",
+    "rating": 4.3,
+    "low": false,
+    "lastPurchased": 44,
+    "consumptionCycle": 22,
+    "inventory": {
+      "Prestige Koramangala": 500,
+      "Brigade Indiranagar": 500,
+      "Sobha HSR": 500
+    },
+    "ai_intent_layers": {
+      "clarification": "Airdopes 141 by boAt. Perfect for smart needs.",
+      "risk": "100% genuine product. Secure checkout and fast delivery.",
+      "outcome": "Associated keywords for search: smart, connected, battery life, premium, tech, airdopes, 141",
+      "comparison": "A top choice in the Electronics category with verified local inventory.",
+      "value": "High quality at competitive pricing.",
+      "personalization": "Great addition to your daily electronics routine in Bangalore."
+    },
+    "fulfilledBy": "Dash24",
+    "node_inventory": {
+      "Prestige Koramangala": 500,
+      "Brigade Indiranagar": 500,
+      "Sobha HSR": 500
+    },
+    "localAvailable": true,
+    "brandDeliveryDays": 2
+  },
+  {
+    "id": "NEW_CSV_PROD_39",
+    "name": "BassHeads 100",
+    "brand": "boAt",
+    "category": "Electronics",
+    "price": 399,
+    "mrp": 999,
+    "image_url": "https://www.boat-lifestyle.com/cdn/shop/products/c3d0fbbd-9479-4351-bf04-91136da2ae91_600x.png?v=1656750183",
+    "rating": 4.8,
+    "low": false,
+    "lastPurchased": 35,
+    "consumptionCycle": 22,
+    "inventory": {
+      "Prestige Koramangala": 500,
+      "Brigade Indiranagar": 500,
+      "Sobha HSR": 500
+    },
+    "ai_intent_layers": {
+      "clarification": "BassHeads 100 by boAt. Perfect for smart needs.",
+      "risk": "100% genuine product. Secure checkout and fast delivery.",
+      "outcome": "Associated keywords for search: smart, connected, battery life, premium, tech, bassheads, 100",
+      "comparison": "A top choice in the Electronics category with verified local inventory.",
+      "value": "High quality at competitive pricing.",
+      "personalization": "Great addition to your daily electronics routine in Bangalore."
+    },
+    "fulfilledBy": "Dash24",
+    "node_inventory": {
+      "Prestige Koramangala": 500,
+      "Brigade Indiranagar": 500,
+      "Sobha HSR": 500
+    },
+    "localAvailable": true,
+    "brandDeliveryDays": 4
+  },
+  {
+    "id": "NEW_CSV_PROD_40",
+    "name": "Xtend Smartwatch",
+    "brand": "boAt",
+    "category": "Wearables",
+    "price": 2299,
+    "mrp": 7990,
+    "image_url": "https://www.boat-lifestyle.com/cdn/shop/files/WaveAstra3-FI-Black01_1000x.png?v=1720785627",
+    "rating": 4.7,
+    "low": false,
+    "lastPurchased": 12,
+    "consumptionCycle": 33,
+    "inventory": {
+      "Prestige Koramangala": 0,
+      "Brigade Indiranagar": 0,
+      "Sobha HSR": 0
+    },
+    "ai_intent_layers": {
+      "clarification": "Xtend Smartwatch by boAt. Perfect for smart needs.",
+      "risk": "100% genuine product. Secure checkout and fast delivery.",
+      "outcome": "Associated keywords for search: smart, connected, battery life, premium, tech, xtend, smartwatch",
+      "comparison": "A top choice in the Wearables category with verified local inventory.",
+      "value": "High quality at competitive pricing.",
+      "personalization": "Great addition to your daily wearables routine in Bangalore."
+    },
+    "fulfilledBy": "Brand",
+    "node_inventory": {
+      "Prestige Koramangala": 0,
+      "Brigade Indiranagar": 0,
+      "Sobha HSR": 0
+    },
+    "localAvailable": false,
+    "brandDeliveryDays": 4
+  },
+  {
+    "id": "NEW_CSV_PROD_41",
+    "name": "Cold Brew Cans",
+    "brand": "Blue Tokai",
+    "category": "Snacks",
+    "price": 750,
+    "mrp": 999,
+    "image_url": "https://bluetokaicoffee.com/cdn/shop/files/2.-Mocha-Cold-_Double.jpg?v=1723805313&width=1800",
+    "rating": 4.4,
+    "low": false,
+    "lastPurchased": 49,
+    "consumptionCycle": 36,
+    "inventory": {
+      "Prestige Koramangala": 500,
+      "Brigade Indiranagar": 500,
+      "Sobha HSR": 500
+    },
+    "ai_intent_layers": {
+      "clarification": "Cold Brew Cans by Blue Tokai. Perfect for healthy snacking needs.",
+      "risk": "100% genuine product. Secure checkout and fast delivery.",
+      "outcome": "Associated keywords for search: healthy snacking, guilt-free, delicious, quick bite, craving, cold, brew, cans",
+      "comparison": "A top choice in the Snacks category with verified local inventory.",
+      "value": "High quality at competitive pricing.",
+      "personalization": "Great addition to your daily snacks routine in Bangalore."
+    },
+    "fulfilledBy": "Dash24",
+    "node_inventory": {
+      "Prestige Koramangala": 500,
+      "Brigade Indiranagar": 500,
+      "Sobha HSR": 500
+    },
+    "localAvailable": true,
+    "brandDeliveryDays": 2
+  },
+  {
+    "id": "NEW_CSV_PROD_42",
+    "name": "Oversized Classic T-Shirt",
+    "brand": "Snitch",
+    "category": "Fashion",
+    "price": 1158,
+    "mrp": 1400,
+    "image_url": "https://assets-jiocdn.ajio.com/medias/sys_master/root1/20260106/77dA/695c1920cbfa0d5608504c9f/-1117Wx1400H-702716862-beige-MODEL.jpg",
+    "rating": 4.7,
+    "low": false,
+    "lastPurchased": 15,
+    "consumptionCycle": 24,
+    "inventory": {
+      "Prestige Koramangala": 500,
+      "Brigade Indiranagar": 500,
+      "Sobha HSR": 500
+    },
+    "ai_intent_layers": {
+      "clarification": "Oversized Classic T-Shirt by Snitch. Perfect for trendy needs.",
+      "risk": "100% genuine product. Secure checkout and fast delivery.",
+      "outcome": "Associated keywords for search: trendy, comfortable, style, everyday wear, casual, oversized, classic, t-shirt",
+      "comparison": "A top choice in the Fashion category with verified local inventory.",
+      "value": "High quality at competitive pricing.",
+      "personalization": "Great addition to your daily fashion routine in Bangalore."
+    },
+    "fulfilledBy": "Dash24",
+    "node_inventory": {
+      "Prestige Koramangala": 500,
+      "Brigade Indiranagar": 500,
+      "Sobha HSR": 500
+    },
+    "localAvailable": true,
+    "brandDeliveryDays": 2
   }
 ]
