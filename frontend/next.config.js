@@ -25,7 +25,10 @@ const nextConfig = {
       { protocol: 'https', hostname: 'cdn.zeptonow.com' },
       { protocol: 'https', hostname: 'm.media-amazon.com' },
       { protocol: 'https', hostname: 'images.unsplash.com' },
-      { protocol: 'https', hostname: 'cdn-icons-png.flaticon.com' }
+      { protocol: 'https', hostname: 'cdn-icons-png.flaticon.com' },
+      { protocol: 'https', hostname: 'cdn.brandfetch.io' },
+      { protocol: 'https', hostname: 'img-cdn.publive.online' },
+      { protocol: 'https', hostname: 'www.mediainfoline.com' }
     ],
   },
 }

@@ -46,7 +46,7 @@ export default function LivePulseCard({ product, handleAddToCart, handleCardClic
                     </span>
                 )}
                 <div className="w-[80px] md:w-[140px] h-[80px] md:h-[140px] relative group-hover:scale-105 transition-transform duration-500 md:mt-2">
-                    <img src={product.image_url} alt={product.name} loading="lazy" className="w-full h-full object-contain filter drop-shadow-sm" />
+                    <img referrerPolicy="no-referrer" src={product.image_url} alt={product.name} loading="lazy" className="w-full h-full object-contain filter drop-shadow-sm" />
                 </div>
             </div>
 

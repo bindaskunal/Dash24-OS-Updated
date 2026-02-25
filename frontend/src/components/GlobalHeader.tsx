@@ -65,7 +65,7 @@ export default function GlobalHeader() {
                     {/* Left: Logo + Nav */}
                     <div className="flex items-center gap-8">
                         <Link href="/" className="flex items-center gap-1.5 group shrink-0">
-                            <img src="/logo.png" alt="Dash24" className="h-8 w-auto object-contain group-hover:scale-105 transition-transform" />
+                            <img referrerPolicy="no-referrer" src="/logo.png" alt="Dash24" className="h-8 w-auto object-contain group-hover:scale-105 transition-transform" />
                         </Link>
 
                         <nav className="flex items-center gap-0.5">
@@ -178,7 +178,7 @@ export default function GlobalHeader() {
                     <div className="flex items-center gap-1.5">
                         {/* Dash24 Brand Logo */}
                         <Link href="/" className="flex items-center gap-1">
-                            <img src="/logo.png" alt="Dash24" className="h-6 w-auto object-contain" />
+                            <img referrerPolicy="no-referrer" src="/logo.png" alt="Dash24" className="h-6 w-auto object-contain" />
                         </Link>
                     </div>
                 </div>

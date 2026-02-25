@@ -57,7 +57,7 @@ export default function BrandsPage() {
                         {FEATURED_BRANDS.map(brand => (
                             <div key={brand} onClick={() => setSelectedBrand(brand)} className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm hover:shadow-xl transition-all cursor-pointer group flex flex-col items-center">
                                 <div className="w-24 h-24 mb-4 flex items-center justify-center p-4">
-                                    <img src={BRAND_LOGOS[brand]} alt={brand} className="max-h-full max-w-full object-contain filter group-hover:scale-110 transition duration-500" />
+                                    <img referrerPolicy="no-referrer" src={BRAND_LOGOS[brand]} alt={brand} className="max-h-full max-w-full object-contain filter group-hover:scale-110 transition duration-500" />
                                 </div>
                                 <h3 className="text-sm font-black text-gray-900">{brand}</h3>
                                 <span className="text-[10px] text-[#F97316] font-bold uppercase tracking-widest mt-2">{MASTER_CATALOG.filter(p => p.brand === brand).length} Products</span>
@@ -73,7 +73,7 @@ export default function BrandsPage() {
                         {BRAND_CATEGORIES.map(cat => (
                             <div key={cat.name} className="flex flex-col items-center gap-2 group cursor-pointer">
                                 <div className="w-16 h-16 md:w-20 md:h-20 bg-white rounded-2xl md:rounded-3xl border border-gray-100 shadow-sm flex items-center justify-center p-1 group-hover:scale-110 transition group-active:scale-95">
-                                    <img src={cat.img} alt="" className="w-3/4 h-3/4 object-contain" />
+                                    <img referrerPolicy="no-referrer" src={cat.img} alt="" className="w-3/4 h-3/4 object-contain" />
                                 </div>
                                 <span className="text-[10px] md:text-xs font-bold text-gray-700 text-center px-1 line-clamp-1">{cat.name}</span>
                             </div>
@@ -88,7 +88,7 @@ export default function BrandsPage() {
                         {TRENDING_BRANDS.map(brand => (
                             <div key={brand} onClick={() => setSelectedBrand(brand)} className="flex-shrink-0 w-36 md:w-48 bg-white rounded-3xl p-6 border border-gray-100 shadow-sm hover:shadow-lg transition-all cursor-pointer group flex flex-col items-center">
                                 <div className="w-16 h-16 md:w-20 md:h-20 mb-3 flex items-center justify-center">
-                                    <img src={BRAND_LOGOS[brand]} alt={brand} className="max-h-full max-w-full object-contain filter group-hover:scale-105 transition" />
+                                    <img referrerPolicy="no-referrer" src={BRAND_LOGOS[brand]} alt={brand} className="max-h-full max-w-full object-contain filter group-hover:scale-105 transition" />
                                 </div>
                                 <h3 className="text-[11px] md:text-sm font-bold text-gray-900 text-center">{brand}</h3>
                             </div>
@@ -124,7 +124,7 @@ export default function BrandsPage() {
                         <div className="bg-gradient-to-r from-[#111827] to-[#1E3A8A] text-white p-8 md:p-12 relative flex-shrink-0">
                             <button onClick={() => setSelectedBrand(null)} className="absolute top-6 right-6 md:top-8 md:right-8 w-10 h-10 md:w-12 md:h-12 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition text-xl font-bold">✕</button>
                             <div className="w-16 h-16 md:w-24 md:h-24 bg-white rounded-2xl md:rounded-3xl mb-4 md:mb-6 flex items-center justify-center overflow-hidden p-3 md:p-4 shadow-2xl">
-                                <img src={BRAND_LOGOS[selectedBrand]} alt={selectedBrand} className="object-contain w-full h-full mix-blend-multiply" />
+                                <img referrerPolicy="no-referrer" src={BRAND_LOGOS[selectedBrand]} alt={selectedBrand} className="object-contain w-full h-full mix-blend-multiply" />
                             </div>
                             <h2 className="text-2xl md:text-4xl font-black tracking-tight mb-2">{selectedBrand}</h2>
                             <p className="text-xs font-medium text-blue-200 flex items-center gap-2">
@@ -137,7 +137,7 @@ export default function BrandsPage() {
                                 {MASTER_CATALOG.filter(i => i.brand === selectedBrand).map(item => (
                                     <div key={item.name} className="bg-white rounded-3xl p-5 border border-gray-100 shadow-sm hover:shadow-lg transition flex flex-col">
                                         <div className="aspect-square bg-[#F8FAFC] rounded-2xl mb-4 flex items-center justify-center p-3 relative overflow-hidden group">
-                                            <img src={item.image_url} alt={item.name} className="object-contain w-full h-full mix-blend-multiply group-hover:scale-110 transition duration-500" />
+                                            <img referrerPolicy="no-referrer" src={item.image_url} alt={item.name} className="object-contain w-full h-full mix-blend-multiply group-hover:scale-110 transition duration-500" />
                                             {item.low && <span className="absolute top-2 right-2 text-[8px] bg-orange-100 text-orange-600 px-2 py-1 rounded-full font-bold">LowStock</span>}
                                         </div>
                                         <p className="text-[11px] font-bold text-gray-900 leading-tight mb-2 flex-1">{item.name}</p>

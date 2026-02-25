@@ -150,7 +150,7 @@ export default function CartDrawer() {
                     <div className="bg-[#111827] text-white rounded-2xl p-3 shadow-2xl flex items-center justify-between border border-white/10 backdrop-blur-md">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center p-1 shrink-0 overflow-hidden">
-                                <img src={toastItem.image_url} alt="" className="w-full h-full object-contain mix-blend-multiply" />
+                                <img referrerPolicy="no-referrer" src={toastItem.image_url} alt="" className="w-full h-full object-contain mix-blend-multiply" />
                             </div>
                             <div className="flex flex-col">
                                 <span className="text-[9px] text-green-400 font-bold uppercase tracking-widest">Added ✓</span>
@@ -259,7 +259,7 @@ export default function CartDrawer() {
                                                 </div>
                                                 <div className="flex items-center gap-3 mb-3 border border-gray-100 bg-white p-3 rounded-xl shadow-sm">
                                                     <div className="w-11 h-11 bg-gray-50 rounded-lg flex items-center justify-center overflow-hidden border border-gray-100 shrink-0">
-                                                        <img src="https://beminimalist.co/cdn/shop/products/FaceWashSalicylic_1.jpg?v=1625141011" alt="Face Wash" className="w-full h-full object-contain mix-blend-multiply" />
+                                                        <img referrerPolicy="no-referrer" src="https://beminimalist.co/cdn/shop/products/FaceWashSalicylic_1.jpg?v=1625141011" alt="Face Wash" className="w-full h-full object-contain mix-blend-multiply" />
                                                     </div>
                                                     <p className="text-[11px] text-gray-600 font-medium leading-relaxed">
                                                         <span className="font-bold text-gray-900">14 Days ago</span> you purchased <span className="font-bold text-gray-900">Face Wash</span>.

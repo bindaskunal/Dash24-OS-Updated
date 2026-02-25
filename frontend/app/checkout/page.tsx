@@ -285,7 +285,7 @@ function CheckoutContent() {
                                 ).slice(0, 1).map((product: any) => (
                                     <div key={product.name} className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 hover:bg-gray-50 transition">
                                         <div className="w-12 h-12 bg-gray-50 rounded-lg flex items-center justify-center overflow-hidden border border-gray-100 shrink-0">
-                                            <img src={product.image_url} alt={product.name} className="w-full h-full object-contain" />
+                                            <img referrerPolicy="no-referrer" src={product.image_url} alt={product.name} className="w-full h-full object-contain" />
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <p className="text-sm font-bold text-gray-900 truncate">{product.name}</p>

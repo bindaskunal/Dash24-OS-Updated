@@ -415,7 +415,7 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                 }
               }} className="flex flex-col items-center gap-1.5 cursor-pointer group">
                 <div className={`w-16 h-16 rounded-[18px] overflow-hidden shadow-[0_2px_10px_rgba(0,0,0,0.06)] border p-0 bg-white group-active:scale-95 group-hover:shadow-md transition-all flex items-center justify-center ${selectedCategory === cat.name ? 'border-orange-500 ring-2 ring-orange-200' : 'border-gray-100'}`}>
-                  <img src={cat.img} alt={cat.name} className="w-[85%] h-[85%] object-contain" />
+                  <img referrerPolicy="no-referrer" src={cat.img} alt={cat.name} className="w-[85%] h-[85%] object-contain" />
                 </div>
                 <span className={`text-[10px] font-bold text-center w-16 leading-tight break-words ${selectedCategory === cat.name ? 'text-orange-600' : 'text-gray-700'}`}>{cat.name}</span>
               </div>
@@ -528,7 +528,7 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                 }
               }} className="flex flex-col items-center gap-2 cursor-pointer group px-4">
                 <div className={`w-20 h-20 rounded-2xl overflow-hidden shadow-sm border p-0 bg-gray-50 group-active:scale-95 group-hover:shadow-md transition-all flex items-center justify-center ${selectedCategory === cat.name ? 'border-orange-500 ring-4 ring-orange-200 bg-orange-50' : 'border-gray-100'}`}>
-                  <img src={cat.img} alt={cat.name} className="w-[80%] h-[80%] object-contain mix-blend-multiply" />
+                  <img referrerPolicy="no-referrer" src={cat.img} alt={cat.name} className="w-[80%] h-[80%] object-contain mix-blend-multiply" />
                 </div>
                 <span className={`text-xs font-bold text-center leading-tight ${selectedCategory === cat.name ? 'text-orange-600' : 'text-gray-700 group-hover:text-gray-900'}`}>{cat.name}</span>
               </div>
@@ -558,7 +558,7 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                       if (!hasBrand) return null;
                       return (
                         <div key={brand} onClick={() => { setSearchFocused(false); setActiveBrand(brand); }} className="snap-start flex-shrink-0 w-[100px] h-[100px] bg-white border border-gray-100 rounded-2xl shadow-sm flex items-center justify-center p-3 cursor-pointer active:scale-95 transition-transform">
-                          <img src={BRAND_LOGOS[brand]} alt={brand} className="max-w-full max-h-full object-contain mix-blend-multiply" />
+                          <img referrerPolicy="no-referrer" src={BRAND_LOGOS[brand]} alt={brand} className="max-w-full max-h-full object-contain mix-blend-multiply" />
                         </div>
                       );
                     })}
@@ -597,7 +597,7 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                       if (!hasBrand) return null;
                       return (
                         <div key={brand} onClick={() => { setSearchFocused(false); setActiveBrand(brand); }} className="snap-start flex-shrink-0 w-[140px] h-[140px] bg-white border border-gray-200 hover:border-orange-400 hover:shadow-lg rounded-[24px] flex items-center justify-center p-4 cursor-pointer transition-all hover:-translate-y-1">
-                          <img src={BRAND_LOGOS[brand]} alt={brand} className="max-w-full max-h-full object-contain mix-blend-multiply" />
+                          <img referrerPolicy="no-referrer" src={BRAND_LOGOS[brand]} alt={brand} className="max-w-full max-h-full object-contain mix-blend-multiply" />
                         </div>
                       );
                     })}
@@ -680,7 +680,7 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                       </div>
 
                       <div className="w-10 h-10 md:w-28 md:h-28 bg-white rounded-xl overflow-hidden p-1.5 shadow-lg mb-1.5 md:mb-4 group-hover:scale-105 transition-transform duration-500 mx-auto">
-                        <img src={AGENTIC_DROPS[agenticIndex].img} alt="Drop Item" className="w-full h-full object-contain mix-blend-multiply" />
+                        <img referrerPolicy="no-referrer" src={AGENTIC_DROPS[agenticIndex].img} alt="Drop Item" className="w-full h-full object-contain mix-blend-multiply" />
                       </div>
 
                       <p className="text-[10px] md:text-sm text-gray-200 font-bold mb-0.5 truncate w-full px-1">{AGENTIC_DROPS[agenticIndex].name}</p>
@@ -837,7 +837,7 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                     <div key={idx} className="min-w-[160px] max-w-[160px] snap-start bg-white border border-gray-100/60 rounded-2xl p-3 flex flex-col relative shadow-sm hover:shadow-md transition-shadow">
                       <div className="w-full h-24 mb-3 flex items-center justify-center relative p-1 mix-blend-multiply">
                         <span className="absolute top-0 right-0 bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded shadow-sm z-10">-25%</span>
-                        <img src={item.image_url} alt={item.name} loading="lazy" className="h-full w-full object-contain drop-shadow-sm group-hover:scale-105 transition-transform duration-300" />
+                        <img referrerPolicy="no-referrer" src={item.image_url} alt={item.name} loading="lazy" className="h-full w-full object-contain drop-shadow-sm group-hover:scale-105 transition-transform duration-300" />
                       </div>
                       <p className="text-[11px] font-bold text-gray-800 leading-snug mb-1 line-clamp-2 min-h-[32px] px-1">{item.name}</p>
                       <div className="flex items-end justify-between mt-auto px-1">
@@ -1022,7 +1022,7 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                   {QUICK_CATEGORIES.map(cat => (
                     <button key={cat.name} onClick={() => setSearchQuery(cat.name)} className="flex items-center gap-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-full px-4 py-2 whitespace-nowrap active:scale-95 transition text-xs text-white font-medium shadow-sm flex-shrink-0">
                       <div className="w-5 h-5 bg-white rounded-full flex items-center justify-center overflow-hidden shrink-0">
-                        <img src={cat.img} alt={cat.name} className="w-[85%] h-[85%] object-contain mix-blend-multiply" />
+                        <img referrerPolicy="no-referrer" src={cat.img} alt={cat.name} className="w-[85%] h-[85%] object-contain mix-blend-multiply" />
                       </div>
                       {cat.name}
                     </button>
@@ -1066,7 +1066,7 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                           className="bg-gray-800/80 border border-gray-700 p-4 rounded-2xl flex items-center gap-4 cursor-pointer hover:bg-gray-700 transition"
                         >
                           <div className="w-16 h-16 bg-white rounded-xl p-2 flex items-center justify-center">
-                            <img src={BRAND_LOGOS[Object.keys(BRAND_LOGOS).find(b => b.toLowerCase().includes(searchQuery.toLowerCase()))!]} alt="Brand" className="w-full h-full object-contain" />
+                            <img referrerPolicy="no-referrer" src={BRAND_LOGOS[Object.keys(BRAND_LOGOS).find(b => b.toLowerCase().includes(searchQuery.toLowerCase()))!]} alt="Brand" className="w-full h-full object-contain" />
                           </div>
                           <div>
                             <h3 className="text-lg font-bold text-white">{Object.keys(BRAND_LOGOS).find(b => b.toLowerCase().includes(searchQuery.toLowerCase()))}</h3>
@@ -1094,7 +1094,7 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                       {scoredItems.filter(item => agenticMatches.includes(item.id) || item.name.toLowerCase().includes(searchQuery.toLowerCase()) || item.brand.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 8).map(item => (
                         <div key={item.name} onClick={() => { setSearchFocused(false); router.push(`/product/${item.id || 0}`); }} className="bg-white border border-gray-100 rounded-2xl p-3 flex flex-col relative cursor-pointer group hover:shadow-xl transition text-black">
                           <div className="w-full h-32 mb-3 bg-gray-50 rounded-xl p-2 relative overflow-hidden flex items-center justify-center">
-                            <img src={item.image_url} alt={item.name} className="max-h-full max-w-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500" />
+                            <img referrerPolicy="no-referrer" src={item.image_url} alt={item.name} className="max-h-full max-w-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500" />
                           </div>
                           <p className="text-[11px] font-bold text-gray-900 leading-snug mb-1 line-clamp-2 min-h-[32px]">{item.name}</p>
                           <p className="text-sm font-black text-gray-900 mt-auto">₹{item.price}</p>
@@ -1140,7 +1140,7 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                       </div>
                     )}
                     {activeProduct.image_url ? (
-                      <img src={activeProduct.image_url} alt={activeProduct.name} className="object-contain w-full h-full mix-blend-multiply filter drop-shadow-xl group-hover:scale-105 transition duration-500" />
+                      <img referrerPolicy="no-referrer" src={activeProduct.image_url} alt={activeProduct.name} className="object-contain w-full h-full mix-blend-multiply filter drop-shadow-xl group-hover:scale-105 transition duration-500" />
                     ) : (
                       "📦"
                     )}
@@ -1240,7 +1240,7 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
 
                   <div className="w-24 h-24 bg-white rounded-3xl mb-6 flex items-center justify-center overflow-hidden p-4 shadow-2xl">
                     {activeBrand && BRAND_LOGOS[activeBrand] ? (
-                      <img src={BRAND_LOGOS[activeBrand]} alt={activeBrand} className="object-contain w-full h-full mix-blend-multiply" />
+                      <img referrerPolicy="no-referrer" src={BRAND_LOGOS[activeBrand]} alt={activeBrand} className="object-contain w-full h-full mix-blend-multiply" />
                     ) : (
                       <span className="text-4xl">🏢</span>
                     )}
@@ -1265,7 +1265,7 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                           {item.localAvailable && item.low && <span className="absolute top-3 right-3 text-[9px] bg-orange-100 text-orange-600 px-3 py-1 rounded-full font-bold z-10 shadow-sm">Running Low</span>}
                           {!item.localAvailable && <span className="absolute top-3 right-3 text-[9px] bg-blue-100 text-blue-600 px-3 py-1 rounded-full font-bold z-10 shadow-sm">Multi-Day</span>}
                           {item.image_url ? (
-                            <img src={item.image_url} alt={item.name} className="object-contain w-full h-full mix-blend-multiply group-hover:scale-110 transition-transform duration-500" />
+                            <img referrerPolicy="no-referrer" src={item.image_url} alt={item.name} className="object-contain w-full h-full mix-blend-multiply group-hover:scale-110 transition-transform duration-500" />
                           ) : (
                             <span className="text-4xl text-gray-300 group-hover:scale-110 transition-transform">📦</span>
                           )}

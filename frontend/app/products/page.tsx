@@ -53,7 +53,7 @@ function ProductsContent() {
                         <div key={item.id} className="bg-white border border-gray-100 rounded-[20px] p-4 flex flex-col items-center hover:shadow-xl transition relative cursor-pointer" onClick={() => router.push(`/product/${item.id}`)}>
                             <div className="w-full h-32 mb-4 bg-gray-50 rounded-xl p-2 relative overflow-hidden flex items-center justify-center">
                                 {item.low && <span className="absolute top-2 right-2 text-[9px] bg-orange-100 text-orange-600 px-2 py-1 rounded-full font-bold shadow-sm">Low Stock</span>}
-                                <img src={item.image_url} alt={item.name} className="max-h-full max-w-full object-contain mix-blend-multiply transition-transform duration-500" />
+                                <img referrerPolicy="no-referrer" src={item.image_url} alt={item.name} className="max-h-full max-w-full object-contain mix-blend-multiply transition-transform duration-500" />
                             </div>
                             <h3 className="font-bold text-gray-800 text-sm text-center leading-snug min-h-[40px] mb-2">{item.name}</h3>
                             <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-4">{item.brand}</p>
