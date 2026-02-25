@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCart } from '../../src/context/CartContext';
 import { useLocation } from '../../src/context/LocationContext';
 import { MASTER_CATALOG } from '../../src/data/constants';
 
-export default function CheckoutPage() {
+function CheckoutContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const { cartItems, total, subtotal, localShipping, brandShipping, handleAddToCart, clearCart, setCartOpen } = useCart();
@@ -305,5 +305,13 @@ export default function CheckoutPage() {
                 )}
             </div>
         </div>
+    );
+}
+
+export default function CheckoutPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-[#F8FAFC] font-black text-gray-400 tracking-widest uppercase">Loading Checkout...</div>}>
+            <CheckoutContent />
+        </Suspense>
     );
 }

@@ -15,6 +15,7 @@ export const metadata = {
 
 import { LocationProvider } from '../src/context/LocationContext'
 import { CartProvider } from '../src/context/CartContext'
+import { AuthProvider } from '../lib/auth'
 import GlobalHeader from '../src/components/GlobalHeader'
 import CartDrawer from '../src/components/CartDrawer'
 
@@ -26,20 +27,22 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable}>
       <body className="font-sans antialiased bg-background text-foreground">
-        <LocationProvider>
-          <CartProvider>
-            <GlobalHeader />
-            <main className="pb-[80px] md:pb-0">
-              {children}
-            </main>
-            <MobileBottomNav />
-            <div style={{ position: 'fixed', inset: 0, zIndex: 99999, pointerEvents: 'none' }}>
-              <div style={{ pointerEvents: 'auto' }}>
-                <CartDrawer />
+        <AuthProvider>
+          <LocationProvider>
+            <CartProvider>
+              <GlobalHeader />
+              <main className="pb-[80px] md:pb-0">
+                {children}
+              </main>
+              <MobileBottomNav />
+              <div style={{ position: 'fixed', inset: 0, zIndex: 99999, pointerEvents: 'none' }}>
+                <div style={{ pointerEvents: 'auto' }}>
+                  <CartDrawer />
+                </div>
               </div>
-            </div>
-          </CartProvider>
-        </LocationProvider>
+            </CartProvider>
+          </LocationProvider>
+        </AuthProvider>
       </body>
     </html>
   )
