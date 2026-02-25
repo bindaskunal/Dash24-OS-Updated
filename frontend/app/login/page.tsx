@@ -27,7 +27,7 @@ export default function LoginPage() {
       if (response.data.success) {
         const { access_token, user } = response.data.data;
         login(access_token, user);
-        
+
         if (user.role === 'brand') {
           router.push('/brand/dashboard');
         } else {
@@ -47,13 +47,13 @@ export default function LoginPage() {
         <div>
           <h2 className="text-3xl font-bold text-center">Dash24 Login</h2>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit} autoComplete="off">
           {error && (
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
               {error}
             </div>
           )}
-          
+
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700">
               Email
@@ -64,6 +64,7 @@ export default function LoginPage() {
               required
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
               value={email}
+              autoComplete="username"
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
@@ -78,6 +79,7 @@ export default function LoginPage() {
               required
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
               value={password}
+              autoComplete="current-password"
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
@@ -90,7 +92,7 @@ export default function LoginPage() {
             {loading ? 'Loading...' : 'Sign In'}
           </button>
         </form>
-        
+
         <div className="text-center">
           <a href="/register" className="text-blue-600 hover:text-blue-500">
             Don't have an account? Register
