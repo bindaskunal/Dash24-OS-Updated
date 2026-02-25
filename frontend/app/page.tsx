@@ -251,21 +251,24 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
       setAgenticReasoning(null);
       return;
     }
-
     const timer = setTimeout(async () => {
       setIsSearching(true);
       try {
-        const response = await fetch('/api/search', {
+        const response = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ query: searchQuery })
+          body: JSON.stringify({
+            prompt: searchQuery,
+            lastOrderContext: "User previously bought: Whole Truth Protein Bars, Blue Tokai Coffee"
+          })
         });
         const data = await response.json();
 
-        if (data.matchedProductIds) {
-          setAgenticMatches(data.matchedProductIds);
-          setAgenticReasoning(data.aiReasoning || null);
-          setDetectedCategory(data.suggestedCategory || null);
+        if (data.reply) {
+          setAgenticReasoning(data.reply);
+          // Dummy match to keep the UI from saying "couldn't find exactly that" if needed, 
+          // or we can just let it filter locally on the frontend.
+          setAgenticMatches([]);
         }
       } catch (err) {
         console.error("Search API failed", err);
@@ -1077,7 +1080,7 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                     )}
 
                     {/* Premium AI Reasoning Block */}
-                    {agenticReasoning && agenticMatches.length > 0 && (
+                    {agenticReasoning && (
                       <div className="mb-6 bg-gradient-to-br from-sky-100 to-blue-50 border border-blue-200 rounded-2xl p-5 shadow-[0_0_25px_rgba(56,189,248,0.15)] relative overflow-hidden text-gray-900">
                         <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/50 blur-2xl rounded-full pointer-events-none"></div>
                         <div className="relative z-10 flex items-center gap-2 mb-2">
