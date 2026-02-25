@@ -21,16 +21,39 @@ export async function POST(req: Request) {
 
         const ai = new GoogleGenAI({ apiKey: apiKey });
 
-        const fullPrompt = `${prompt}\n\nContext:\n${lastOrderContext || ''}`;
+        const systemPrompt = `You are Dash AI, an expert Quick Commerce shopping assistant. 
+Your goal is to recommend products based on user queries and their order context. 
+You MUST return ONLY a strictly valid JSON object. Do not wrap it in markdown code blocks (\`\`\`json). Do not include any conversational text outside the JSON.
+The JSON must perfectly match this schema:
+{
+  "insight": "A maximum 3-to-5 line explanation of why these products fit the user's query. Keep it incredibly brief, punchy, and sales-oriented.",
+  "recommendedProductNames": ["Exact Product Name 1", "Exact Product Name 2"]
+}
+`;
+
+        const fullPrompt = `${systemPrompt}\n\nUser Query: ${prompt}\n\nContext:\n${lastOrderContext || 'None'}`;
 
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash',
             contents: fullPrompt,
+            config: {
+                responseMimeType: "application/json",
+            }
         });
+
+        // Parse the response to ensure it's valid JSON before sending it to the frontend
+        let jsonResponse;
+        const rawText = response.text || "{}";
+        try {
+            jsonResponse = JSON.parse(rawText);
+        } catch (e) {
+            console.error("Failed to parse Gemini response as JSON:", rawText);
+            jsonResponse = { insight: rawText, recommendedProductNames: [] };
+        }
 
         return NextResponse.json({
             status: 'success',
-            reply: response.text,
+            data: jsonResponse,
         });
     } catch (error: any) {
         console.error('Gemini API Error:', error);

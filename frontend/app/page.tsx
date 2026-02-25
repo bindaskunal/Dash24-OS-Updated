@@ -257,8 +257,22 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
       const cachedResponse = sessionStorage.getItem(sanitizedQuery);
 
       if (cachedResponse) {
-        setAgenticReasoning(cachedResponse);
-        setAgenticMatches([]);
+        try {
+          const parsedCache = JSON.parse(cachedResponse);
+          setAgenticReasoning(parsedCache.insight);
+
+          if (parsedCache.recommendedProductNames && Array.isArray(parsedCache.recommendedProductNames)) {
+            const matchedIds = parsedCache.recommendedProductNames
+              .map((name: string) => [...MASTER_CATALOG, ...scoredItems].find(p => p.name.toLowerCase() === name.toLowerCase())?.id)
+              .filter(Boolean) as string[];
+            setAgenticMatches(matchedIds);
+          } else {
+            setAgenticMatches([]);
+          }
+        } catch (e) {
+          setAgenticReasoning(cachedResponse);
+          setAgenticMatches([]);
+        }
         return;
       }
 
@@ -272,12 +286,22 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
             lastOrderContext: "User previously bought: Whole Truth Protein Bars, Blue Tokai Coffee"
           })
         });
-        const data = await response.json();
+        const resJson = await response.json();
 
-        if (data.reply) {
-          sessionStorage.setItem(sanitizedQuery, data.reply);
-          setAgenticReasoning(data.reply);
-          setAgenticMatches([]);
+        if (resJson.data) {
+          const { insight, recommendedProductNames } = resJson.data;
+
+          sessionStorage.setItem(sanitizedQuery, JSON.stringify(resJson.data));
+          setAgenticReasoning(insight);
+
+          if (recommendedProductNames && Array.isArray(recommendedProductNames)) {
+            const matchedIds = recommendedProductNames
+              .map((name: string) => [...MASTER_CATALOG, ...scoredItems].find(p => p.name.toLowerCase() === name.toLowerCase())?.id)
+              .filter(Boolean) as string[];
+            setAgenticMatches(matchedIds);
+          } else {
+            setAgenticMatches([]);
+          }
         }
       } catch (err) {
         console.error("Search API failed", err);
@@ -285,6 +309,7 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
         setIsSearching(false);
       }
     }, 400); // 400ms debounce
+
 
     return () => clearTimeout(timer);
   }, [searchQuery, searchFocused]);
