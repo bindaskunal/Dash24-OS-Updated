@@ -263,7 +263,10 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
 
           if (parsedCache.recommendedProductNames && Array.isArray(parsedCache.recommendedProductNames)) {
             const matchedIds = parsedCache.recommendedProductNames
-              .map((name: string) => [...MASTER_CATALOG, ...scoredItems].find(p => p.name.toLowerCase() === name.toLowerCase())?.id)
+              .map((name: string) => {
+                const lp = [...MASTER_CATALOG, ...scoredItems];
+                return (lp.find(p => p.name.toLowerCase() === name.toLowerCase()) || lp.find(p => p.name.toLowerCase().includes(name.toLowerCase()) || name.toLowerCase().includes(p.name.toLowerCase())))?.id;
+              })
               .filter(Boolean) as string[];
             setAgenticMatches(matchedIds);
           } else {
@@ -296,7 +299,10 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
 
           if (recommendedProductNames && Array.isArray(recommendedProductNames)) {
             const matchedIds = recommendedProductNames
-              .map((name: string) => [...MASTER_CATALOG, ...scoredItems].find(p => p.name.toLowerCase() === name.toLowerCase())?.id)
+              .map((name: string) => {
+                const lp = [...MASTER_CATALOG, ...scoredItems];
+                return (lp.find(p => p.name.toLowerCase() === name.toLowerCase()) || lp.find(p => p.name.toLowerCase().includes(name.toLowerCase()) || name.toLowerCase().includes(p.name.toLowerCase())))?.id;
+              })
               .filter(Boolean) as string[];
             setAgenticMatches(matchedIds);
           } else {
@@ -1138,7 +1144,7 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                         </div>
                       ))}
 
-                      {!isSearching && scoredItems.filter(item => agenticMatches.includes(item.id) || item.name.toLowerCase().includes(searchQuery.toLowerCase()) || item.brand.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 && !Object.keys(BRAND_LOGOS).find(b => b.toLowerCase().includes(searchQuery.toLowerCase())) && (
+                      {!isSearching && !agenticReasoning && scoredItems.filter(item => agenticMatches.includes(item.id) || item.name.toLowerCase().includes(searchQuery.toLowerCase()) || item.brand.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 && !Object.keys(BRAND_LOGOS).find(b => b.toLowerCase().includes(searchQuery.toLowerCase())) && (
                         <div className="col-span-2 md:col-span-4 space-y-6">
                           <div className="bg-gray-800/80 border border-gray-700 p-4 rounded-2xl text-center text-gray-400">
                             Hmm, couldn't find exactly that. Trying rewording?
