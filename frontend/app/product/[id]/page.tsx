@@ -1,12 +1,24 @@
+// @ts-nocheck
 "use client";
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import ENRICHED_CATALOG from '../../../data/enriched_catalog.json';
+import { MASTER_CATALOG } from '../../../src/data/constants';
+import { useCart } from '../../../src/context/CartContext';
 
 export default function ProductPage({ params }: { params: { id: string } }) {
   const router = useRouter();
-  const product = ENRICHED_CATALOG.find((p: any) => p.id === parseInt(params.id));
+  const { handleAddToCart, setCartOpen } = useCart();
+
+  // Try to find in enriched catalog first (for AI intents)
+  let product = ENRICHED_CATALOG.find((p: any) => p.id === params.id);
+
+  // Fallback to master catalog if not found in enriched (e.g. before prober finishes)
+  if (!product) {
+    product = (MASTER_CATALOG as any[]).find((p: any) => p.id === params.id) as any;
+  }
+
   const [activeTab, setActiveTab] = useState("Comparison");
 
   if (!product) {
@@ -28,18 +40,20 @@ export default function ProductPage({ params }: { params: { id: string } }) {
     { id: "Personalization", icon: "🎯", key: "personalization", color: "text-orange-600", bg: "bg-orange-50", border: "border-orange-200" },
   ];
 
-  return (
-    <main className="min-h-screen bg-gray-50 pb-24 md:max-w-[420px] md:mx-auto md:border-x md:border-gray-200 md:shadow-2xl md:h-screen md:overflow-y-auto">
+  const onAddToCart = () => {
+    handleAddToCart(product.name);
+    setCartOpen(true);
+  };
 
-      {/* Header */}
-      <div className="sticky top-0 bg-white/80 backdrop-blur-md z-50 border-b border-gray-100 px-4 py-3 flex items-center justify-between">
-        <button onClick={() => router.back()} className="w-10 h-10 flex items-center justify-center bg-gray-50 rounded-full cursor-pointer hover:bg-gray-100 transition active:scale-95">
+  return (
+    <main className="min-h-screen bg-gray-50 pb-24">
+
+      {/* Back Button (Global Header provides main navigation) */}
+      <div className="px-4 py-3 flex items-center gap-3">
+        <button onClick={() => router.back()} className="w-10 h-10 flex items-center justify-center bg-gray-100 rounded-full cursor-pointer hover:bg-gray-200 transition active:scale-95">
           <span className="text-xl leading-none">←</span>
         </button>
-        <span className="text-xs font-black uppercase tracking-widest text-gray-500">Dash24 Pulse</span>
-        <button className="w-10 h-10 flex items-center justify-center cursor-pointer hover:bg-gray-100 rounded-full transition active:scale-95">
-          <span className="text-xl leading-none">🛒</span>
-        </button>
+        <span className="text-xs font-black uppercase tracking-widest text-gray-400">Product Details</span>
       </div>
 
       {/* Image Gallery */}
@@ -90,7 +104,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`snap-start whitespace-nowrap px-4 py-2.5 rounded-2xl text-[11px] font-bold uppercase tracking-widest transition-all duration-300 border ${activeTab === tab.id
-                ? `${tab.bg} ${tab.color} ${tab.border} shadow-sm ring-2 ring-${tab.color.split('-')[1]}-200/50`
+                ? `${tab.bg} ${tab.color} ${tab.border} shadow-sm`
                 : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'
                 }`}
             >
@@ -118,14 +132,21 @@ export default function ProductPage({ params }: { params: { id: string } }) {
       </div>
 
       {/* Sticky Bottom Bar */}
-      <div className="fixed bottom-0 left-0 w-full bg-white border-t border-gray-100 p-4 pb-safe flex items-center gap-3 md:max-w-[420px] md:mx-auto md:left-auto pt-4 shadow-[0_-10px_30px_rgba(0,0,0,0.05)] z-50">
-        <div className="flex flex-col flex-grow">
-          <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Dash24 Local</span>
-          <span className="text-sm font-black text-gray-900 leading-none">Delivering instantly</span>
+      <div className="fixed bottom-0 left-0 w-full bg-white border-t border-gray-100 p-4 pb-safe flex items-center justify-between gap-3 pt-4 shadow-[0_-10px_30px_rgba(0,0,0,0.05)] z-50">
+        <div className="flex gap-3 w-full max-w-[600px] mx-auto">
+          <button
+            onClick={onAddToCart}
+            className="flex-1 bg-white border border-[#111827] text-[#111827] font-black uppercase tracking-widest text-[11px] py-4 rounded-[16px] shadow-sm hover:bg-gray-50 transition active:scale-95 flex items-center justify-center"
+          >
+            Add to Cart <span className="text-lg leading-none ml-1 align-middle">+</span>
+          </button>
+          <button
+            onClick={() => { router.push(`/checkout?express=true&product=${params.id}`); }}
+            className="flex-1 bg-blue-600 text-white py-4 rounded-[16px] font-black uppercase tracking-widest text-[11px] shadow-lg hover:bg-blue-700 transition active:scale-95 flex items-center justify-center gap-1.5 focus:ring-4 hover:shadow-blue-600/30"
+          >
+            <span>⚡</span> Dash it Now
+          </button>
         </div>
-        <button className="bg-[#111827] text-white px-8 py-4 rounded-[20px] font-black uppercase tracking-widest text-[11px] shadow-lg hover:bg-gray-800 transition active:scale-95">
-          Add to Cart <span className="text-lg leading-none ml-1 align-middle">+</span>
-        </button>
       </div>
 
     </main>

@@ -2,7 +2,16 @@ const fs = require('fs');
 const path = require('path');
 const https = require('https');
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+// Read .env if available
+let envPath = path.join(__dirname, '..', '.env');
+let manualKey = '';
+if (fs.existsSync(envPath)) {
+    const envFile = fs.readFileSync(envPath, 'utf8');
+    const match = envFile.match(/GEMINI_API_KEY=(.*)/);
+    if (match) manualKey = match[1].trim();
+}
+
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || manualKey;
 const INPUT_FILE = path.join(__dirname, '..', 'frontend', 'data', 'catalog.json');
 const OUTPUT_FILE = path.join(__dirname, '..', 'frontend', 'data', 'enriched_catalog.json');
 
@@ -36,7 +45,7 @@ function queryGemini(prompt) {
 
         const options = {
             hostname: 'generativelanguage.googleapis.com',
-            path: `/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+            path: `/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
