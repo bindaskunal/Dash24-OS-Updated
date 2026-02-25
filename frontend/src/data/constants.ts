@@ -777,3 +777,25 @@ export const MASTER_CATALOG = [
     }
   }
 ];
+
+export const NODE_DATA = {
+  "Prestige Koramangala": { nearestDistanceKm: 1.2, brandsInZone: 42, highDemandBrands: 18, demandBrands: ["Minimalist", "The Whole Truth", "What's Up Wellness", "Kapiva"] },
+  "Brigade Indiranagar": { nearestDistanceKm: 0.8, brandsInZone: 38, highDemandBrands: 24, demandBrands: ["What's Up Wellness", "Minimalist", "Blue Tokai", "The Whole Truth"] },
+  "Sobha HSR": { nearestDistanceKm: 1.6, brandsInZone: 46, highDemandBrands: 12, demandBrands: ["Blue Tokai", "The Whole Truth", "Minimalist", "What's Up Wellness"] },
+} as const;
+
+export const QUICK_CATEGORIES = [
+  { name: "Top Brands", img: "https://cdn-icons-png.flaticon.com/512/3204/3204040.png" },
+  { name: "Beauty", img: "/icon-beauty.PNG" },
+  { name: "Electronics", img: "/icon-electronics.png" },
+  { name: "Health & Wellness", img: "/icon-health.png" },
+  { name: "Wearables", img: "/icon-Wearables.PNG" },
+  { name: "Snacks", img: "/icon-Snacks.PNG" },
+  { name: "Fashion", img: "/icon-Fashion.PNG" },
+];
+
+export const HERO_BANNERS = [
+  { brand: "Minimalist", title: "Glow Up Sale", subtitle: "Flat 20% on Serums", label: "Brand Days", productImage: "https://images-static.nykaa.com/media/catalog/product/3/9/394e9c5MINIM00000008_a.jpg?tr=w-344,h-344,cm-pad_resize", hasCTA: true, link: "/products?category=Beauty" },
+  { brand: "The Whole Truth", title: "Clean Protein", subtitle: "Zero Added Sugar", label: "New Launch", productImage: "https://www.jiomart.com/images/product/original/rvekvhwpxb/the-whole-truth_light-cocoa-whey-protein-isolate-concentrate-24g-protein-product-images-orvekvhwpxb-p606367622-0-202311282004.jpg?im=Resize=(420,420)", hasCTA: true, link: "/products?category=Health" },
+  { brand: "What's Up Wellness", title: "Sleep Gummies", subtitle: "Buy 1 Get 1 Free", label: "Flash Deal", productImage: "https://whatsupwellness.in/cdn/shop/files/stress_51da983c-837f-429d-b235-fb15692d44c0.png?v=1769849561&width=640", hasCTA: true, link: "/products?category=Health" },
+];
