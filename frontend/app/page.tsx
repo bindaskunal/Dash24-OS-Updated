@@ -4,6 +4,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import ReactMarkdown from 'react-markdown';
 import LivePulseCard from "../src/components/LivePulseCard";
 import ENRICHED_CATALOG from "../data/enriched_catalog.json";
 
@@ -1087,9 +1088,9 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                           <span className="text-blue-500 text-lg">✨</span>
                           <span className="text-blue-700 font-black text-xs uppercase tracking-widest">Dash24 AI Insight:</span>
                         </div>
-                        <p className="text-gray-800 text-sm font-semibold leading-relaxed relative z-10">
-                          {agenticReasoning}
-                        </p>
+                        <div className="text-gray-800 text-sm font-semibold leading-relaxed relative z-10 prose prose-sm max-w-none prose-p:leading-snug prose-li:my-0">
+                          <ReactMarkdown>{agenticReasoning}</ReactMarkdown>
+                        </div>
                       </div>
                     )}
 
