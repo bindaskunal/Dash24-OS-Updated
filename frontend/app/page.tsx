@@ -253,6 +253,15 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
       return;
     }
     const timer = setTimeout(async () => {
+      const sanitizedQuery = searchQuery.toLowerCase().trim();
+      const cachedResponse = sessionStorage.getItem(sanitizedQuery);
+
+      if (cachedResponse) {
+        setAgenticReasoning(cachedResponse);
+        setAgenticMatches([]);
+        return;
+      }
+
       setIsSearching(true);
       try {
         const response = await fetch('/api/chat', {
@@ -266,9 +275,8 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
         const data = await response.json();
 
         if (data.reply) {
+          sessionStorage.setItem(sanitizedQuery, data.reply);
           setAgenticReasoning(data.reply);
-          // Dummy match to keep the UI from saying "couldn't find exactly that" if needed, 
-          // or we can just let it filter locally on the frontend.
           setAgenticMatches([]);
         }
       } catch (err) {
