@@ -268,17 +268,21 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
           setAgenticComparison(parsedCache.isComparison ? parsedCache.comparisonData : null);
 
           if (parsedCache.recommendations && Array.isArray(parsedCache.recommendations)) {
-            const matchedProducts = parsedCache.recommendations
-              .map((rec: any) => {
-                const lp = [...MASTER_CATALOG, ...scoredItems];
-                const cleanName = rec.productName.toLowerCase().trim();
-                const found = lp.find(p => p.name.toLowerCase().trim().includes(cleanName) || cleanName.includes(p.name.toLowerCase().trim()));
-                if (found) {
-                  return { id: found.id, reason: rec.reason, name: found.name };
-                }
-                return null;
-              })
-              .filter(Boolean);
+            const normalize = (str: string) => str.toLowerCase().replace(/[^a-z0-9]/g, '');
+            const safeRecommendations = parsedCache.recommendations || [];
+            const matchedProducts = safeRecommendations.map((rec: any) => {
+              if (!rec || !rec.productName) return null;
+              const normalizedRec = normalize(rec.productName);
+              const lp = [...MASTER_CATALOG, ...scoredItems];
+              const found = lp.find(p => {
+                const normalizedCatalog = normalize(p.name);
+                return normalizedCatalog.includes(normalizedRec) || normalizedRec.includes(normalizedCatalog);
+              });
+              if (found) {
+                return { id: found.id, reason: rec.reason, name: found.name };
+              }
+              return null;
+            }).filter(Boolean);
             setAgenticMatches(matchedProducts);
           } else {
             setAgenticMatches([]);
@@ -313,17 +317,21 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
           setAgenticComparison(isComparison ? comparisonData : null);
 
           if (recommendations && Array.isArray(recommendations)) {
-            const matchedProducts = recommendations
-              .map((rec: any) => {
-                const lp = [...MASTER_CATALOG, ...scoredItems];
-                const cleanName = rec.productName.toLowerCase().trim();
-                const found = lp.find(p => p.name.toLowerCase().trim().includes(cleanName) || cleanName.includes(p.name.toLowerCase().trim()));
-                if (found) {
-                  return { id: found.id, reason: rec.reason, name: found.name };
-                }
-                return null;
-              })
-              .filter(Boolean);
+            const normalize = (str: string) => str.toLowerCase().replace(/[^a-z0-9]/g, '');
+            const safeRecommendations = recommendations || [];
+            const matchedProducts = safeRecommendations.map((rec: any) => {
+              if (!rec || !rec.productName) return null;
+              const normalizedRec = normalize(rec.productName);
+              const lp = [...MASTER_CATALOG, ...scoredItems];
+              const found = lp.find(p => {
+                const normalizedCatalog = normalize(p.name);
+                return normalizedCatalog.includes(normalizedRec) || normalizedRec.includes(normalizedCatalog);
+              });
+              if (found) {
+                return { id: found.id, reason: rec.reason, name: found.name };
+              }
+              return null;
+            }).filter(Boolean);
             setAgenticMatches(matchedProducts);
           } else {
             setAgenticMatches([]);
