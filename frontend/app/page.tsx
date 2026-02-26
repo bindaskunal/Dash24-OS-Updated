@@ -102,7 +102,7 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
 
   // Agentic Search States
   const [isSearching, setIsSearching] = useState(false);
-  const [agenticMatches, setAgenticMatches] = useState<string[]>([]);
+  const [agenticMatches, setAgenticMatches] = useState<any[]>([]);
   const [agenticReasoning, setAgenticReasoning] = useState<string | null>(null);
 
   const [showBattle, setShowBattle] = useState(false);
@@ -259,16 +259,21 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
       if (cachedResponse) {
         try {
           const parsedCache = JSON.parse(cachedResponse);
-          setAgenticReasoning(parsedCache.insight);
+          setAgenticReasoning(parsedCache.globalHook);
 
-          if (parsedCache.recommendedProductNames && Array.isArray(parsedCache.recommendedProductNames)) {
-            const matchedIds = parsedCache.recommendedProductNames
-              .map((name: string) => {
+          if (parsedCache.recommendations && Array.isArray(parsedCache.recommendations)) {
+            const matchedProducts = parsedCache.recommendations
+              .map((rec: any) => {
                 const lp = [...MASTER_CATALOG, ...scoredItems];
-                return (lp.find(p => p.name.toLowerCase() === name.toLowerCase()) || lp.find(p => p.name.toLowerCase().includes(name.toLowerCase()) || name.toLowerCase().includes(p.name.toLowerCase())))?.id;
+                const cleanName = rec.productName.trim().toLowerCase();
+                const found = lp.find(p => p.name.trim().toLowerCase() === cleanName) || lp.find(p => p.name.trim().toLowerCase().includes(cleanName) || cleanName.includes(p.name.trim().toLowerCase()));
+                if (found) {
+                  return { id: found.id, reason: rec.reason, name: found.name };
+                }
+                return null;
               })
-              .filter(Boolean) as string[];
-            setAgenticMatches(matchedIds);
+              .filter(Boolean);
+            setAgenticMatches(matchedProducts);
           } else {
             setAgenticMatches([]);
           }
@@ -292,19 +297,25 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
         const resJson = await response.json();
 
         if (resJson.data) {
-          const { insight, recommendedProductNames } = resJson.data;
+          console.log("Parsed AI Data:", resJson.data);
+          const { globalHook, recommendations } = resJson.data;
 
           sessionStorage.setItem(sanitizedQuery, JSON.stringify(resJson.data));
-          setAgenticReasoning(insight);
+          setAgenticReasoning(globalHook);
 
-          if (recommendedProductNames && Array.isArray(recommendedProductNames)) {
-            const matchedIds = recommendedProductNames
-              .map((name: string) => {
+          if (recommendations && Array.isArray(recommendations)) {
+            const matchedProducts = recommendations
+              .map((rec: any) => {
                 const lp = [...MASTER_CATALOG, ...scoredItems];
-                return (lp.find(p => p.name.toLowerCase() === name.toLowerCase()) || lp.find(p => p.name.toLowerCase().includes(name.toLowerCase()) || name.toLowerCase().includes(p.name.toLowerCase())))?.id;
+                const cleanName = rec.productName.trim().toLowerCase();
+                const found = lp.find(p => p.name.trim().toLowerCase() === cleanName) || lp.find(p => p.name.trim().toLowerCase().includes(cleanName) || cleanName.includes(p.name.trim().toLowerCase()));
+                if (found) {
+                  return { id: found.id, reason: rec.reason, name: found.name };
+                }
+                return null;
               })
-              .filter(Boolean) as string[];
-            setAgenticMatches(matchedIds);
+              .filter(Boolean);
+            setAgenticMatches(matchedProducts);
           } else {
             setAgenticMatches([]);
           }
@@ -1038,18 +1049,18 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
         {/* ========================================= */}
         {
           searchFocused && (
-            <div className="fixed inset-0 z-[120] bg-[#111827] text-white flex flex-col animate-in slide-in-from-bottom-full duration-300">
+            <div className="fixed inset-0 z-[120] bg-white text-gray-900 flex flex-col animate-in slide-in-from-bottom-full duration-300">
               {/* Header / Input Area + Mobile Filters */}
-              <div className="p-4 md:p-8 border-b border-gray-800 bg-[#111827]/80 backdrop-blur-xl sticky top-0 z-10 flex flex-col gap-4">
+              <div className="p-4 md:p-8 border-b border-gray-200 bg-white/95 backdrop-blur-xl sticky top-0 z-10 flex flex-col gap-4 shadow-sm">
                 <div className="flex items-center gap-4">
-                  <button onClick={() => { setSearchFocused(false); setSearchQuery(''); }} className="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-800 rounded-full transition text-2xl font-black shrink-0">✕</button>
+                  <button onClick={() => { setSearchFocused(false); setSearchQuery(''); }} className="w-10 h-10 flex items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-full transition text-2xl font-black shrink-0">✕</button>
                   <div className="relative flex-1">
                     <input
                       type="text"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       placeholder="Ask Dash24 AI anything..."
-                      className="w-full bg-gray-900 border border-gray-700 text-white rounded-2xl py-4 pl-12 pr-4 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition text-lg font-medium shadow-inner"
+                      className="w-full bg-gray-50 border border-gray-300 text-gray-900 rounded-2xl py-4 pl-12 pr-4 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition text-lg font-medium shadow-inner"
                       autoFocus
                     />
                     {isSearching ? (
@@ -1063,8 +1074,8 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                 {/* Mobile Quick Filters (Inside Search Overlay) */}
                 <div className="md:hidden hide-scrollbar overflow-x-auto flex gap-3 pb-1 -mx-4 px-4 w-[calc(100%+32px)]">
                   {QUICK_CATEGORIES.map(cat => (
-                    <button key={cat.name} onClick={() => setSearchQuery(cat.name)} className="flex items-center gap-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-full px-4 py-2 whitespace-nowrap active:scale-95 transition text-xs text-white font-medium shadow-sm flex-shrink-0">
-                      <div className="w-5 h-5 bg-white rounded-full flex items-center justify-center overflow-hidden shrink-0">
+                    <button key={cat.name} onClick={() => setSearchQuery(cat.name)} className="flex items-center gap-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-full px-4 py-2 whitespace-nowrap active:scale-95 transition text-xs text-gray-800 font-bold shadow-sm flex-shrink-0">
+                      <div className="w-5 h-5 bg-white rounded-full flex items-center justify-center overflow-hidden shrink-0 border border-gray-100">
                         <img referrerPolicy="no-referrer" src={cat.img} alt={cat.name} className="w-[85%] h-[85%] object-contain mix-blend-multiply" />
                       </div>
                       {cat.name}
@@ -1074,7 +1085,7 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
               </div>
 
               {/* Content Area */}
-              <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-8">
+              <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-8 bg-gray-50/30">
                 {!searchQuery ? (
                   <>
                     {/* Default AI Suggestions */}
@@ -1082,8 +1093,8 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                       <p className="text-xs uppercase tracking-widest text-gray-500 font-bold ml-1">Live Pulse Recommendations</p>
                       <div className="flex flex-wrap gap-2">
                         {["Gym recovery products", "Best Vitamin C for glow", "Sugar-free energy snacks", "Hyperlocal favorites in Bangalore", "Amla juice for acidity"].map((query) => (
-                          <button onClick={() => setSearchQuery(query)} key={query} className="bg-gray-800 border border-gray-700 hover:border-gray-500 px-4 py-2.5 rounded-xl text-sm text-gray-300 transition text-left flex items-center gap-2">
-                            <span className="text-blue-400">🔍</span> {query}
+                          <button onClick={() => setSearchQuery(query)} key={query} className="bg-white border border-gray-200 hover:border-blue-300 shadow-sm hover:shadow-md px-4 py-2.5 rounded-xl text-sm text-gray-700 font-medium transition text-left flex items-center gap-2">
+                            <span className="text-blue-500">✨</span> {query}
                           </button>
                         ))}
                       </div>
@@ -1091,63 +1102,109 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                   </>
                 ) : (
                   <div className="space-y-6">
-                    <div className="flex items-start gap-4 mb-8">
-                      <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center shrink-0 border border-blue-400 shadow-[0_0_15px_rgba(37,99,235,0.5)]">
-                        ✨
-                      </div>
-                      <div className="bg-gray-800/80 border border-gray-700 p-4 rounded-2xl rounded-tl-sm text-gray-300 text-sm leading-relaxed max-w-xl">
-                        <p className="font-medium">Here's what I found for <span className="text-white font-bold">"{searchQuery}"</span>:</p>
+                    <div className="flex items-start gap-4 mb-4">
+                      <div className="bg-white border border-gray-200 p-4 rounded-2xl rounded-tl-sm text-gray-800 text-sm leading-relaxed max-w-xl shadow-sm">
+                        <p className="font-medium flex items-center gap-2">
+                          <span className="text-blue-600">✨</span>
+                          Here's what I found for <span className="text-gray-900 font-bold">"{searchQuery}"</span>:
+                        </p>
                       </div>
                     </div>
 
                     {/* Brand Tile Match for Search */}
                     {Object.keys(BRAND_LOGOS).find(b => b.toLowerCase().includes(searchQuery.toLowerCase())) && (
-                      <div className="mb-6">
-                        <p className="text-xs uppercase tracking-widest text-gray-500 font-bold mb-3">Brand Match</p>
+                      <div className="mb-6 max-w-xs">
+                        <p className="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-2">Brand Match</p>
                         <div
                           onClick={() => { setSearchFocused(false); setActiveBrand(Object.keys(BRAND_LOGOS).find(b => b.toLowerCase().includes(searchQuery.toLowerCase()))!); }}
-                          className="bg-gray-800/80 border border-gray-700 p-4 rounded-2xl flex items-center gap-4 cursor-pointer hover:bg-gray-700 transition"
+                          className="bg-white border border-gray-200 p-3 rounded-2xl flex items-center gap-4 cursor-pointer hover:bg-gray-50 hover:shadow-md transition shadow-sm"
                         >
-                          <div className="w-16 h-16 bg-white rounded-xl p-2 flex items-center justify-center">
+                          <div className="w-12 h-12 bg-white rounded-xl p-1 border border-gray-100 flex items-center justify-center">
                             <img referrerPolicy="no-referrer" src={BRAND_LOGOS[Object.keys(BRAND_LOGOS).find(b => b.toLowerCase().includes(searchQuery.toLowerCase()))!]} alt="Brand" className="w-full h-full object-contain" />
                           </div>
                           <div>
-                            <h3 className="text-lg font-bold text-white">{Object.keys(BRAND_LOGOS).find(b => b.toLowerCase().includes(searchQuery.toLowerCase()))}</h3>
-                            <p className="text-xs text-blue-400 font-medium mt-1">Visit Brand Store ↗</p>
+                            <h3 className="text-sm font-bold text-gray-900">{Object.keys(BRAND_LOGOS).find(b => b.toLowerCase().includes(searchQuery.toLowerCase()))}</h3>
+                            <p className="text-[10px] text-blue-600 font-bold mt-0.5">Visit Brand Store ↗</p>
                           </div>
                         </div>
                       </div>
                     )}
 
-                    {/* Premium AI Reasoning Block */}
+                    {/* Premium AI Reasoning Block - Light Theme */}
                     {agenticReasoning && (
-                      <div className="mb-6 bg-gradient-to-br from-sky-100 to-blue-50 border border-blue-200 rounded-2xl p-5 shadow-[0_0_25px_rgba(56,189,248,0.15)] relative overflow-hidden text-gray-900">
-                        <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/50 blur-2xl rounded-full pointer-events-none"></div>
+                      <div className="mb-6 bg-gradient-to-br from-blue-50 to-white border border-blue-200 rounded-2xl p-5 shadow-sm relative overflow-hidden text-gray-900">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-blue-100/50 blur-3xl rounded-full pointer-events-none"></div>
                         <div className="relative z-10 flex items-center gap-2 mb-2">
-                          <span className="text-blue-500 text-lg">✨</span>
-                          <span className="text-blue-700 font-black text-xs uppercase tracking-widest">Dash24 AI Insight:</span>
+                          <span className="text-blue-600 text-lg">💡</span>
+                          <span className="text-blue-800 font-black text-[10px] uppercase tracking-widest">Global Hook</span>
                         </div>
-                        <div className="text-gray-800 text-sm font-semibold leading-relaxed relative z-10 prose prose-sm max-w-none prose-p:leading-snug prose-li:my-0">
+                        <h2 className="text-gray-900 text-lg md:text-xl font-bold leading-snug relative z-10 tracking-tight">
                           <ReactMarkdown>{agenticReasoning}</ReactMarkdown>
-                        </div>
+                        </h2>
                       </div>
                     )}
 
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      {scoredItems.filter(item => agenticMatches.includes(item.id) || item.name.toLowerCase().includes(searchQuery.toLowerCase()) || item.brand.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 8).map(item => (
-                        <div key={item.name} onClick={() => { setSearchFocused(false); router.push(`/product/${item.id || 0}`); }} className="bg-white border border-gray-100 rounded-2xl p-3 flex flex-col relative cursor-pointer group hover:shadow-xl transition text-black">
-                          <div className="w-full h-32 mb-3 bg-gray-50 rounded-xl p-2 relative overflow-hidden flex items-center justify-center">
-                            <img referrerPolicy="no-referrer" src={item.image_url} alt={item.name} className="max-h-full max-w-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500" />
-                          </div>
-                          <p className="text-[11px] font-bold text-gray-900 leading-snug mb-1 line-clamp-2 min-h-[32px]">{item.name}</p>
-                          <p className="text-sm font-black text-gray-900 mt-auto">₹{item.price}</p>
-                        </div>
-                      ))}
+                      {agenticMatches.length > 0 ? (
+                        agenticMatches.map(match => {
+                          const item = scoredItems.find(i => i.id === match.id) || MASTER_CATALOG.find(i => i.id === match.id);
+                          if (!item) return null;
+                          return (
+                            <div key={`rec-${item.id}`} onClick={() => { setSearchFocused(false); router.push(`/product/${item.id || 0}`); }} className="bg-white border border-gray-200 rounded-2xl p-3 flex flex-col relative cursor-pointer group hover:shadow-xl transition text-black">
+                              <div className="w-full h-28 mb-3 bg-gray-50/50 border border-gray-100/50 rounded-xl p-2 relative overflow-hidden flex items-center justify-center">
+                                <img referrerPolicy="no-referrer" src={item.image_url} alt={item.name} className="max-h-full max-w-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500" />
+                              </div>
+                              <p className="text-[11px] font-bold text-gray-900 leading-snug mb-2 line-clamp-2 min-h-[32px]">{item.name}</p>
 
-                      {!isSearching && !agenticReasoning && scoredItems.filter(item => agenticMatches.includes(item.id) || item.name.toLowerCase().includes(searchQuery.toLowerCase()) || item.brand.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 && !Object.keys(BRAND_LOGOS).find(b => b.toLowerCase().includes(searchQuery.toLowerCase())) && (
-                        <div className="col-span-2 md:col-span-4 space-y-6">
-                          <div className="bg-gray-800/80 border border-gray-700 p-4 rounded-2xl text-center text-gray-400">
-                            Hmm, couldn't find exactly that. Trying rewording?
+                              {/* Inject specific AI reason text here right above price/cart */}
+                              {match.reason && (
+                                <div className="mb-3 bg-blue-50/80 border border-blue-100/50 px-2.5 py-2 rounded-lg">
+                                  <p className="text-[9px] text-blue-800 font-bold leading-snug line-clamp-3">✨ {match.reason}</p>
+                                </div>
+                              )}
+
+                              <div className="mt-auto flex justify-between items-end">
+                                <p className="text-base font-black text-gray-900 tracking-tight">₹{item.price}</p>
+                                <button className="w-8 h-8 rounded-full bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center shadow-md shadow-blue-600/20 active:scale-95 transition-transform" onClick={(e) => { e.stopPropagation(); handleAddToCart(item.name); }}>
+                                  <span className="text-lg leading-none">+</span>
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })
+                      ) : (
+                        scoredItems.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()) || (item.brand && item.brand.toLowerCase().includes(searchQuery.toLowerCase()))).slice(0, 8).map(item => (
+                          <div key={`search-${item.id}`} onClick={() => { setSearchFocused(false); router.push(`/product/${item.id || 0}`); }} className="bg-white border border-gray-200 rounded-2xl p-3 flex flex-col relative cursor-pointer group hover:shadow-xl transition text-black">
+                            <div className="w-full h-28 mb-3 bg-gray-50/50 border border-gray-100/50 rounded-xl p-2 relative overflow-hidden flex items-center justify-center">
+                              <img referrerPolicy="no-referrer" src={item.image_url} alt={item.name} className="max-h-full max-w-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500" />
+                            </div>
+                            <p className="text-[11px] font-bold text-gray-900 leading-snug mb-1 line-clamp-2 min-h-[32px]">{item.name}</p>
+                            <div className="mt-auto flex justify-between items-end pt-2">
+                              <p className="text-base font-black text-gray-900 tracking-tight">₹{item.price}</p>
+                              <button className="w-8 h-8 rounded-full bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center shadow-md shadow-blue-600/20 active:scale-95 transition-transform" onClick={(e) => { e.stopPropagation(); handleAddToCart(item.name); }}>
+                                <span className="text-lg leading-none">+</span>
+                              </button>
+                            </div>
+                          </div>
+                        ))
+                      )}
+
+                      {!isSearching && !agenticReasoning && agenticMatches.length === 0 && scoredItems.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()) || (item.brand && item.brand.toLowerCase().includes(searchQuery.toLowerCase()))).length === 0 && !Object.keys(BRAND_LOGOS).find(b => b.toLowerCase().includes(searchQuery.toLowerCase())) && (
+                        <div className="col-span-2 md:col-span-4 mt-4">
+                          <div className="bg-white border border-gray-200 p-8 rounded-3xl text-center shadow-sm max-w-2xl mx-auto">
+                            <div className="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center text-2xl mx-auto mb-4 border border-orange-100 shadow-inner">
+                              <span className="opacity-70">🔍</span>
+                            </div>
+                            <h3 className="text-xl font-black text-gray-900 tracking-tight mb-2">We don't have exact matches</h3>
+                            <p className="text-sm font-medium text-gray-500 mb-6">But check out these top brands for equivalent products:</p>
+
+                            <div className="flex flex-wrap justify-center gap-3 md:gap-4">
+                              {Object.keys(BRAND_LOGOS).slice(0, 6).map(brand => (
+                                <div key={brand} onClick={() => { setSearchFocused(false); setActiveBrand(brand); }} className="w-16 h-16 md:w-20 md:h-20 bg-white border border-gray-200 hover:border-orange-300 rounded-[18px] p-2 flex items-center justify-center cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all">
+                                  <img referrerPolicy="no-referrer" src={BRAND_LOGOS[brand]} alt={brand} className="max-w-full max-h-full object-contain mix-blend-multiply" />
+                                </div>
+                              ))}
+                            </div>
                           </div>
                         </div>
                       )}

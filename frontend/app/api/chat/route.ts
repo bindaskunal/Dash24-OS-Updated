@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenAI } from '@google/genai';
+import products from '../../../data/enriched_catalog.json';
 
 export async function POST(req: Request) {
     try {
@@ -21,12 +22,18 @@ export async function POST(req: Request) {
 
         const ai = new GoogleGenAI({ apiKey: apiKey });
 
-        const systemPrompt = `You are a Quick Commerce AI. You must ALWAYS return a JSON object with this exact schema: 
+        const availableProducts = products.map((p: any) => p.name);
+
+        const systemPrompt = `You are the Dash24 Quick Commerce AI. You MUST select 1 to 3 relevant products strictly from this list: ${JSON.stringify(availableProducts)}. Do not hallucinate products or recommend any product not on this list.
+
+You must ALWAYS return a JSON object with this exact schema: 
 { 
-  "insight": "3 lines max", 
-  "recommendedProductNames": ["Exact Name 1"] 
+  "globalHook": "One punchy intro sentence.", 
+  "recommendations": [ 
+    { "productName": "Exact Name 1", "reason": "One short sentence explaining why to buy this specific item." } 
+  ] 
 }. 
-If the user asks for something we don't carry (like gym equipment), recommend the closest proxy (like hydration or snacks) and explain the pivot in the insight.
+If the user asks for something we don't carry, recommend the closest proxy from the available products list and explain the pivot in the globalHook.
 Do not wrap it in markdown code blocks (\`\`\`json). Do not include any conversational text outside the JSON.`;
 
         const fullPrompt = `${systemPrompt}\n\nUser Query: ${prompt}\n\nContext:\n${lastOrderContext || 'None'}`;
@@ -50,7 +57,7 @@ Do not wrap it in markdown code blocks (\`\`\`json). Do not include any conversa
             jsonResponse = JSON.parse(rawText);
         } catch (e) {
             console.error("Failed to parse Gemini response as JSON:", rawText);
-            jsonResponse = { insight: rawText, recommendedProductNames: [] };
+            jsonResponse = { globalHook: rawText, recommendations: [] };
         }
 
         return NextResponse.json({
