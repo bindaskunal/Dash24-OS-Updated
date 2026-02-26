@@ -104,6 +104,7 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
   const [isSearching, setIsSearching] = useState(false);
   const [agenticMatches, setAgenticMatches] = useState<any[]>([]);
   const [agenticReasoning, setAgenticReasoning] = useState<string | null>(null);
+  const [agenticComparison, setAgenticComparison] = useState<any>(null);
 
   const [showBattle, setShowBattle] = useState(false);
   const [battleStep, setBattleStep] = useState(0);
@@ -250,6 +251,7 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
     if (!searchQuery || !searchFocused) {
       setAgenticMatches([]);
       setAgenticReasoning(null);
+      setAgenticComparison(null);
       return;
     }
     const timer = setTimeout(async () => {
@@ -260,6 +262,7 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
         try {
           const parsedCache = JSON.parse(cachedResponse);
           setAgenticReasoning(parsedCache.globalHook);
+          setAgenticComparison(parsedCache.isComparison ? parsedCache.comparisonData : null);
 
           if (parsedCache.recommendations && Array.isArray(parsedCache.recommendations)) {
             const matchedProducts = parsedCache.recommendations
@@ -280,6 +283,7 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
         } catch (e) {
           setAgenticReasoning(cachedResponse);
           setAgenticMatches([]);
+          setAgenticComparison(null);
         }
         return;
       }
@@ -298,10 +302,11 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
 
         if (resJson.data) {
           console.log("Parsed AI Data:", resJson.data);
-          const { globalHook, recommendations } = resJson.data;
+          const { isComparison, globalHook, comparisonData, recommendations } = resJson.data;
 
           sessionStorage.setItem(sanitizedQuery, JSON.stringify(resJson.data));
           setAgenticReasoning(globalHook);
+          setAgenticComparison(isComparison ? comparisonData : null);
 
           if (recommendations && Array.isArray(recommendations)) {
             const matchedProducts = recommendations
@@ -1140,6 +1145,39 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                         </div>
                       )}
 
+                      {/* AI Product Comparison Table */}
+                      {agenticComparison && agenticComparison.features && agenticComparison.products && (
+                        <div className="mb-6 overflow-x-auto rounded-xl border border-gray-200 shadow-sm bg-white">
+                          <table className="w-full text-left border-collapse min-w-max">
+                            <thead>
+                              <tr>
+                                <th className="p-3 bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase tracking-wider min-w-[120px]">
+                                  Features
+                                </th>
+                                {agenticComparison.products.map((p: any, idx: number) => (
+                                  <th key={idx} className="p-3 bg-gray-50 border-b border-r last:border-r-0 border-gray-200 text-sm font-bold text-gray-900 min-w-[150px]">
+                                    {p.name}
+                                  </th>
+                                ))}
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-100">
+                              {agenticComparison.features.map((feature: string, featureIdx: number) => (
+                                <tr key={featureIdx} className="hover:bg-gray-50/50 transition-colors">
+                                  <td className="p-3 bg-gray-50/30 text-xs font-semibold text-gray-700">
+                                    {feature}
+                                  </td>
+                                  {agenticComparison.products.map((p: any, pIdx: number) => (
+                                    <td key={pIdx} className="p-3 border-r last:border-r-0 border-gray-100 text-sm text-gray-700">
+                                      {p.values[featureIdx] || "-"}
+                                    </td>
+                                  ))}
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
                       <div className="grid grid-cols-2 gap-3">
                         {agenticMatches.length > 0 ? (
                           agenticMatches.map(match => {
