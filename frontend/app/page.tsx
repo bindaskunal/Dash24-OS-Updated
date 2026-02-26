@@ -105,6 +105,7 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
   const [agenticMatches, setAgenticMatches] = useState<any[]>([]);
   const [agenticReasoning, setAgenticReasoning] = useState<string | null>(null);
   const [agenticComparison, setAgenticComparison] = useState<any>(null);
+  const [agenticRawData, setAgenticRawData] = useState<any>(null);
 
   const [showBattle, setShowBattle] = useState(false);
   const [battleStep, setBattleStep] = useState(0);
@@ -252,6 +253,7 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
       setAgenticMatches([]);
       setAgenticReasoning(null);
       setAgenticComparison(null);
+      setAgenticRawData(null);
       return;
     }
     const timer = setTimeout(async () => {
@@ -261,6 +263,7 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
       if (cachedResponse) {
         try {
           const parsedCache = JSON.parse(cachedResponse);
+          setAgenticRawData(parsedCache);
           setAgenticReasoning(parsedCache.globalHook);
           setAgenticComparison(parsedCache.isComparison ? parsedCache.comparisonData : null);
 
@@ -305,6 +308,7 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
           const { isComparison, globalHook, comparisonData, recommendations } = resJson.data;
 
           sessionStorage.setItem(sanitizedQuery, JSON.stringify(resJson.data));
+          setAgenticRawData(resJson.data);
           setAgenticReasoning(globalHook);
           setAgenticComparison(isComparison ? comparisonData : null);
 
@@ -1108,6 +1112,16 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                     </>
                   ) : (
                     <div className="space-y-6">
+                      {/* TEMPORARY DASH AI DEBUGGER */}
+                      {agenticRawData && (
+                        <div className="w-full bg-red-50 border border-red-200 p-4 my-4 rounded-md overflow-x-auto text-left">
+                          <p className="text-red-800 font-bold text-xs mb-2">🚨 DEBUG MODE: RAW AI RESPONSE 🚨</p>
+                          <pre className="text-[10px] text-red-900 font-mono whitespace-pre-wrap">
+                            {JSON.stringify(agenticRawData, null, 2)}
+                          </pre>
+                        </div>
+                      )}
+
                       <div className="flex items-start gap-4 mb-4">
                         <div className="bg-white border border-gray-200 p-4 rounded-2xl rounded-tl-sm text-gray-800 text-sm leading-relaxed max-w-xl shadow-sm">
                           <p className="font-medium flex items-center gap-2">
