@@ -265,8 +265,8 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
             const matchedProducts = parsedCache.recommendations
               .map((rec: any) => {
                 const lp = [...MASTER_CATALOG, ...scoredItems];
-                const cleanName = rec.productName.trim().toLowerCase();
-                const found = lp.find(p => p.name.trim().toLowerCase() === cleanName) || lp.find(p => p.name.trim().toLowerCase().includes(cleanName) || cleanName.includes(p.name.trim().toLowerCase()));
+                const cleanName = rec.productName.toLowerCase().trim();
+                const found = lp.find(p => p.name.toLowerCase().trim().includes(cleanName) || cleanName.includes(p.name.toLowerCase().trim()));
                 if (found) {
                   return { id: found.id, reason: rec.reason, name: found.name };
                 }
@@ -307,8 +307,8 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
             const matchedProducts = recommendations
               .map((rec: any) => {
                 const lp = [...MASTER_CATALOG, ...scoredItems];
-                const cleanName = rec.productName.trim().toLowerCase();
-                const found = lp.find(p => p.name.trim().toLowerCase() === cleanName) || lp.find(p => p.name.trim().toLowerCase().includes(cleanName) || cleanName.includes(p.name.trim().toLowerCase()));
+                const cleanName = rec.productName.toLowerCase().trim();
+                const found = lp.find(p => p.name.toLowerCase().trim().includes(cleanName) || cleanName.includes(p.name.toLowerCase().trim()));
                 if (found) {
                   return { id: found.id, reason: rec.reason, name: found.name };
                 }
