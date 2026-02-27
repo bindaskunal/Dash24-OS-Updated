@@ -187,18 +187,28 @@ ${t}`)}return s})(re);/**
  * SPDX-License-Identifier: Apache-2.0
  */class rB extends tV{async registerFiles(e){if("undefined"==typeof process||!process.versions||!process.versions.node)throw Error("registerFiles is only supported in Node.js environments.");let t=e.auth,n=await t.getRequestHeaders(),r=e.config||{},i=r.httpOptions||{},o=Object.assign({},i.headers||{});if(n){if("function"==typeof n[Symbol.iterator])for(let[e,t]of n)o[e]=t;else for(let[e,t]of Object.entries(n))o[e]=t}return this._registerFiles({uris:e.uris,config:Object.assign(Object.assign({},r),{httpOptions:Object.assign(Object.assign({},i),{headers:o})})})}}class rV{get interactions(){var e;if(void 0!==this._interactions)return this._interactions;console.warn("GoogleGenAI.interactions: Interactions usage is experimental and may change in future versions.");let t=this.httpOptions;(null==t?void 0:t.extraBody)&&console.warn("GoogleGenAI.interactions: Client level httpOptions.extraBody is not supported by the interactions client and will be ignored.");let n=new rS({baseURL:this.apiClient.getBaseUrl(),apiKey:this.apiKey,apiVersion:this.apiClient.getApiVersion(),clientAdapter:this.apiClient,defaultHeaders:this.apiClient.getDefaultHeaders(),timeout:null==t?void 0:t.timeout,maxRetries:null===(e=null==t?void 0:t.retryOptions)||void 0===e?void 0:e.attempts});return this._interactions=n.interactions,this._interactions}constructor(e){var t,n,r,i,o,l;if((e.project||e.location)&&e.apiKey)throw Error("Project/location and API key are mutually exclusive in the client initializer.");this.vertexai=null!==(n=null!==(t=e.vertexai)&&void 0!==t?t:function(e){var t;return void 0!==(t=r$(e))&&"true"===t.toLowerCase()}("GOOGLE_GENAI_USE_VERTEXAI"))&&void 0!==n&&n;let u=function(){let e=r$("GOOGLE_API_KEY"),t=r$("GEMINI_API_KEY");return e&&t&&console.warn("Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY."),e||t||void 0}(),c=r$("GOOGLE_CLOUD_PROJECT"),d=r$("GOOGLE_CLOUD_LOCATION");if(this.apiKey=null!==(r=e.apiKey)&&void 0!==r?r:u,this.project=null!==(i=e.project)&&void 0!==i?i:c,this.location=null!==(o=e.location)&&void 0!==o?o:d,!this.vertexai&&!this.apiKey)throw Error("API key must be set when using the Gemini API.");!e.vertexai||((null===(l=e.googleAuthOptions)||void 0===l?void 0:l.credentials)&&(console.debug("The user provided Google Cloud credentials will take precedence over the API key from the environment variable."),this.apiKey=void 0),(c||d)&&e.apiKey?(console.debug("The user provided Vertex AI API key will take precedence over the project/location from the environment variables."),this.project=void 0,this.location=void 0):(e.project||e.location)&&u?(console.debug("The user provided project/location will take precedence over the API key from the environment variables."),this.apiKey=void 0):(c||d)&&u&&(console.debug("The project/location from the environment variables will take precedence over the API key from the environment variables."),this.apiKey=void 0),this.location||this.apiKey||(this.location="global"));let p=function(e,t,n,r){var i,o;if(!(null==e?void 0:e.baseUrl)){let e={geminiUrl:s,vertexUrl:a};return t?null!==(i=e.vertexUrl)&&void 0!==i?i:n:null!==(o=e.geminiUrl)&&void 0!==o?o:r}return e.baseUrl}(e.httpOptions,e.vertexai,r$("GOOGLE_VERTEX_BASE_URL"),r$("GOOGLE_GEMINI_BASE_URL"));p&&(e.httpOptions?e.httpOptions.baseUrl=p:e.httpOptions={baseUrl:p}),this.apiVersion=e.apiVersion,this.httpOptions=e.httpOptions;let h=new rI({apiKey:this.apiKey,googleAuthOptions:e.googleAuthOptions});this.apiClient=new nt({auth:h,project:this.project,location:this.location,apiVersion:this.apiVersion,apiKey:this.apiKey,vertexai:this.vertexai,httpOptions:this.httpOptions,userAgentExtra:"gl-node/"+process.version,uploader:new rH,downloader:new rw}),this.models=new ny(this.apiClient),this.live=new nc(this.apiClient,h,new rN),this.batches=new tP(this.apiClient),this.chats=new tq(this.models,this.apiClient),this.caches=new tU(this.apiClient),this.files=new rB(this.apiClient),this.operations=new n_(this.apiClient),this.authTokens=new nE(this.apiClient),this.tunings=new rD(this.apiClient),this.fileSearchStores=new nT(this.apiClient)}}function r$(e){var t,n,r;return null!==(r=null===(n=null===(t=null==process?void 0:process.env)||void 0===t?void 0:t[e])||void 0===n?void 0:n.trim())&&void 0!==r?r:void 0}var rJ=n(60974);async function rW(e){try{let t;let{prompt:n,lastOrderContext:r}=await e.json();if(!n)return ey.Z.json({error:"Prompt is required"},{status:400});let i=process.env.GEMINI_API_KEY||"AIzaSyC5_OWN2oOvk6kqzYSdgARixiA5b1j2nWU";if(!i)return ey.Z.json({error:"Gemini API key is missing. Please configure GEMINI_API_KEY in your .env file."},{status:500});let o=new rV({apiKey:i}),s=rJ.map(e=>e.name),a=`You are the Dash24 Quick Commerce AI. You MUST select 1 to 3 relevant products strictly from this list: ${JSON.stringify(s)}. Do not hallucinate products or recommend any product not on this list.
 
-If the user is comparing products (e.g. "Minimalist vitamin C vs Mamaearth"), you must use our catalog data (for price, etc.) AND your own LLM knowledge (for skin type, ingredients, use-case) to build a comparison matrix.
+RULE 1: Never apologize or say 'we do not carry' a brand. Confidently suggest the closest alternative from our catalog.
+
+RULE 2: Write like a top-tier e-commerce conversion expert. Use sharp, structured formatting (bullet points, bold keywords). Maximize insight and provide detailed, LLM-style analysis.
+
+RULE 3: If the user query implies a comparison (e.g., uses 'vs'), set \`isComparison: true\`. You MUST return exactly two products from the catalog. You MUST evaluate them across exactly 10 distinct, highly relevant variables (e.g., Specs, Build, Price, Delivery Speed, Use Case, etc.) formatted as strings in the \`specs\` array for each product so the frontend table can render them perfectly.
+
+RULE 4: You MUST return strictly UNIQUE products. Never recommend the exact same product twice in your response.
 
 You must ALWAYS return a JSON object with this exact schema: 
 { 
   "isComparison": boolean,
   "globalHook": "One punchy intro sentence.", 
   "comparisonData": {
-    "features": ["Price", "Key Ingredient", "Skin Type", "Best For"],
+    "features": ["String", "String", "String", "String", "String", "String", "String", "String", "String", "String"],
     "products": [
       {
         "name": "Product A Name",
-        "values": ["₹699", "10% Vitamin C", "All Types", "Potent glow"]
+        "values": ["Value 1", "Value 2", "Value 3", "Value 4", "Value 5", "Value 6", "Value 7", "Value 8", "Value 9", "Value 10"]
+      },
+      {
+        "name": "Product B Name",
+        "values": ["Value 1", "Value 2", "Value 3", "Value 4", "Value 5", "Value 6", "Value 7", "Value 8", "Value 9", "Value 10"]
       }
     ]
   } | null,
@@ -207,7 +217,6 @@ You must ALWAYS return a JSON object with this exact schema:
   ] 
 }
 (Note: isComparison and comparisonData should be null or false for standard non-comparison queries).
-If the user asks for something we don't carry, recommend the closest proxy from the available products list and explain the pivot in the globalHook.
 Do not wrap it in markdown code blocks (\`\`\`json). Do not include any conversational text outside the JSON.`,l=`${a}
 
 User Query: ${n}
