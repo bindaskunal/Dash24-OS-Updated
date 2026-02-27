@@ -1,0 +1,89 @@
+commit 4ffe95df2d00b8a6d2ffd460dca0bf16ecfa684f
+Author: bindaskunal <bindaskunal@gmail.com>
+Date:   Thu Feb 26 12:27:52 2026 +0530
+
+    Implement strict alphanumeric normalization for robust AI product matching
+
+commit b2f4d3f6e478057622ea0c8e37033349c2ed6123
+Author: bindaskunal <bindaskunal@gmail.com>
+Date:   Thu Feb 26 11:56:47 2026 +0530
+
+    Inject on-screen debugger for AI response monitoring
+
+commit 99e15f52d54d00bad7426f9ef1e4a4f2c401c50d
+Author: bindaskunal <bindaskunal@gmail.com>
+Date:   Thu Feb 26 11:47:58 2026 +0530
+
+    Implement LLM-powered dynamic product comparisons matrix in AI Search
+
+commit 9c85d58fd8e3c0f0ea79480d38ea7320db8755a7
+Author: bindaskunal <bindaskunal@gmail.com>
+Date:   Thu Feb 26 11:31:38 2026 +0530
+
+    Refine Dash AI Search typography, layout constraints, and product card styling
+
+commit 7e1bed7602280d43d80ca27b0b6852f36e011d15
+Author: bindaskunal <bindaskunal@gmail.com>
+Date:   Thu Feb 26 11:19:57 2026 +0530
+
+    Update frontend AI matching logic to use fuzzy matching
+
+commit 2a9db7b3c14c028be8497d87885ecdfbe8ac6097
+Author: bindaskunal <bindaskunal@gmail.com>
+Date:   Thu Feb 26 10:51:42 2026 +0530
+
+    Search Changes
+
+commit 9ab70f6803442f95ff854023273a69f6dae8f19b
+Author: bindaskunal <bindaskunal@gmail.com>
+Date:   Thu Feb 26 01:52:26 2026 +0530
+
+    Fix AI Search
+
+commit 3a0e2375fffc177c041f3546c23d717d1ff1e839
+Author: bindaskunal <bindaskunal@gmail.com>
+Date:   Thu Feb 26 01:42:50 2026 +0530
+
+    fix: hardened Dash AI JSON parsing and upgraded frontend fuzzy matching for agentic commerce proxies
+
+commit 7403efb5348aaeea48e38ab2d9fe236a4d693385
+Author: bindaskunal <bindaskunal@gmail.com>
+Date:   Thu Feb 26 01:42:08 2026 +0530
+
+    Memory Augmented Cache
+
+commit 0fa719feec130296fcb7d073c75faeeb4a971fc1
+Author: bindaskunal <bindaskunal@gmail.com>
+Date:   Thu Feb 26 01:41:42 2026 +0530
+
+    Dash AI Memory
+
+commit 76fa41b20526ee0e5a07e265d275874c53e0e791
+Author: bindaskunal <bindaskunal@gmail.com>
+Date:   Thu Feb 26 01:27:41 2026 +0530
+
+    feat: migrated Dash AI to explicit JSON framework for Shoppable Product Cards
+
+commit d33572bc836086cc1c20df162729e2a626c48b19
+Author: bindaskunal <bindaskunal@gmail.com>
+Date:   Thu Feb 26 01:18:27 2026 +0530
+
+    Memory caching
+
+commit 20407b6e01929c2d03705df7359e68d22b16244b
+Author: bindaskunal <bindaskunal@gmail.com>
+Date:   Thu Feb 26 01:07:37 2026 +0530
+
+    Dash AI
+
+commit f0e25e98e6ee342ef73dd62eb315ea0cebfd5309
+Author: bindaskunal <bindaskunal@gmail.com>
+Date:   Thu Feb 26 01:03:24 2026 +0530
+
+    perf: implemented Dash AI client-side query caching via sessionStorage
+
+commit cb1ebafb9f76e258fb50ae9dfe59e145bf314124
+Author: bindaskunal <bindaskunal@gmail.com>
+Date:   Thu Feb 26 01:01:01 2026 +0530
+
+    feat: parse Dash AI insight reasoning via react-markdown and styling

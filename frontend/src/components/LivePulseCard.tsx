@@ -136,7 +136,7 @@ export default function LivePulseCard({ product, handleAddToCart, handleCardClic
                         </div>
                     )}
                     {/* Mobile Button Wrapper */}
-                    <div className="flex md:hidden items-center justify-between">
+                    <div className="hidden md:flex items-center justify-between">
                         <span className="font-black text-gray-900 text-[13px] tracking-tight leading-none text-blue-600">₹{product.price}</span>
                         <button
                             onClick={(e) => { e.stopPropagation(); handleAddToCart(product); }}

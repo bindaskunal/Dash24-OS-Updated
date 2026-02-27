@@ -708,10 +708,10 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
 
                 {/* Unified Responsive Feed (Scrollable) */}
                 <ScrollableRow className="w-full">
-                  <div className="flex gap-3 md:gap-5 snap-x hide-scrollbar pb-2 md:pb-6 w-max px-0.5 md:px-0">
+                  <div className="grid grid-flow-col grid-rows-3 md:grid-rows-2 gap-4 overflow-x-auto snap-x snap-mandatory pb-4 hide-scrollbar w-full">
                     {scoredItems.filter((item) => searchQuery ? (item.name.toLowerCase().includes(searchQuery.toLowerCase()) || (item.brand && item.brand.toLowerCase().includes(searchQuery.toLowerCase())) || (item.category && item.category.toLowerCase().includes(searchQuery.toLowerCase()))) : true).map((item) => {
                       return (
-                        <div key={item.name} className="snap-start flex-shrink-0 w-[140px] md:w-[260px]">
+                        <div key={item.name} className="w-[160px] md:w-[220px] snap-start">
                           <LivePulseCard
                             product={item}
                             handleAddToCart={(p: any) => { handleAddToCart(p.name); setCartOpen(true); }}
@@ -756,9 +756,11 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
 
                       <p className="text-[10px] md:text-sm text-gray-200 font-bold mb-0.5 truncate w-full px-1">{AGENTIC_DROPS[agenticIndex].name}</p>
 
-                      <div className="font-mono text-[15px] md:text-3xl text-white font-black flex items-baseline justify-center gap-1 md:gap-2 mb-2 md:mb-6">
+                      <div className="font-mono text-[15px] md:text-3xl text-white font-black flex items-baseline justify-center gap-1 md:gap-2">
                         <span className="text-red-400 font-sans tracking-tighter shadow-sm">₹{agenticPrice}</span>
+                        <span className="line-through text-white/60 text-sm ml-2">₹899</span>
                       </div>
+                      <div className="text-xs text-white/80 mt-1 mb-2 font-medium">Lock between ₹499 - ₹599</div>
 
                       <button
                         onClick={() => { handleAddToCart(AGENTIC_DROPS[agenticIndex].name, agenticPrice); setLockedProducts(prev => new Set([...prev, AGENTIC_DROPS[agenticIndex].name])); setCartOpen(true); }}
@@ -795,7 +797,7 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                     <div className="absolute -right-4 -bottom-4 opacity-5 text-[80px] md:text-[140px] leading-none pointer-events-none">🔒</div>
                     <div className="relative flex flex-col items-center text-center h-full w-full">
                       <h2 className="text-[6px] md:text-[11px] font-bold tracking-widest text-[#F97316] mb-1 uppercase drop-shadow-sm">VIP INVENTORY • GADGETS</h2>
-                      <h1 className="text-[10px] md:text-2xl font-black tracking-tight text-white mb-1.5 md:mb-3">Sunday Vault</h1>
+                      <h1 className="text-xs md:text-3xl font-black tracking-tight text-white mb-1.5 md:mb-3">Sunday Vault</h1>
                       <p className="text-[6px] md:text-sm font-medium text-gray-400 leading-snug line-clamp-2 md:line-clamp-none mb-1 md:mb-2">Exclusive high-demand gadget unlocks.</p>
 
                       <div className="bg-gradient-to-r from-red-600/20 to-orange-500/20 rounded-lg md:rounded-2xl p-1.5 md:p-4 mt-auto w-full border border-red-500/30 shadow-inner backdrop-blur-sm flex flex-col justify-center items-center relative gap-0.5 md:gap-1.5 overflow-hidden">
@@ -819,7 +821,8 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                 <div className="flex justify-between items-start mb-6 relative flex-col md:flex-row gap-6">
                   <div className="flex-1">
                     <span className="bg-yellow-400 text-black px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-widest mb-3 inline-block shadow-sm">Brand in Focus</span>
-                    <h2 className="text-3xl md:text-4xl font-black tracking-tight mb-2 text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 to-yellow-500">Community Drop</h2>
+                    <h2 className="text-3xl md:text-4xl font-black tracking-tight mb-2 text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 to-yellow-500">Community Drop 🔥 Fast Filling!</h2>
+                    <div className="w-full max-w-sm bg-gray-200/30 h-1.5 mt-1 rounded-full"><div className="bg-blue-500 h-1.5 w-[75%] rounded-full"></div></div>
                     <p className="text-blue-200 font-medium text-sm md:text-base mb-4">50 curated products reserved for the {selectedNode} collective.</p>
                   </div>
                   {/* Progress bar instead of just diamond */}

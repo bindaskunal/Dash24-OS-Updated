@@ -2,6 +2,7 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { Search } from "lucide-react";
 
 export default function MobileBottomNav() {
     const router = useRouter();
@@ -27,9 +28,9 @@ export default function MobileBottomNav() {
                 }
             }} className="flex flex-col items-center gap-1.5 transition relative group">
                 <div className="absolute -top-6 bg-[#111827] group-active:scale-95 transition-transform w-14 h-14 rounded-full flex items-center justify-center border-4 border-white shadow-xl shadow-blue-500/20">
-                    <span className="text-2xl leading-none drop-shadow-md">✨🔍</span>
+                    <Search className="w-6 h-6 text-white stroke-[2.5]" />
                 </div>
-                <span className="text-[10px] font-bold tracking-widest uppercase mt-6 text-gray-900">Pulse</span>
+                <span className="text-[10px] font-bold tracking-widest uppercase mt-6 text-gray-900">Search</span>
             </button>
             <button onClick={() => router.push("/arcade")} className={`flex flex-col items-center gap-1.5 transition ${pathname === '/arcade' ? 'text-[#F97316]' : 'text-gray-400 hover:text-gray-600'}`}>
                 <span className="text-xl leading-none relative">
