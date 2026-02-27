@@ -1205,6 +1205,32 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                           ))}
                         </div>
                       </div>
+
+                      {/* Local Search Results While Typing (Before Enter/AI) */}
+                      {searchQuery.length > 1 && (
+                        <div className="mt-8 space-y-4">
+                          <p className="text-xs uppercase tracking-widest text-gray-500 font-bold ml-1">Local Matches for "{searchQuery}"</p>
+                          <div className="grid grid-cols-2 gap-3">
+                            {products.filter(p => p.name.toLowerCase().replace(/[^a-z0-9]/g, '').includes(searchQuery.toLowerCase().replace(/[^a-z0-9]/g, ''))).slice(0, 4).map(item => (
+                              <div key={`local-search-${item.id}`} onClick={() => { setSearchFocused(false); router.push(`/product/${item.id || 0}`); }} className="bg-white rounded-xl border border-gray-100 shadow-sm p-3 flex flex-col justify-between cursor-pointer group hover:shadow-md transition text-black">
+                                <div className="w-full h-28 mb-3 relative overflow-hidden flex items-center justify-center">
+                                  <img referrerPolicy="no-referrer" src={item.image_url} alt={item.name} className="max-w-full max-h-full object-contain group-hover:scale-110 transition duration-300 mix-blend-multiply" />
+                                </div>
+                                <div>
+                                  <div className="flex items-center gap-1.5 mb-1.5">
+                                    <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded-sm line-clamp-1">{item.brand}</span>
+                                  </div>
+                                  <h3 className="font-semibold text-xs md:text-sm text-gray-900 leading-tight line-clamp-2 mb-2 group-hover:text-blue-600 transition">{item.name}</h3>
+                                  <p className="font-bold text-sm text-gray-900">₹{item.price}</p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                          {products.filter(p => p.name.toLowerCase().replace(/[^a-z0-9]/g, '').includes(searchQuery.toLowerCase().replace(/[^a-z0-9]/g, ''))).length === 0 && (
+                            <p className="text-sm text-gray-500 italic ml-1">No local products found. Press Enter to ask AI.</p>
+                          )}
+                        </div>
+                      )}
                     </>
                   ) : (
                     <div className="space-y-6">
@@ -1280,30 +1306,34 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                           </table>
                         </div>
                       )}
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="flex flex-col gap-4">
                         {agenticMatches.length > 0 ? (
-                          agenticMatches.map(match => {
+                          agenticMatches.filter((val, idx, arr) => arr.findIndex(t => t.name === val.name) === idx).map(match => {
                             const item = scoredItems.find(i => i.id === match.id) || MASTER_CATALOG.find(i => i.id === match.id);
                             if (!item) return null;
+
+                            const formatText = (text: string) => text.split('**').map((part, i) => i % 2 === 1 ? <strong key={i} className="text-gray-900">{part}</strong> : part);
+
                             return (
-                              <div key={`rec-${item.id}`} onClick={() => { setSearchFocused(false); router.push(`/product/${item.id || 0}`); }} className="bg-white rounded-xl border border-gray-100 shadow-sm p-3 flex flex-col justify-between cursor-pointer group hover:shadow-md transition text-black">
-                                <div className="w-full h-28 mb-3 relative overflow-hidden flex items-center justify-center">
-                                  <img referrerPolicy="no-referrer" src={item.image_url} alt={item.name} className="max-h-full max-w-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500" />
+                              <div key={`rec-${item.id}`} onClick={() => { setSearchFocused(false); router.push(`/product/${item.id || 0}`); }} className="flex flex-col md:flex-row w-full bg-white border border-gray-100 rounded-xl p-4 shadow-sm gap-4 items-start cursor-pointer group hover:shadow-md transition text-black">
+                                <div className="w-24 h-24 md:w-32 md:h-32 flex-shrink-0 relative overflow-hidden flex items-center justify-center bg-gray-50 rounded-lg p-2 border border-gray-50">
+                                  <img referrerPolicy="no-referrer" src={item.image_url} alt={item.name} className="max-h-full max-w-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-500" />
                                 </div>
-                                <p className="text-sm font-semibold text-gray-900 line-clamp-2 leading-tight">{item.name}</p>
-
-                                {/* Inject specific AI reason text here right above price/cart */}
-                                {match.reason && (
-                                  <div className="mt-2 mb-3 p-2 bg-indigo-50/50 rounded-lg text-[11px] text-gray-600 font-medium leading-relaxed border border-indigo-100/50">
-                                    ✨ {match.reason}
+                                <div className="flex-1 flex flex-col justify-between h-full w-full">
+                                  <div>
+                                    <h3 className="text-sm md:text-base font-bold text-gray-900 mb-1 group-hover:text-blue-600 transition-colors leading-tight">{item.name}</h3>
+                                    {match.reason && (
+                                      <p className="text-[11px] md:text-xs text-gray-600 font-medium leading-relaxed mb-3 line-clamp-3 md:line-clamp-none">
+                                        ✨ {formatText(match.reason)}
+                                      </p>
+                                    )}
                                   </div>
-                                )}
-
-                                <div className="mt-auto flex items-center justify-between">
-                                  <p className="text-base font-bold text-gray-900">₹{item.price}</p>
-                                  <button className="w-8 h-8 rounded-full bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center shadow-md shadow-blue-600/20 active:scale-95 transition-transform" onClick={(e) => { e.stopPropagation(); handleAddToCart(item.name); }}>
-                                    <span className="text-lg leading-none">+</span>
-                                  </button>
+                                  <div className="mt-auto flex items-center justify-between pt-2">
+                                    <p className="text-base md:text-lg font-black text-gray-900">₹{item.price}</p>
+                                    <button className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center shadow-md shadow-blue-600/20 active:scale-95 transition-transform" onClick={(e) => { e.stopPropagation(); handleAddToCart(item.name); }}>
+                                      <span className="text-lg md:text-xl font-medium leading-none mb-0.5">+</span>
+                                    </button>
+                                  </div>
                                 </div>
                               </div>
                             );
