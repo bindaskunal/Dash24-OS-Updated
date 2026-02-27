@@ -1249,15 +1249,15 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
 
                       {/* AI Product Comparison Table */}
                       {agenticComparison && agenticComparison.features && agenticComparison.products && (
-                        <div className="mb-6 overflow-x-auto rounded-xl border border-gray-200 shadow-sm bg-white">
-                          <table className="w-full text-left border-collapse min-w-max">
+                        <div className="mb-6 w-full max-w-full rounded-xl border border-gray-200 shadow-sm bg-white">
+                          <table className="w-full table-fixed border-collapse text-xs md:text-sm">
                             <thead>
                               <tr>
-                                <th className="p-3 bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase tracking-wider min-w-[120px]">
+                                <th className="w-[28%] break-words whitespace-normal p-2 md:p-3 align-top border border-gray-200 bg-gray-50 font-semibold text-gray-500 uppercase tracking-wider">
                                   Features
                                 </th>
                                 {agenticComparison.products.map((p: any, idx: number) => (
-                                  <th key={idx} className="p-3 bg-gray-50 border-b border-r last:border-r-0 border-gray-200 text-sm font-bold text-gray-900 min-w-[150px]">
+                                  <th key={idx} className="w-[36%] break-words whitespace-normal p-2 md:p-3 align-top border border-gray-200 bg-gray-50 font-bold text-gray-900">
                                     {p.name}
                                   </th>
                                 ))}
@@ -1266,11 +1266,11 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                             <tbody className="divide-y divide-gray-100">
                               {agenticComparison.features.map((feature: string, featureIdx: number) => (
                                 <tr key={featureIdx} className="hover:bg-gray-50/50 transition-colors">
-                                  <td className="p-3 bg-gray-50/30 text-xs font-semibold text-gray-700">
+                                  <td className="break-words whitespace-normal p-2 md:p-3 align-top border border-gray-200 bg-gray-50/30 font-semibold text-gray-700">
                                     {feature}
                                   </td>
                                   {agenticComparison.products.map((p: any, pIdx: number) => (
-                                    <td key={pIdx} className="p-3 border-r last:border-r-0 border-gray-100 text-sm text-gray-700">
+                                    <td key={pIdx} className="break-words whitespace-normal p-2 md:p-3 align-top border border-gray-200 text-gray-700">
                                       {p.values[featureIdx] || "-"}
                                     </td>
                                   ))}
