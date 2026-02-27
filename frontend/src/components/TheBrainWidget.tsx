@@ -117,7 +117,7 @@ export default function TheBrainWidget() {
                                 <span>⟲</span> Reset
                             </button>
                         </div>
-                        <div className="text-gray-100 text-sm md:text-base font-medium leading-relaxed whitespace-pre-wrap">
+                        <div className="text-white text-sm md:text-base font-medium leading-relaxed whitespace-pre-wrap">
                             {chatOutput}
                         </div>
                     </div>
