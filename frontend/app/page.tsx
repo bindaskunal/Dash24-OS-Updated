@@ -247,106 +247,103 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
     }
   }, [searchParams?.search]);
 
-  // Debounced Agentic Search Fetch
-  useEffect(() => {
-    if (!searchQuery || !searchFocused) {
+  // Manual Agentic Search Fetch (Triggered on Enter or Button Click)
+  const handleSearchSubmit = async (queryOverride?: string) => {
+    const query = typeof queryOverride === 'string' ? queryOverride : searchQuery;
+    if (!query || !searchFocused) {
       setAgenticMatches([]);
       setAgenticReasoning(null);
       setAgenticComparison(null);
       setAgenticRawData(null);
       return;
     }
-    const timer = setTimeout(async () => {
-      const sanitizedQuery = searchQuery.toLowerCase().trim();
-      const cachedResponse = sessionStorage.getItem(sanitizedQuery);
 
-      if (cachedResponse) {
-        try {
-          const parsedCache = JSON.parse(cachedResponse);
-          setAgenticRawData(parsedCache);
-          setAgenticReasoning(parsedCache.globalHook);
-          setAgenticComparison(parsedCache.isComparison ? parsedCache.comparisonData : null);
+    const sanitizedQuery = query.toLowerCase().trim();
+    const cachedResponse = sessionStorage.getItem(sanitizedQuery);
 
-          if (parsedCache.recommendations && Array.isArray(parsedCache.recommendations)) {
-            const normalize = (str: string) => str.toLowerCase().replace(/[^a-z0-9]/g, '');
-            const safeRecommendations = parsedCache.recommendations || [];
-            const matchedProducts = safeRecommendations.map((rec: any) => {
-              if (!rec || !rec.productName) return null;
-              const normalizedRec = normalize(rec.productName);
-              const lp = [...MASTER_CATALOG, ...scoredItems];
-              const found = lp.find(p => {
-                const normalizedCatalog = normalize(p.name);
-                return normalizedCatalog.includes(normalizedRec) || normalizedRec.includes(normalizedCatalog);
-              });
-              if (found) {
-                return { id: found.id, reason: rec.reason, name: found.name };
-              }
-              return null;
-            }).filter(Boolean);
-            setAgenticMatches(matchedProducts);
-          } else {
-            setAgenticMatches([]);
-          }
-        } catch (e) {
-          setAgenticReasoning(cachedResponse);
-          setAgenticMatches([]);
-          setAgenticComparison(null);
-        }
-        return;
-      }
-
-      setIsSearching(true);
+    if (cachedResponse) {
       try {
-        const response = await fetch('/api/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            prompt: searchQuery,
-            lastOrderContext: "User previously bought: Whole Truth Protein Bars, Blue Tokai Coffee"
-          })
-        });
-        const resJson = await response.json();
+        const parsedCache = JSON.parse(cachedResponse);
+        setAgenticRawData(parsedCache);
+        setAgenticReasoning(parsedCache.globalHook);
+        setAgenticComparison(parsedCache.isComparison ? parsedCache.comparisonData : null);
 
-        if (resJson.data) {
-          console.log("Parsed AI Data:", resJson.data);
-          const { isComparison, globalHook, comparisonData, recommendations } = resJson.data;
-
-          sessionStorage.setItem(sanitizedQuery, JSON.stringify(resJson.data));
-          setAgenticRawData(resJson.data);
-          setAgenticReasoning(globalHook);
-          setAgenticComparison(isComparison ? comparisonData : null);
-
-          if (recommendations && Array.isArray(recommendations)) {
-            const normalize = (str: string) => str.toLowerCase().replace(/[^a-z0-9]/g, '');
-            const safeRecommendations = recommendations || [];
-            const matchedProducts = safeRecommendations.map((rec: any) => {
-              if (!rec || !rec.productName) return null;
-              const normalizedRec = normalize(rec.productName);
-              const lp = [...MASTER_CATALOG, ...scoredItems];
-              const found = lp.find(p => {
-                const normalizedCatalog = normalize(p.name);
-                return normalizedCatalog.includes(normalizedRec) || normalizedRec.includes(normalizedCatalog);
-              });
-              if (found) {
-                return { id: found.id, reason: rec.reason, name: found.name };
-              }
-              return null;
-            }).filter(Boolean);
-            setAgenticMatches(matchedProducts);
-          } else {
-            setAgenticMatches([]);
-          }
+        if (parsedCache.recommendations && Array.isArray(parsedCache.recommendations)) {
+          const normalize = (str: string) => str.toLowerCase().replace(/[^a-z0-9]/g, '');
+          const safeRecommendations = parsedCache.recommendations || [];
+          const matchedProducts = safeRecommendations.map((rec: any) => {
+            if (!rec || !rec.productName) return null;
+            const normalizedRec = normalize(rec.productName);
+            const lp = [...MASTER_CATALOG, ...scoredItems];
+            const found = lp.find(p => {
+              const normalizedCatalog = normalize(p.name);
+              return normalizedCatalog.includes(normalizedRec) || normalizedRec.includes(normalizedCatalog);
+            });
+            if (found) {
+              return { id: found.id, reason: rec.reason, name: found.name };
+            }
+            return null;
+          }).filter(Boolean);
+          setAgenticMatches(matchedProducts);
+        } else {
+          setAgenticMatches([]);
         }
-      } catch (err) {
-        console.error("Search API failed", err);
-      } finally {
-        setIsSearching(false);
+      } catch (e) {
+        setAgenticReasoning(cachedResponse);
+        setAgenticMatches([]);
+        setAgenticComparison(null);
       }
-    }, 400); // 400ms debounce
+      return;
+    }
 
+    setIsSearching(true);
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: query,
+          lastOrderContext: "User previously bought: Whole Truth Protein Bars, Blue Tokai Coffee"
+        })
+      });
+      const resJson = await response.json();
 
-    return () => clearTimeout(timer);
-  }, [searchQuery, searchFocused]);
+      if (resJson.data) {
+        console.log("Parsed AI Data:", resJson.data);
+        const { isComparison, globalHook, comparisonData, recommendations } = resJson.data;
+
+        sessionStorage.setItem(sanitizedQuery, JSON.stringify(resJson.data));
+        setAgenticRawData(resJson.data);
+        setAgenticReasoning(globalHook);
+        setAgenticComparison(isComparison ? comparisonData : null);
+
+        if (recommendations && Array.isArray(recommendations)) {
+          const normalize = (str: string) => str.toLowerCase().replace(/[^a-z0-9]/g, '');
+          const safeRecommendations = recommendations || [];
+          const matchedProducts = safeRecommendations.map((rec: any) => {
+            if (!rec || !rec.productName) return null;
+            const normalizedRec = normalize(rec.productName);
+            const lp = [...MASTER_CATALOG, ...scoredItems];
+            const found = lp.find(p => {
+              const normalizedCatalog = normalize(p.name);
+              return normalizedCatalog.includes(normalizedRec) || normalizedRec.includes(normalizedCatalog);
+            });
+            if (found) {
+              return { id: found.id, reason: rec.reason, name: found.name };
+            }
+            return null;
+          }).filter(Boolean);
+          setAgenticMatches(matchedProducts);
+        } else {
+          setAgenticMatches([]);
+        }
+      }
+    } catch (err) {
+      console.error("Search API failed", err);
+    } finally {
+      setIsSearching(false);
+    }
+  };
 
   const currentNode = NODE_DATA[selectedNode as keyof typeof NODE_DATA];
 
@@ -1077,6 +1074,9 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                       type="text"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleSearchSubmit();
+                      }}
                       placeholder="Ask Dash24 AI anything..."
                       className="w-full bg-gray-50 border border-gray-300 text-gray-900 rounded-2xl py-4 pl-12 pr-4 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition text-lg font-medium shadow-inner"
                       autoFocus
@@ -1092,7 +1092,7 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                 {/* Mobile Quick Filters (Inside Search Overlay) */}
                 <div className="md:hidden hide-scrollbar overflow-x-auto flex gap-3 pb-1 -mx-4 px-4 w-[calc(100%+32px)]">
                   {QUICK_CATEGORIES.map(cat => (
-                    <button key={cat.name} onClick={() => setSearchQuery(cat.name)} className="flex items-center gap-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-full px-4 py-2 whitespace-nowrap active:scale-95 transition text-xs text-gray-800 font-bold shadow-sm flex-shrink-0">
+                    <button key={cat.name} onClick={() => { setSearchQuery(cat.name); handleSearchSubmit(cat.name); }} className="flex items-center gap-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-full px-4 py-2 whitespace-nowrap active:scale-95 transition text-xs text-gray-800 font-bold shadow-sm flex-shrink-0">
                       <div className="w-5 h-5 bg-white rounded-full flex items-center justify-center overflow-hidden shrink-0 border border-gray-100">
                         <img referrerPolicy="no-referrer" src={cat.img} alt={cat.name} className="w-[85%] h-[85%] object-contain mix-blend-multiply" />
                       </div>
@@ -1112,7 +1112,7 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                         <p className="text-xs uppercase tracking-widest text-gray-500 font-bold ml-1">Live Pulse Recommendations</p>
                         <div className="flex flex-wrap gap-2">
                           {["Gym recovery products", "Best Vitamin C for glow", "Sugar-free energy snacks", "Hyperlocal favorites in Bangalore", "Amla juice for acidity"].map((query) => (
-                            <button onClick={() => setSearchQuery(query)} key={query} className="bg-white border border-gray-200 hover:border-blue-300 shadow-sm hover:shadow-md px-4 py-2.5 rounded-xl text-sm text-gray-700 font-medium transition text-left flex items-center gap-2">
+                            <button onClick={() => { setSearchQuery(query); handleSearchSubmit(query); }} key={query} className="bg-white border border-gray-200 hover:border-blue-300 shadow-sm hover:shadow-md px-4 py-2.5 rounded-xl text-sm text-gray-700 font-medium transition text-left flex items-center gap-2">
                               <span className="text-blue-500">✨</span> {query}
                             </button>
                           ))}
