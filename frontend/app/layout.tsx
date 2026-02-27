@@ -19,13 +19,35 @@ import { AuthProvider } from '../lib/auth'
 import GlobalHeader from '../src/components/GlobalHeader'
 import CartDrawer from '../src/components/CartDrawer'
 
+import { MASTER_CATALOG } from '../src/data/constants';
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const jsonLdData = MASTER_CATALOG.map(product => ({
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": product.name,
+    "brand": product.brand || "Dash24",
+    "offers": {
+      "@type": "Offer",
+      "price": product.price,
+      "priceCurrency": "INR",
+      "availability": "https://schema.org/InStock",
+      "deliveryLeadTime": "60 minutes"
+    }
+  }));
+
   return (
     <html lang="en" className={inter.variable}>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdData) }}
+        />
+      </head>
       <body className="font-sans antialiased bg-background text-foreground">
         <AuthProvider>
           <LocationProvider>
