@@ -100,11 +100,9 @@ export default function GlobalHeader() {
                         <div className="relative" onMouseEnter={() => setDropHover(true)} onMouseLeave={() => setDropHover(false)}>
                             <Link href="/arcade" className="flex items-center gap-2 bg-orange-50 text-orange-600 px-3 py-2 rounded-xl text-xs font-bold border border-orange-100 hover:bg-orange-100 transition">
                                 <span>💎</span>
-                                <div className="flex flex-col gap-1">
-                                    <span className="uppercase tracking-wider text-[9px] leading-none">Community Drop</span>
-                                    <div className="w-16 bg-orange-200/50 h-1.5 rounded-full overflow-hidden">
-                                        <div className="bg-orange-500 h-full w-[84%] rounded-full" />
-                                    </div>
+                                <div className="flex flex-col gap-0.5">
+                                    <span className="uppercase tracking-wider text-[9px] leading-none">Community Drop 🔥 Fast Filling!</span>
+                                    <div className="w-full max-w-sm bg-gray-200/30 h-1.5 mt-1 rounded-full"><div className="bg-blue-500 h-1.5 w-[75%] rounded-full"></div></div>
                                 </div>
                             </Link>
                             {dropHover && (

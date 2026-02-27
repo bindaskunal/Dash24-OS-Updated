@@ -707,20 +707,18 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                 </div>
 
                 {/* Unified Responsive Feed (Scrollable) */}
-                <ScrollableRow className="w-full">
-                  <div className="grid grid-flow-col grid-rows-3 md:grid-rows-2 gap-4 overflow-x-auto snap-x snap-mandatory pb-4 hide-scrollbar w-full">
-                    {scoredItems.filter((item) => searchQuery ? (item.name.toLowerCase().includes(searchQuery.toLowerCase()) || (item.brand && item.brand.toLowerCase().includes(searchQuery.toLowerCase())) || (item.category && item.category.toLowerCase().includes(searchQuery.toLowerCase()))) : true).map((item) => {
-                      return (
-                        <div key={item.name} className="w-[160px] md:w-[220px] snap-start">
-                          <LivePulseCard
-                            product={item}
-                            handleAddToCart={(p: any) => { handleAddToCart(p.name); setCartOpen(true); }}
-                            handleCardClick={() => router.push(`/product/${item.id}`)}
-                          />
-                        </div>
-                      );
-                    })}
-                  </div>
+                <ScrollableRow className="grid grid-flow-col grid-rows-3 md:grid-rows-2 gap-4 snap-x snap-mandatory pb-4 w-full">
+                  {scoredItems.filter((item) => searchQuery ? (item.name.toLowerCase().includes(searchQuery.toLowerCase()) || (item.brand && item.brand.toLowerCase().includes(searchQuery.toLowerCase())) || (item.category && item.category.toLowerCase().includes(searchQuery.toLowerCase()))) : true).map((item) => {
+                    return (
+                      <div key={item.name} className="w-[160px] md:w-[220px] snap-start">
+                        <LivePulseCard
+                          product={item}
+                          handleAddToCart={(p: any) => { handleAddToCart(p.name); setCartOpen(true); }}
+                          handleCardClick={() => router.push(`/product/${item.id}`)}
+                        />
+                      </div>
+                    );
+                  })}
                 </ScrollableRow>
               </div>
 

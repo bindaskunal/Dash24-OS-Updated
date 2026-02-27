@@ -136,11 +136,11 @@ export default function LivePulseCard({ product, handleAddToCart, handleCardClic
                         </div>
                     )}
                     {/* Mobile Button Wrapper */}
-                    <div className="hidden md:flex items-center justify-between">
+                    <div className="flex md:hidden items-center justify-between w-full">
                         <span className="font-black text-gray-900 text-[13px] tracking-tight leading-none text-blue-600">₹{product.price}</span>
                         <button
                             onClick={(e) => { e.stopPropagation(); handleAddToCart(product); }}
-                            className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-md active:scale-95 transition-transform"
+                            className="flex md:hidden items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white shadow-md active:scale-95 transition-transform"
                         >
                             <span className="text-lg leading-none">+</span>
                         </button>
@@ -149,7 +149,7 @@ export default function LivePulseCard({ product, handleAddToCart, handleCardClic
                     {/* Desktop Button */}
                     <button
                         onClick={(e) => { e.stopPropagation(); handleAddToCart(product); }}
-                        className="hidden md:flex w-full py-2.5 rounded-xl text-xs font-bold transition-all relative overflow-hidden group/btn bg-blue-600 text-white border border-[#D1E0FF] hover:bg-blue-700 mt-2 items-center justify-center gap-2"
+                        className="hidden md:flex items-center justify-center w-full py-2.5 rounded-xl text-xs font-bold transition-all relative overflow-hidden group/btn bg-blue-600 text-white border border-[#D1E0FF] hover:bg-blue-700 mt-2 gap-2"
                     >
                         <span className="relative z-10 flex items-center justify-center gap-2">
                             <span>➕</span> Add to Cart
