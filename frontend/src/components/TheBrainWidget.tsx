@@ -73,7 +73,7 @@ export default function TheBrainWidget() {
                         onChange={(e) => setInputValue(e.target.value)}
                         onKeyDown={handleKeyDown}
                         placeholder="Ask anything about your brand's performance, unit economics, or inventory..."
-                        className="w-full bg-slate-950/50 border border-slate-700/50 text-white rounded-xl py-4 pl-4 pr-14 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition placeholder:text-slate-500 font-medium shadow-inner"
+                        className="w-full bg-white text-gray-900 border border-slate-300 rounded-xl py-4 pl-4 pr-14 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition placeholder:text-gray-500 font-medium shadow-inner"
                     />
                     <button
                         onClick={() => handleSubmit()}
@@ -117,7 +117,7 @@ export default function TheBrainWidget() {
                                 <span>⟲</span> Reset
                             </button>
                         </div>
-                        <div className="text-slate-200 text-sm md:text-base font-medium leading-relaxed whitespace-pre-wrap">
+                        <div className="text-gray-100 text-sm md:text-base font-medium leading-relaxed whitespace-pre-wrap">
                             {chatOutput}
                         </div>
                     </div>
