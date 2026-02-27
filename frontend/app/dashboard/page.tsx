@@ -10,6 +10,7 @@ import SIMULATED_ORDERS from '../../data/simulated_orders.json';
 const COLORS = ['#f97316', '#3b82f6', '#10b981', '#6366f1', '#ec4899', '#f59e0b'];
 
 import TheBrainWidget from '../../src/components/TheBrainWidget';
+import InventoryRadar from '../../src/components/InventoryRadar';
 
 export default function Dashboard() {
     const [activeTab, setActiveTab] = useState<'simulator' | 'monthly' | 'brand'>('simulator');
@@ -547,23 +548,28 @@ export default function Dashboard() {
                         </div>
 
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                            {/* Brand Daily Graph */}
-                            <div className="lg:col-span-2 bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
-                                <div className="mb-6">
-                                    <h3 className="text-lg font-black text-slate-900">Brand-Specific Daily Volume</h3>
-                                    <p className="text-xs text-slate-500 mt-1">30-day order volume specifically for {selectedBrand}.</p>
+                            {/* Brand Daily Graph & Inventory Radar */}
+                            <div className="lg:col-span-2 flex flex-col gap-8">
+                                <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+                                    <div className="mb-6">
+                                        <h3 className="text-lg font-black text-slate-900">Brand-Specific Daily Volume</h3>
+                                        <p className="text-xs text-slate-500 mt-1">30-day order volume specifically for {selectedBrand}.</p>
+                                    </div>
+                                    <div className="h-[280px] w-full mt-4">
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <LineChart data={brandData.dailyVolume} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                                                <XAxis dataKey="day" hide />
+                                                <YAxis tick={{ fontSize: 10, fill: '#64748b', fontWeight: 600 }} axisLine={false} tickLine={false} />
+                                                <RechartsTooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }} />
+                                                <Line type="monotone" dataKey="orders" stroke="#6366f1" strokeWidth={3} dot={false} name="Daily Orders" />
+                                            </LineChart>
+                                        </ResponsiveContainer>
+                                    </div>
                                 </div>
-                                <div className="h-[280px] w-full mt-4">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <LineChart data={brandData.dailyVolume} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                                            <XAxis dataKey="day" hide />
-                                            <YAxis tick={{ fontSize: 10, fill: '#64748b', fontWeight: 600 }} axisLine={false} tickLine={false} />
-                                            <RechartsTooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }} />
-                                            <Line type="monotone" dataKey="orders" stroke="#6366f1" strokeWidth={3} dot={false} name="Daily Orders" />
-                                        </LineChart>
-                                    </ResponsiveContainer>
-                                </div>
+
+                                {/* Dash24 Feature: Inventory Radar */}
+                                <InventoryRadar />
                             </div>
 
                             {/* Traffic Pie Chart & Intents */}
