@@ -9,6 +9,8 @@ import SIMULATED_ORDERS from '../../data/simulated_orders.json';
 
 const COLORS = ['#f97316', '#3b82f6', '#10b981', '#6366f1', '#ec4899', '#f59e0b'];
 
+import TheBrainWidget from '../../src/components/TheBrainWidget';
+
 export default function Dashboard() {
     const [activeTab, setActiveTab] = useState<'simulator' | 'monthly' | 'brand'>('simulator');
     const [selectedBrand, setSelectedBrand] = useState('Mamaearth');
@@ -188,6 +190,9 @@ export default function Dashboard() {
             </div>
 
             <div className="max-w-[1400px] mx-auto px-6 md:px-12 mt-8">
+
+                {/* THE BRAIN: AI Analytics Overlay */}
+                <TheBrainWidget />
 
                 {/* =========================================
             TAB 1: SIMULATOR
