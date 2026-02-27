@@ -91,7 +91,8 @@ export default function Dashboard() {
                     { name: 'Onion Shampoo', mrp: 349, captured: 310 },
                     { name: 'Face Wash', mrp: 259, captured: 245 },
                 ],
-                intents: ['hair fall', 'acne', 'summer skincare', 'dry scalp', 'glow'],
+                intentsConverted: ['hair fall', 'summer skincare', 'glow'],
+                intentsUnfulfilled: ['acne treatment pads', 'dry scalp overnight mask'],
                 eventLift: '+145%',
                 timeSpent: '1m 24s',
                 repeatPct: '32%',
@@ -103,6 +104,16 @@ export default function Dashboard() {
                     { name: 'Direct App', value: 20 },
                     { name: 'Gamification', value: 15 },
                 ],
+                coOccurrence: [
+                    { brand: 'The Whole Truth', pct: '35%' },
+                    { brand: 'Sleepy Owl', pct: '28%' },
+                    { brand: 'MCaffeine', pct: '15%' }
+                ],
+                localHeatmap: [
+                    { area: 'Indiranagar', density: '42%' },
+                    { area: 'Koramangala', density: '31%' },
+                    { area: 'HSR Layout', density: '18%' }
+                ],
                 pulseVelocity: { crossBrand: '4.2 days', sameBrand: '28 days' },
                 basketAffinity: '68%'
             },
@@ -111,7 +122,8 @@ export default function Dashboard() {
                     { name: 'Vitamin C Serum', mrp: 699, captured: 650 },
                     { name: 'Salicylic Acid', mrp: 549, captured: 520 },
                 ],
-                intents: ['pigmentation', 'open pores', 'acne marks', 'dermatologist recommended'],
+                intentsConverted: ['pigmentation', 'open pores', 'dermatologist recommended'],
+                intentsUnfulfilled: ['under eye retinol', 'acne deep scars'],
                 eventLift: '+210%',
                 timeSpent: '2m 10s',
                 repeatPct: '48%',
@@ -123,6 +135,16 @@ export default function Dashboard() {
                     { name: 'Direct App', value: 20 },
                     { name: 'Gamification', value: 10 },
                 ],
+                coOccurrence: [
+                    { brand: 'Snitch', pct: '40%' },
+                    { brand: 'The Whole Truth', pct: '22%' },
+                    { brand: 'Kapiva', pct: '12%' }
+                ],
+                localHeatmap: [
+                    { area: 'HSR Layout', density: '38%' },
+                    { area: 'Indiranagar', density: '35%' },
+                    { area: 'Whitefield', density: '15%' }
+                ],
                 pulseVelocity: { crossBrand: '3.8 days', sameBrand: '24 days' },
                 basketAffinity: '75%'
             },
@@ -131,7 +153,8 @@ export default function Dashboard() {
                     { name: 'Protein Bar', mrp: 100, captured: 85 },
                     { name: 'Dark Chocolate', mrp: 199, captured: 175 },
                 ],
-                intents: ['no sugar', 'healthy snack', 'clean protein', 'midnight craving'],
+                intentsConverted: ['no sugar', 'healthy snack', 'clean protein'],
+                intentsUnfulfilled: ['midnight craving pizza', 'bulk protein powder'],
                 eventLift: '+380%',
                 timeSpent: '45s',
                 repeatPct: '65%',
@@ -142,6 +165,16 @@ export default function Dashboard() {
                     { name: 'Piggyback', value: 30 },
                     { name: 'Direct App', value: 20 },
                     { name: 'Gamification', value: 20 },
+                ],
+                coOccurrence: [
+                    { brand: 'Sleepy Owl', pct: '45%' },
+                    { brand: 'Yoga Bar', pct: '25%' },
+                    { brand: 'Kapiva', pct: '18%' }
+                ],
+                localHeatmap: [
+                    { area: 'Koramangala', density: '45%' },
+                    { area: 'Indiranagar', density: '28%' },
+                    { area: 'HSR Layout', density: '20%' }
                 ],
                 pulseVelocity: { crossBrand: '5.1 days', sameBrand: '14 days' },
                 basketAffinity: '82%'
@@ -572,43 +605,67 @@ export default function Dashboard() {
                                 <InventoryRadar />
                             </div>
 
-                            {/* Traffic Pie Chart & Intents */}
+                            {/* Dash24 Right Column: Piggyback Matrix, Intents, Local Heatmap */}
                             <div className="lg:col-span-1 space-y-6 flex flex-col">
-                                <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex-1">
+                                {/* Co-Occurrence Matrix */}
+                                <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
                                     <div className="mb-4">
-                                        <h3 className="text-lg font-black text-slate-900">Traffic Source</h3>
+                                        <h3 className="text-[11px] font-bold uppercase tracking-widest text-slate-500">Co-Occurrence Matrix</h3>
+                                        <p className="text-xs text-slate-400 mt-1">Top Piggyback / Companion Brands</p>
                                     </div>
-                                    <div className="h-[200px] w-full">
-                                        <ResponsiveContainer width="100%" height="100%">
-                                            <PieChart>
-                                                <Pie
-                                                    data={brandData.trafficSource}
-                                                    cx="50%"
-                                                    cy="50%"
-                                                    innerRadius={50}
-                                                    outerRadius={75}
-                                                    paddingAngle={5}
-                                                    dataKey="value"
-                                                >
-                                                    {brandData.trafficSource.map((entry: any, index: number) => (
-                                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                                    ))}
-                                                </Pie>
-                                                <RechartsTooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }} />
-                                                <Legend wrapperStyle={{ fontSize: '11px', fontWeight: 600 }} layout="horizontal" verticalAlign="bottom" align="center" />
-                                            </PieChart>
-                                        </ResponsiveContainer>
+                                    <div className="space-y-3">
+                                        {brandData.coOccurrence.map((item: any, idx: number) => (
+                                            <div key={idx} className="flex justify-between items-center text-sm font-bold bg-slate-50 border border-slate-100 px-3 py-2 rounded-lg">
+                                                <span className="text-slate-700">Bought with: <span className="text-slate-900">{item.brand}</span></span>
+                                                <span className="text-purple-600 bg-purple-50 px-2 py-0.5 rounded text-xs">{item.pct}</span>
+                                            </div>
+                                        ))}
                                     </div>
                                 </div>
 
-                                {/* Semantic Memory Mapping */}
-                                <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 shadow-sm">
-                                    <h3 className="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-3">Semantic Intents</h3>
-                                    <div className="flex flex-wrap gap-2">
-                                        {brandData.intents.map((intent: string, idx: number) => (
-                                            <span key={idx} className="bg-white text-slate-700 border border-slate-200 px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm">
-                                                "{intent}"
-                                            </span>
+                                {/* Semantic Intents with Toggle Style View */}
+                                <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 shadow-sm flex-1">
+                                    <div className="mb-4 flex items-center justify-between">
+                                        <h3 className="text-[11px] font-bold uppercase tracking-widest text-slate-500">Semantic Intents</h3>
+                                        <div className="flex bg-slate-200 p-0.5 rounded-lg text-[10px] font-bold text-slate-500">
+                                            <span className="bg-white text-slate-800 px-2 py-1 rounded shadow-sm">Converted</span>
+                                            <span className="px-2 py-1 text-slate-400">Unfulfilled</span>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-4">
+                                        <div>
+                                            <p className="text-xs text-slate-400 mb-2 font-semibold">Actioned & Delivered:</p>
+                                            <div className="flex flex-wrap gap-2">
+                                                {brandData.intentsConverted.map((intent: string, idx: number) => (
+                                                    <span key={idx} className="bg-white text-slate-700 border border-slate-200 px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm">
+                                                        "{intent}"
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                        <div className="pt-3 border-t border-slate-200/60">
+                                            <p className="text-xs text-rose-400 opacity-80 mb-2 font-semibold">Missed / Stock-out:</p>
+                                            <div className="flex flex-wrap gap-2 opacity-60 grayscale">
+                                                {brandData.intentsUnfulfilled.map((intent: string, idx: number) => (
+                                                    <span key={idx} className="bg-white text-slate-500 border border-rose-100 px-3 py-1.5 rounded-lg text-xs font-bold">
+                                                        "{intent}"
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Hyper-Local Heatmap Placeholder */}
+                                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-sm relative overflow-hidden">
+                                    <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+                                    <h3 className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-4 relative z-10">Hyper-Local Demand (Bangalore Pilot)</h3>
+                                    <div className="space-y-2 relative z-10">
+                                        {brandData.localHeatmap.map((loc: any, idx: number) => (
+                                            <div key={idx} className="flex justify-between text-xs font-bold text-slate-300 border-b border-slate-800 pb-2 last:border-0 last:pb-0">
+                                                <span>{loc.area}</span>
+                                                <span className="text-orange-400">{loc.density}</span>
+                                            </div>
                                         ))}
                                     </div>
                                 </div>
