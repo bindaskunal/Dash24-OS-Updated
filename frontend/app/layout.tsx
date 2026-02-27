@@ -30,13 +30,54 @@ export default function RootLayout({
     "@context": "https://schema.org",
     "@type": "Product",
     "name": product.name,
-    "brand": product.brand || "Dash24",
+    "brand": {
+      "@type": "Brand",
+      "name": product.brand || "Dash24"
+    },
+    "image": [
+      product.image_url || "https://dash24.com/default-product.jpg"
+    ],
     "offers": {
       "@type": "Offer",
       "price": product.price,
       "priceCurrency": "INR",
       "availability": "https://schema.org/InStock",
-      "deliveryLeadTime": "60 minutes"
+      "itemCondition": "https://schema.org/NewCondition",
+      "shippingDetails": {
+        "@type": "OfferShippingDetails",
+        "shippingRate": {
+          "@type": "MonetaryAmount",
+          "value": 49,
+          "currency": "INR"
+        },
+        "shippingDestination": {
+          "@type": "DefinedRegion",
+          "addressCountry": "IN"
+        },
+        "deliveryTime": {
+          "@type": "ShippingDeliveryTime",
+          "handlingTime": {
+            "@type": "QuantitativeValue",
+            "minValue": 0,
+            "maxValue": 0,
+            "unitCode": "H"
+          },
+          "transitTime": {
+            "@type": "QuantitativeValue",
+            "minValue": 0,
+            "maxValue": 1,
+            "unitCode": "H"
+          }
+        }
+      },
+      "hasMerchantReturnPolicy": {
+        "@type": "MerchantReturnPolicy",
+        "applicableCountry": "IN",
+        "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
+        "merchantReturnDays": 7,
+        "returnMethod": "https://schema.org/ReturnByMail",
+        "returnFees": "https://schema.org/FreeReturn"
+      }
     }
   }));
 
