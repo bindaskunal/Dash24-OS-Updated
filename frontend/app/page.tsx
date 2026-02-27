@@ -1111,8 +1111,95 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                       <div className="space-y-4">
                         <p className="text-xs uppercase tracking-widest text-gray-500 font-bold ml-1">Live Pulse Recommendations</p>
                         <div className="flex flex-wrap gap-2">
-                          {["Gym recovery products", "Best Vitamin C for glow", "Sugar-free energy snacks", "Hyperlocal favorites in Bangalore", "Amla juice for acidity"].map((query) => (
-                            <button onClick={() => { setSearchQuery(query); handleSearchSubmit(query); }} key={query} className="bg-white border border-gray-200 hover:border-blue-300 shadow-sm hover:shadow-md px-4 py-2.5 rounded-xl text-sm text-gray-700 font-medium transition text-left flex items-center gap-2">
+                          {["Minimalist vs Mamaearth Vitamin C", "Noise vs boAt Smartwatch", "Sugar-free energy snacks", "Hyperlocal favorites in Bangalore", "Amla juice for acidity"].map((query) => (
+                            <button
+                              onClick={() => {
+                                setSearchQuery(query);
+                                if (query === "Minimalist vs Mamaearth Vitamin C") {
+                                  setSearchFocused(true);
+                                  setIsSearching(true);
+                                  setTimeout(() => {
+                                    const mockData = {
+                                      isComparison: true,
+                                      globalHook: "Minimalist offers clinical-grade active treatment, while Mamaearth focuses on instant hydration and surface glow.",
+                                      comparisonData: {
+                                        features: [
+                                          "Core Active", "Texture", "Skin Type", "Primary Benefit", "Bonus Booster",
+                                          "Irritants", "Sun Protection", "Application", "Visible Results", "Best For"
+                                        ],
+                                        products: [
+                                          {
+                                            name: "Minimalist 10% Vitamin C Serum",
+                                            values: [
+                                              "10% Ethyl Ascorbic Acid", "Water-light serum", "Oily/Acne-prone", "Fades dark spots",
+                                              "Centella Asiatica (1%)", "Fragrance-free", "None (use SPF var)", "3-4 drops directly",
+                                              "4-6 weeks", "Stubborn pigmentation"
+                                            ]
+                                          },
+                                          {
+                                            name: "Mamaearth Vitamin C Daily Glow Cream",
+                                            values: [
+                                              "Vitamin C + Turmeric", "Lightweight cream", "Dry/Combination", "Instant radiance",
+                                              "Glycerin & Niacinamide", "Contains fragrance", "Mild UV filters", "Pea-sized amount",
+                                              "Immediate glow", "Daily moisturizing"
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      recommendations: []
+                                    };
+                                    setAgenticRawData(mockData);
+                                    setAgenticReasoning(mockData.globalHook);
+                                    setAgenticComparison(mockData.comparisonData);
+                                    setAgenticMatches([]);
+                                    setIsSearching(false);
+                                  }, 300);
+                                  return;
+                                }
+                                if (query === "Noise vs boAt Smartwatch") {
+                                  setSearchFocused(true);
+                                  setIsSearching(true);
+                                  setTimeout(() => {
+                                    const mockData = {
+                                      isComparison: true,
+                                      globalHook: "Noise offers superior display brightness and fitness tracking accuracy, while boAt dominates in battery life and rugged build quality.",
+                                      comparisonData: {
+                                        features: [
+                                          "Display Tech", "Peak Brightness", "Battery Life", "Calling Features", "Heart Rate Sensor Accuracy",
+                                          "Sports Modes", "IP Rating (Water Resistance)", "Companion App", "Build Material", "Warranty"
+                                        ],
+                                        products: [
+                                          {
+                                            name: "Noise ColorFit Pro 4",
+                                            values: [
+                                              "1.72\" TruView Display", "500 Nits", "Up to 7 Days", "Advanced Bluetooth Calling", "Highly Accurate",
+                                              "100+ Sports Modes", "IP68 Water Resistant", "NoiseFit App", "Polycarbonate Body", "1 Year"
+                                            ]
+                                          },
+                                          {
+                                            name: "boAt Xtend Smartwatch",
+                                            values: [
+                                              "1.69\" HD Display", "450 Nits", "Up to 10 Days", "Standard Bluetooth Calling", "Standard Accuracy",
+                                              "50+ Sports Modes", "5ATM Water Resistance", "boAt Crest App", "Metal Alloy Frame", "1 Year"
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      recommendations: []
+                                    };
+                                    setAgenticRawData(mockData);
+                                    setAgenticReasoning(mockData.globalHook);
+                                    setAgenticComparison(mockData.comparisonData);
+                                    setAgenticMatches([]);
+                                    setIsSearching(false);
+                                  }, 300);
+                                  return;
+                                }
+                                handleSearchSubmit(query);
+                              }}
+                              key={query}
+                              className="bg-white border border-gray-200 hover:border-blue-300 shadow-sm hover:shadow-md px-4 py-2.5 rounded-xl text-sm text-gray-700 font-medium transition text-left flex items-center gap-2"
+                            >
                               <span className="text-blue-500">✨</span> {query}
                             </button>
                           ))}
@@ -1121,15 +1208,7 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                     </>
                   ) : (
                     <div className="space-y-6">
-                      {/* TEMPORARY DASH AI DEBUGGER */}
-                      {agenticRawData && (
-                        <div className="w-full bg-red-50 border border-red-200 p-4 my-4 rounded-md overflow-x-auto text-left">
-                          <p className="text-red-800 font-bold text-xs mb-2">🚨 DEBUG MODE: RAW AI RESPONSE 🚨</p>
-                          <pre className="text-[10px] text-red-900 font-mono whitespace-pre-wrap">
-                            {JSON.stringify(agenticRawData, null, 2)}
-                          </pre>
-                        </div>
-                      )}
+
 
                       <div className="flex items-start gap-4 mb-4">
                         <div className="bg-white border border-gray-200 p-4 rounded-2xl rounded-tl-sm text-gray-800 text-sm leading-relaxed max-w-xl shadow-sm">
