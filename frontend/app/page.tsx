@@ -395,18 +395,7 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
 
     const sanitizedQuery = query.toLowerCase().trim();
 
-    // MISSION 46: Hybrid Search Router
-    const triggers = ['vs', 'compare', 'recommend', 'best'];
-    const isAiQuery = triggers.some(t => sanitizedQuery.includes(t));
-
-    if (!isAiQuery) {
-      // Direct Supabase / Local match mode - bypass AI Fetch to save cycles/latency
-      setIntent("product");
-      setAiMode(false);
-      setAgenticRawData(null); // Clear previous AI results
-      return; // The layout already renders `scoredItems` below
-    }
-
+    // Set intent generically
     setIntent(sanitizedQuery.includes('vs') || sanitizedQuery.includes('compare') ? "compare" : "question");
     setAiMode(true);
 
@@ -415,33 +404,37 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
     if (cachedResponse) {
       try {
         const parsedCache = JSON.parse(cachedResponse);
-        setAgenticRawData(parsedCache);
+        setAgenticMatches(parsedCache.matchedProductIds || []);
+        setAgenticReasoning(parsedCache.aiReasoning || null);
+        // Optionally map comparison if available in future
       } catch (e) {
-        setAgenticRawData(null);
+        setAgenticMatches([]);
+        setAgenticReasoning(null);
       }
       return;
     }
 
     setIsSearching(true);
     try {
-      const response = await fetch('/api/chat', {
+      const response = await fetch('/api/search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          prompt: query,
-          lastOrderContext: "User previously bought: Whole Truth Protein Bars, Blue Tokai Coffee",
-          catalog: products.map(p => ({ id: p.id, name: p.name, stock: p.stock }))
-        })
+        body: JSON.stringify({ query: sanitizedQuery })
       });
       const resJson = await response.json();
 
-      if (resJson.data) {
-        console.log("Parsed Agentic AI Data:", resJson.data);
-        sessionStorage.setItem(sanitizedQuery, JSON.stringify(resJson.data));
-        setAgenticRawData(resJson.data);
+      if (resJson && resJson.matchedProductIds) {
+        console.log("Parsed Agentic AI Search Data:", resJson);
+        sessionStorage.setItem(sanitizedQuery, JSON.stringify(resJson));
+        setAgenticMatches(resJson.matchedProductIds);
+        setAgenticReasoning(resJson.aiReasoning);
+      } else {
+        setAgenticMatches([]);
+        setAgenticReasoning(null);
       }
     } catch (err) {
       console.error("Agentic Search API failed", err);
+      setAgenticMatches([]);
     } finally {
       setIsSearching(false);
     }
@@ -459,35 +452,25 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
     return { ...item, score };
   }).sort((a, b) => b.score - a.score);
 
-  // MISSION 47.5: Search Filtering & Fallbacks
-  const searchFilteredItems = scoredItems.filter((item) => {
-    if (!searchQuery) return false;
-    const exactMatch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                       (item.brand && item.brand.toLowerCase().includes(searchQuery.toLowerCase())) ||
-                       (item.category && item.category.toLowerCase().includes(searchQuery.toLowerCase()));
-    if (exactMatch) return true;
-    const keywords = searchQuery.toLowerCase().split(' ').filter((k: string) => k.length >= 3);
-    if (keywords.length === 0) return false;
-    return keywords.some((k: string) => 
-      item.name.toLowerCase().includes(k) || 
-      (item.brand && item.brand.toLowerCase().includes(k)) ||
-      (item.category && item.category.toLowerCase().includes(k))
+  // MISSION 54: Map final results precisely based on backend API Search mapping
+  let finalSearchResults: any[] = [];
+  
+  if (agenticMatches && agenticMatches.length > 0) {
+    // If the backend has returned IDs, map them strictly to catalog items
+    finalSearchResults = agenticMatches
+      .map((id: string) => products.find((p) => p.id === id))
+      .filter(Boolean);
+  } else if (searchQuery) {
+    // Basic local fallback until API returns (e.g. while typing)
+    const normalizedSearch = searchQuery.toLowerCase();
+    finalSearchResults = scoredItems.filter(item => 
+      item.name.toLowerCase().includes(normalizedSearch) ||
+      (item.brand && item.brand.toLowerCase().includes(normalizedSearch)) ||
+      (item.category && item.category.toLowerCase().includes(normalizedSearch))
     );
-  });
-
-  const fuzzySearchResultsFallback = scoredItems.map(item => {
-
-    if (!searchQuery) return { ...item, matchCount: 0 };
-    const keywords = searchQuery.toLowerCase().split(' ').filter((k: string) => k.length >= 2); // Relax to 2 chars
-    const matchCount = keywords.filter((k: string) => 
-      item.name.toLowerCase().includes(k) || 
-      (item.brand && item.brand.toLowerCase().includes(k)) ||
-      (item.category && item.category.toLowerCase().includes(k))
-    ).length;
-    return { ...item, matchCount };
-  }).filter(item => item.matchCount > 0).sort((a, b) => b.matchCount - a.matchCount);
-
-  let finalSearchResults = searchFilteredItems.length > 0 ? searchFilteredItems : fuzzySearchResultsFallback;
+  } else {
+    finalSearchResults = [];
+  }
 
   // MISSION 47.5: Apply Action Filters (Sort)
   if (activeFilter === 'Price: Low to High') {
@@ -1315,15 +1298,28 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                   ) : (
                     <div className="space-y-6">
 
-
-                      <div className="flex items-start gap-4 mb-4">
-                        <div className="bg-white/10 border border-white/20 p-4 rounded-2xl rounded-tl-sm text-gray-200 text-sm leading-relaxed max-w-xl shadow-sm">
-                          <p className="font-medium flex items-center gap-2">
-                            <span className="text-blue-400">✨</span>
-                            Here's what I found for <span className="text-white font-bold">"{searchQuery}"</span>:
-                          </p>
+                      {/* Display AI Reasoning if available */}
+                      {agenticReasoning && (
+                        <div className="flex items-start gap-4 mb-4">
+                          <div className="bg-white/10 border border-white/20 p-4 rounded-2xl rounded-tl-sm text-gray-200 text-sm leading-relaxed max-w-xl shadow-sm">
+                            <p className="font-medium flex items-center gap-2">
+                              <span className="text-blue-400">✨</span>
+                              {agenticReasoning}
+                            </p>
+                          </div>
                         </div>
-                      </div>
+                      )}
+
+                      {!agenticReasoning && (
+                        <div className="flex items-start gap-4 mb-4">
+                          <div className="bg-white/10 border border-white/20 p-4 rounded-2xl rounded-tl-sm text-gray-200 text-sm leading-relaxed max-w-xl shadow-sm">
+                            <p className="font-medium flex items-center gap-2">
+                              <span className="text-blue-400">✨</span>
+                              Here's what I found for <span className="text-white font-bold">"{searchQuery}"</span>:
+                            </p>
+                          </div>
+                        </div>
+                      )}
 
                       {/* Brand Tile Match for Search */}
                       {Object.keys(BRAND_LOGOS).find(b => b.toLowerCase().includes(searchQuery.toLowerCase())) && (
