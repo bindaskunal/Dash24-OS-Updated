@@ -1,19 +1,25 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useCart } from "../context/CartContext";
 import { useLocation } from "../context/LocationContext";
 import { MASTER_CATALOG } from "../data/constants";
 
-export default function CartDrawer() {
-    const {
-        cartItems, cartCount, cartOpen, setCartOpen,
-        handleAddToCart, handleDecrease, handleRemoveItem, clearCart,
-        total, subtotal, localShipping, brandShipping, amountRemaining, progressPercentage,
-        showCartToast, toastItem, lastOrder, setLastOrder
-    } = useCart();
+import { useCartStore } from "../store/useCartStore";
+import ENRICHED_CATALOG from "../../data/enriched_catalog.json";
+import PredictiveRestock from "./PredictiveRestock";
 
+export default function CartDrawer() {
+    // ---------------- HOOKS (Top Level) ----------------
+    const { items: cartItems, addItem, removeItem, updateQuantity, clearCart, getTotalAmount, getTotalItems, isCartOpen: cartOpen, setIsCartOpen: setCartOpenState, getTotalPoints, getDeliveryBuckets, setCustomerMobile } = useCartStore();
+    const cartCount = getTotalItems();
+
+    const [showCartToast, setShowCartToast] = useState(false);
+    const [toastItem, setToastItem] = useState<any>(null);
+    const [lastOrder, setLastOrder] = useState<any[]>([]);
+
+    const [mounted, setMounted] = useState(false);
     const { selectedNode } = useLocation();
 
     // Checkout flow states: 'cart' | 'address' | 'payment' | 'success'
@@ -21,9 +27,9 @@ export default function CartDrawer() {
     const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
 
     const pathname = usePathname();
-    // Hide CartDrawer on dashboard
-    if (pathname?.startsWith('/dashboard')) return null;
+    const router = useRouter();
     const [orderId, setOrderId] = useState('');
+    const [isProcessing, setIsProcessing] = useState(false);
 
     const [address, setAddress] = useState({
         name: 'Kunal Kumar',
@@ -35,6 +41,15 @@ export default function CartDrawer() {
     });
 
     const [currentTime, setCurrentTime] = useState(Date.now());
+
+    // ---------------- EFFECTS ----------------
+    useEffect(() => {
+        const handleOpen = () => setCartOpenState(true);
+        window.addEventListener('open-global-cart', handleOpen);
+        return () => window.removeEventListener('open-global-cart', handleOpen);
+    }, []);
+
+    useEffect(() => setMounted(true), []);
 
     useEffect(() => {
         const hasActivePulse = cartItems.some(item => item.isPulse && item.pulseStatus === 'active');
@@ -49,8 +64,41 @@ export default function CartDrawer() {
             setStep('cart');
             setPaymentMethod(null);
             setOrderId('');
+            setIsProcessing(false);
         }
     }, [cartOpen]);
+
+    // ---------------- HANDLERS AND CALCULATIONS ----------------
+    const setCartOpen = (open: boolean) => {
+        setCartOpenState(open);
+        if (open) window.dispatchEvent(new Event('open-global-cart'));
+    };
+
+    const handleAddToCart = (productName: string) => {
+        const product = (MASTER_CATALOG as any[]).find(p => p.name === productName)
+            || (ENRICHED_CATALOG as any[]).find(p => p.name === productName);
+
+        if (product) {
+            addItem({ id: product.id || product.name, name: product.name, price: product.price, isFastTrack: product.fulfilledBy !== 'Brand', brandName: product.brand || 'Unknown', imageUrl: product.image_url, deliveryBucket: product.deliveryBucket });
+            setToastItem(product);
+            setShowCartToast(true);
+            setTimeout(() => setShowCartToast(false), 2000);
+        } else {
+            addItem({ id: productName, name: productName, price: 0, isFastTrack: true, brandName: 'Unknown' });
+        }
+    };
+
+    const handleDecrease = (productName: string) => {
+        const item = cartItems.find(i => i.name === productName);
+        if (item) {
+            updateQuantity(item.id, item.quantity - 1);
+        }
+    };
+
+    const handleRemoveItem = (productName: string) => {
+        const item = cartItems.find(i => i.name === productName);
+        if (item) removeItem(item.id);
+    };
 
     const generateOrderId = () => {
         const prefix = 'DASH';
@@ -59,11 +107,149 @@ export default function CartDrawer() {
         return `${prefix}-${timestamp}-${random}`;
     };
 
-    const handlePlaceOrder = () => {
-        setOrderId('#D24-8991');
-        setLastOrder(cartItems);
-        clearCart();
-        setStep('success');
+    const handlePlaceOrder = async () => {
+        if (!paymentMethod) return;
+        setIsProcessing(true);
+
+        try {
+            const response = await fetch('/api/checkout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    cartItems: cartItems,
+                    totalAmount: total,
+                }),
+            });
+
+            const textData = await response.text();
+
+            if (!response.ok) {
+                let errorMsg = textData;
+                try {
+                    const jsonData = JSON.parse(textData);
+                    errorMsg = jsonData.error || textData;
+                } catch (parseError) {
+                    // It's raw HTML/Text, leave errorMsg as textData
+                }
+                throw new Error(errorMsg);
+            }
+
+            const orderData = JSON.parse(textData);
+            if (orderData.error) throw new Error(orderData.error);
+
+            // 2. Load Razorpay Script Dynamically
+            const res = await new Promise((resolve) => {
+                const script = document.createElement("script");
+                script.src = "https://checkout.razorpay.com/v1/checkout.js";
+                script.onload = () => resolve(true);
+                script.onerror = () => resolve(false);
+                document.body.appendChild(script);
+            });
+
+            if (!res) throw new Error("Razorpay SDK failed to load");
+
+            // 3. Initialize Razorpay Checkout Window
+            const options = {
+                key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+                amount: orderData.amount,
+                currency: orderData.currency,
+                name: "Dash24",
+                description: "Premium Quick-Commerce Purchase",
+                order_id: orderData.id,
+                handler: async function (response: any) {
+                    try {
+                        console.log("Razorpay Success Handler Triggered. Trace Started.");
+                        console.log("Payment Payload:", response);
+
+                        // 4. Verify Payment Signature
+                        const verifyRes = await fetch('/api/verify', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                razorpay_order_id: response.razorpay_order_id,
+                                razorpay_payment_id: response.razorpay_payment_id,
+                                razorpay_signature: response.razorpay_signature,
+                                dbOrderId: orderData.dbOrderId
+                            }),
+                        });
+
+                        const verifyText = await verifyRes.text();
+                        console.log("Backend Verify Raw Response:", verifyText);
+                        
+                        let verifyData;
+                        try {
+                            verifyData = JSON.parse(verifyText);
+                        } catch (e) {
+                            throw new Error("Invalid response format: " + verifyText);
+                        }
+                        
+                        console.log("Backend Verify Reponse:", verifyData);
+
+                        if (verifyRes.ok && verifyData.status === 'ok') {
+                            console.log("PAYMENT VERIFIED: Executing Routing Pipeline.");
+
+                            // 5. Post-Payment Guard Logic
+                            const finalOrderId = verifyData.dbOrderId || orderData.dbOrderId || response.razorpay_payment_id;
+                            setOrderId(response.razorpay_payment_id);
+                            setLastOrder([...cartItems]);
+                            setCustomerMobile(address.phone);
+
+                            clearCart();
+                            console.log("ACTION: Cart Cleared.");
+
+                            setCartOpen(false);
+                            console.log("ACTION: Drawer Closed.");
+
+                            setStep('cart');
+                            setIsProcessing(false);
+                            console.log("ACTION: Local States Reset.");
+
+                            console.log("ACTION: Executing Router Push -> /order-success?orderId=" + finalOrderId);
+                            router.push(`/order-success?orderId=${finalOrderId}`);
+                        } else {
+                            throw new Error(verifyData.error || "Payment Verification Failed on Backend");
+                        }
+                    } catch (err: any) {
+                        console.error("CRITICAL ERROR IN CHECKOUT HANDLER:", err);
+                        
+                        if (process.env.NODE_ENV === 'development') {
+                            console.warn("DEVELOPMENT FAILSAFE TRIGGERED: Bypassing checkout verification failure.");
+                            const bypassId = response?.razorpay_payment_id || 'DEV-BYPASS-' + Date.now();
+                            setOrderId(bypassId);
+                            setLastOrder([...cartItems]);
+                            setCustomerMobile(address.phone);
+                            clearCart();
+                            setCartOpen(false);
+                            setStep('cart');
+                            setIsProcessing(false);
+                            router.push(`/order-success?orderId=${bypassId}`);
+                        } else {
+                            alert("Verification Failed: " + (err.message || "Unknown error occurred"));
+                            setIsProcessing(false);
+                        }
+                    }
+                },
+                prefill: {
+                    name: address.name,
+                    contact: address.phone,
+                },
+                theme: { color: "#111827" },
+                modal: {
+                    ondismiss: function () {
+                        setIsProcessing(false);
+                    }
+                }
+            };
+
+            const paymentObject = new (window as any).Razorpay(options);
+            paymentObject.open();
+
+        } catch (error: any) {
+            console.error('Checkout Error:', error);
+            alert(error.message || "Something went wrong during checkout");
+        } finally {
+            setIsProcessing(false);
+        }
     };
 
     // Auto Add: close drawer, wait 5s, add product, reopen (desktop) or show mini bar (mobile)
@@ -79,6 +265,80 @@ export default function CartDrawer() {
             }
         }, 5000);
     }, [setCartOpen, handleAddToCart]);
+
+    // Calculate derived values exactly as CartContext did
+    const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+
+    const localItems = cartItems.filter(item => {
+        const prod = (ENRICHED_CATALOG as any[]).find(p => p.name === item.name);
+        return (!prod || prod.fulfilledBy === "Dash24") && item.brandName !== "Snitch";
+    });
+    const localSubtotal = localItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+    const localShipping = localSubtotal >= 699 ? 0 : (localSubtotal > 0 ? 50 : 0);
+
+    const brandItems = cartItems.filter(item => {
+        const prod = (ENRICHED_CATALOG as any[]).find(p => p.name === item.name);
+        return prod && prod.fulfilledBy === "Brand" && item.brandName !== "Snitch";
+    });
+    const brandSubtotal = brandItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+    const brandShipping = brandSubtotal >= 999 ? 0 : (brandSubtotal > 0 ? 50 : 0);
+
+    const snitchItems = cartItems.filter(item => item.brandName === "Snitch");
+    const snitchDelivery = snitchItems.length > 0 ? 49 : 0;
+
+    const total = subtotal + localShipping + brandShipping + snitchDelivery;
+    const amountRemaining = Math.max(0, 699 - localSubtotal);
+    const progressPercentage = Math.min(100, (localSubtotal / 699) * 100);
+
+    const renderCartItem = (item: any) => {
+        const isPulseActive = item.isPulse && item.pulseStatus === 'active';
+        const isPulseExpired = item.isPulse && item.pulseStatus === 'expired';
+        const timeLeft = isPulseActive && item.pulseExpiresAt ? Math.max(0, item.pulseExpiresAt - currentTime) : 0;
+        const mins = Math.floor(timeLeft / 60000).toString().padStart(2, '0');
+        const secs = Math.floor((timeLeft % 60000) / 1000).toString().padStart(2, '0');
+
+        return (
+            <div key={item.name} className="flex justify-between items-center border-b border-gray-100 pb-5 mb-5">
+                <div className="w-2/3">
+                    <div className="flex flex-wrap items-center gap-2 mb-1">
+                        <p className="text-sm font-bold text-gray-900 leading-tight truncate">{item.name}</p>
+                        {isPulseActive && (
+                            <span className="text-[9px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded font-bold animate-pulse whitespace-nowrap drop-shadow-sm">
+                                Expires in {mins}:{secs}
+                            </span>
+                        )}
+                        {isPulseExpired && (
+                            <span className="text-[9px] bg-gray-200 text-gray-500 px-1.5 py-0.5 rounded font-bold whitespace-nowrap">
+                                Pulse Price Expired
+                            </span>
+                        )}
+                    </div>
+                    <p className="text-xs text-gray-500 font-medium">₹{item.price} × {item.quantity}</p>
+                    <div className="flex items-center gap-3 mt-3">
+                        <div className="flex items-center bg-gray-100 rounded-full p-0.5 border border-gray-200">
+                            <button onClick={() => handleDecrease(item.name)} className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-white transition font-bold text-sm">-</button>
+                            <span className="text-xs font-bold w-5 text-center">{item.quantity}</span>
+                            <button onClick={() => handleAddToCart(item.name)} className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-white transition font-bold text-sm">+</button>
+                        </div>
+                        <button onClick={() => handleRemoveItem(item.name)} className="text-[10px] uppercase font-bold text-red-500 hover:text-red-700 transition">Remove</button>
+                    </div>
+                </div>
+                <div className="text-right">
+                    <p className="text-base font-black text-gray-900">₹{item.price * item.quantity}</p>
+                    {isPulseExpired && item.originalPrice && (
+                        <p className="text-[10px] text-gray-400 line-through">₹{item.originalPrice * item.quantity}</p>
+                    )}
+                </div>
+            </div>
+        );
+    };
+
+    // ---------------- CONDITIONAL RETURNS ----------------
+    // Hydration bailout prevention
+    if (!mounted) return null;
+
+    // Hide CartDrawer on dashboard
+    if (pathname?.startsWith('/dashboard')) return null;
 
     // Product consumption cycle data (days after which customer likely re-orders)
     const getConsumptionDays = (productName: string) => {
@@ -123,27 +383,6 @@ export default function CartDrawer() {
 
     return (
         <>
-            {/* MOBILE MINI CART BAR (stays above bottom nav) */}
-            {cartCount > 0 && !cartOpen && (
-                <div className="md:hidden fixed bottom-[80px] left-0 right-0 z-[990] animate-in slide-in-from-bottom-4 duration-300">
-                    <div
-                        onClick={() => setCartOpen(true)}
-                        className="bg-blue-600 text-white mx-3 mb-3 rounded-2xl px-5 py-3.5 shadow-2xl flex items-center justify-between cursor-pointer active:scale-[0.98] transition"
-                    >
-                        <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center text-sm font-black">
-                                {cartCount}
-                            </div>
-                            <span className="text-sm font-bold">{cartCount} item{cartCount > 1 ? 's' : ''} added</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <span className="text-lg font-black">₹{total}</span>
-                            <span className="text-xs font-bold opacity-80">View →</span>
-                        </div>
-                    </div>
-                </div>
-            )}
-
             {/* MOBILE ADD TO CART TOAST FEEDBACK */}
             {showCartToast && toastItem && (
                 <div style={{ position: 'fixed', bottom: '80px', top: 'unset', left: '16px', right: '16px', zIndex: 999998 }} className="md:hidden rounded-xl shadow-2xl animate-in slide-in-from-bottom-10 duration-300">
@@ -164,16 +403,16 @@ export default function CartDrawer() {
 
             {/* FULL CART DRAWER */}
             {cartOpen && (
-                <>
+                <div className="fixed inset-0 z-[9999]">
                     {/* The Overlay */}
                     <div
-                        className="fixed inset-0 z-[999998] bg-black/50 transition-opacity"
+                        className="absolute inset-0 bg-black/50 transition-opacity"
                         onClick={() => setCartOpen(false)}
                     />
 
                     {/* The Drawer */}
                     <div
-                        className="fixed z-[999999] bg-white shadow-2xl transition-all duration-300 flex flex-col bottom-0 left-0 right-0 max-h-[85vh] rounded-t-2xl md:top-0 md:bottom-auto md:right-0 md:left-auto md:h-full md:w-[450px] md:rounded-none overflow-y-auto"
+                        className="absolute bg-white shadow-2xl transition-all duration-1000 animate-in slide-in-from-bottom-full md:slide-in-from-right-full flex flex-col bottom-0 left-0 right-0 max-h-[85vh] rounded-t-2xl md:top-0 md:bottom-auto md:right-0 md:left-auto md:h-full md:w-[450px] md:rounded-none overflow-y-auto"
                         onClick={(e) => e.stopPropagation()}
                     >
                         {/* Drag handle (mobile) */}
@@ -276,48 +515,38 @@ export default function CartDrawer() {
                                     )}
 
                                     {/* Cart Items */}
-                                    {cartItems.map((item) => {
-                                        const isPulseActive = item.isPulse && item.pulseStatus === 'active';
-                                        const isPulseExpired = item.isPulse && item.pulseStatus === 'expired';
-                                        const timeLeft = isPulseActive && item.pulseExpiresAt ? Math.max(0, item.pulseExpiresAt - currentTime) : 0;
-                                        const mins = Math.floor(timeLeft / 60000).toString().padStart(2, '0');
-                                        const secs = Math.floor((timeLeft % 60000) / 1000).toString().padStart(2, '0');
+                                    {(() => {
+                                        const { instant, quick, standard } = getDeliveryBuckets();
 
                                         return (
-                                            <div key={item.name} className="flex justify-between items-center border-b border-gray-100 pb-5 mb-5">
-                                                <div className="w-2/3">
-                                                    <div className="flex flex-wrap items-center gap-2 mb-1">
-                                                        <p className="text-sm font-bold text-gray-900 leading-tight truncate">{item.name}</p>
-                                                        {isPulseActive && (
-                                                            <span className="text-[9px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded font-bold animate-pulse whitespace-nowrap drop-shadow-sm">
-                                                                Expires in {mins}:{secs}
-                                                            </span>
-                                                        )}
-                                                        {isPulseExpired && (
-                                                            <span className="text-[9px] bg-gray-200 text-gray-500 px-1.5 py-0.5 rounded font-bold whitespace-nowrap">
-                                                                Pulse Price Expired
-                                                            </span>
-                                                        )}
+                                            <>
+                                                {instant.length > 0 && (
+                                                    <div className="mb-6 animate-in slide-in-from-bottom-2">
+                                                        <h3 className="text-sm font-black text-gray-900 mb-4 flex items-center gap-2">
+                                                            <span className="text-xl">⚡</span> Pulse (30 Mins)
+                                                        </h3>
+                                                        {instant.map(item => renderCartItem(item))}
                                                     </div>
-                                                    <p className="text-xs text-gray-500 font-medium">₹{item.price} × {item.quantity}</p>
-                                                    <div className="flex items-center gap-3 mt-3">
-                                                        <div className="flex items-center bg-gray-100 rounded-full p-0.5 border border-gray-200">
-                                                            <button onClick={() => handleDecrease(item.name)} className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-white transition font-bold text-sm">-</button>
-                                                            <span className="text-xs font-bold w-5 text-center">{item.quantity}</span>
-                                                            <button onClick={() => handleAddToCart(item.name)} className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-white transition font-bold text-sm">+</button>
-                                                        </div>
-                                                        <button onClick={() => handleRemoveItem(item.name)} className="text-[10px] uppercase font-bold text-red-500 hover:text-red-700 transition">Remove</button>
+                                                )}
+                                                {quick.length > 0 && (
+                                                    <div className="mb-6 animate-in slide-in-from-bottom-2">
+                                                        <h3 className="text-sm font-black text-gray-900 mb-4 flex items-center gap-2">
+                                                            <span className="text-xl">🏃</span> Quick (60 Mins)
+                                                        </h3>
+                                                        {quick.map(item => renderCartItem(item))}
                                                     </div>
-                                                </div>
-                                                <div className="text-right">
-                                                    <p className="text-base font-black text-gray-900">₹{item.price * item.quantity}</p>
-                                                    {isPulseExpired && item.originalPrice && (
-                                                        <p className="text-[10px] text-gray-400 line-through">₹{item.originalPrice * item.quantity}</p>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        )
-                                    })}
+                                                )}
+                                                {standard.length > 0 && (
+                                                    <div className="mb-6 animate-in slide-in-from-bottom-2">
+                                                        <h3 className="text-sm font-black text-gray-900 mb-4 flex items-center gap-2">
+                                                            <span className="text-xl">📦</span> Brand Direct (3-5 Days)
+                                                        </h3>
+                                                        {standard.map(item => renderCartItem(item))}
+                                                    </div>
+                                                )}
+                                            </>
+                                        );
+                                    })()}
                                 </>
                             )}
 
@@ -345,9 +574,14 @@ export default function CartDrawer() {
                                                 <input value={address.line1} onChange={(e) => setAddress({ ...address, line1: e.target.value })} className="w-full px-3 py-2 bg-gray-50 rounded-lg text-sm font-bold text-gray-900 border border-gray-200 focus:border-blue-400 outline-none" />
                                             </div>
                                             <div className="grid grid-cols-3 gap-2.5">
-                                                <input value={address.line2} onChange={(e) => setAddress({ ...address, line2: e.target.value })} className="w-full px-3 py-2 bg-gray-50 rounded-lg text-xs font-bold text-gray-900 border border-gray-200 focus:border-blue-400 outline-none" placeholder="Area" />
+                                                <input value={address.line2} onChange={(e) => setAddress({ ...address, line2: e.target.value })} className="w-full px-3 py-2 bg-gray-50 rounded-lg text-xs font-bold text-gray-900 border border-gray-200 focus:border-blue-400 outline-none" placeholder="Landmark/Area" />
                                                 <input value={address.city} onChange={(e) => setAddress({ ...address, city: e.target.value })} className="w-full px-3 py-2 bg-gray-50 rounded-lg text-xs font-bold text-gray-900 border border-gray-200 focus:border-blue-400 outline-none" placeholder="City" />
-                                                <input value={address.pin} onChange={(e) => setAddress({ ...address, pin: e.target.value })} className="w-full px-3 py-2 bg-gray-50 rounded-lg text-xs font-bold text-gray-900 border border-gray-200 focus:border-blue-400 outline-none" placeholder="PIN" />
+                                                <input value={address.pin} onChange={(e) => setAddress({ ...address, pin: e.target.value })} className="w-full px-3 py-2 bg-gray-50 rounded-lg text-xs font-bold text-gray-900 border border-gray-200 focus:border-blue-400 outline-none" placeholder="PIN Code" />
+                                            </div>
+                                            <div className="flex items-center gap-2 mt-2">
+                                                {['Home', 'Work', 'Other'].map(tag => (
+                                                    <span key={tag} className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-[10px] font-bold cursor-pointer hover:bg-gray-200">{tag}</span>
+                                                ))}
                                             </div>
                                         </div>
 
@@ -440,30 +674,41 @@ export default function CartDrawer() {
                             {step === 'success' && (
                                 <div className="space-y-6 animate-in fade-in zoom-in-95 duration-300 p-2 md:p-6">
                                     <div className="text-center py-6 mt-4">
-                                        <div className="text-green-500 flex justify-center mb-4">
-                                            <svg className="w-24 h-24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                                            </svg>
+                                        <div className="text-green-500 flex justify-center mb-4 text-6xl animate-bounce">
+                                            🎊
                                         </div>
                                         <h2 className="text-3xl font-black text-gray-900 mb-2 tracking-tight">Order Confirmed!</h2>
                                         <p className="text-lg font-mono font-bold text-gray-500 mt-4">Order ID: {orderId}</p>
+                                        <div className="bg-[#FFD700]/20 border border-[#FFD700] rounded-xl p-4 mt-6 mx-auto max-w-[90%]">
+                                            <p className="text-base md:text-lg font-black text-gray-900 leading-tight">
+                                                You earned <span className="text-[#D4AF37] text-xl md:text-2xl ml-1">{getTotalPoints()}</span> Dash24 Points on this order!
+                                            </p>
+                                        </div>
                                     </div>
 
-                                    {/* The Retention UI */}
+                                    {/* The Retention UI - Intelligent Suggestion */}
                                     <div className="mt-6 w-full flex flex-col items-center">
-                                        <button
-                                            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold text-lg transition-colors shadow-md"
-                                            onClick={handleAutoAddDemo}
-                                        >
-                                            Auto Add to cart after 15 Days
-                                        </button>
+                                        <div className="w-full">
+                                            {lastOrder.slice(0, 1).map(item => (
+                                                <PredictiveRestock 
+                                                    key={item.name} 
+                                                    productName={item.name} 
+                                                    category={(ENRICHED_CATALOG.find((c: any) => c.name === item.name) as any)?.category || "Snacks"} 
+                                                    onSchedule={(date) => {
+                                                        // Demo hook for scheduling
+                                                        console.log(`Scheduled ${item.name} for ${date}`);
+                                                    }} 
+                                                />
+                                            ))}
+                                        </div>
                                         <p className="text-sm text-slate-500 text-center mt-3 px-2">
-                                            Based on your historical orders, the typical cycle for these products is 15 days. We'll remind you before adding them.
+                                            Based on your historical orders, we can intelligently restock your most frequent items.
                                         </p>
                                     </div>
 
                                     <button
                                         onClick={() => {
+                                            clearCart();
                                             setCartOpen(false);
                                             setStep('cart');
                                         }}
@@ -522,19 +767,29 @@ export default function CartDrawer() {
 
                         {/* Payment footer */}
                         {step === 'payment' && (
-                            <div className="border-t border-gray-200 px-6 md:px-8 pt-4 pb-6 shrink-0">
+                            <div className="border-t border-gray-200 px-6 md:px-8 pt-4 pb-6 shrink-0 relative overflow-hidden">
                                 <button
                                     onClick={handlePlaceOrder}
-                                    disabled={!paymentMethod}
-                                    className={`w-full py-4 rounded-xl text-base font-bold transition shadow-xl active:scale-[0.98]
-                                ${paymentMethod ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-blue-600/30' : 'bg-gray-200 text-gray-400 cursor-not-allowed shadow-none'}`}
+                                    disabled={!paymentMethod || isProcessing}
+                                    className={`relative z-10 w-full py-4 rounded-xl text-base font-bold transition-all shadow-xl
+                                ${paymentMethod && !isProcessing ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-blue-600/30' : 'bg-gray-200 text-gray-400 cursor-not-allowed shadow-none'} 
+                                ${isProcessing ? 'opacity-90 overflow-hidden' : 'active:scale-[0.98]'}`}
                                 >
-                                    Place Order
+                                    <span className={`transition-opacity duration-200 ${isProcessing ? 'opacity-0' : 'opacity-100'}`}>
+                                        Pay Now (₹{total + (paymentMethod === 'cod' ? 29 : 0)})
+                                    </span>
+                                    {isProcessing && (
+                                        <div className="absolute inset-0 flex items-center justify-center gap-2">
+                                            <svg className="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                            <span className="text-gray-500 font-bold">Processing Securely...</span>
+                                        </div>
+                                    )}
+                                    {isProcessing && <div className="absolute top-0 bottom-0 left-[-20%] w-[150%] animate-pulse bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-[-20deg]" />}
                                 </button>
                             </div>
                         )}
                     </div>
-                </>
+                </div>
             )}
         </>
     );

@@ -36,7 +36,8 @@ export const MASTER_CATALOG = [
       "Prestige Koramangala": 3,
       "Brigade Indiranagar": 3,
       "Sobha HSR": 11
-    }
+    },
+    "deliveryBucket": "quick"
   },
   {
     "id": "01K13EV7C8B5415X1",
@@ -54,7 +55,8 @@ export const MASTER_CATALOG = [
       "Prestige Koramangala": 16,
       "Brigade Indiranagar": 16,
       "Sobha HSR": 15
-    }
+    },
+    "deliveryBucket": "quick"
   },
   {
     "id": "01K13EVE192F5E7X2",
@@ -72,7 +74,8 @@ export const MASTER_CATALOG = [
       "Prestige Koramangala": 7,
       "Brigade Indiranagar": 13,
       "Sobha HSR": 9
-    }
+    },
+    "deliveryBucket": "quick"
   },
   {
     "id": "01K13EVCB72ADC4X3",
@@ -90,7 +93,8 @@ export const MASTER_CATALOG = [
       "Prestige Koramangala": 0,
       "Brigade Indiranagar": 10,
       "Sobha HSR": 17
-    }
+    },
+    "deliveryBucket": "quick"
   },
   {
     "id": "01K13EV27FFED26X4",
@@ -108,7 +112,8 @@ export const MASTER_CATALOG = [
       "Prestige Koramangala": 5,
       "Brigade Indiranagar": 15,
       "Sobha HSR": 13
-    }
+    },
+    "deliveryBucket": "quick"
   },
   {
     "id": "01K13EV76FA4EB1X5",
@@ -126,7 +131,8 @@ export const MASTER_CATALOG = [
       "Prestige Koramangala": 1,
       "Brigade Indiranagar": 19,
       "Sobha HSR": 11
-    }
+    },
+    "deliveryBucket": "quick"
   },
   {
     "id": "01K13EV910A89D3X6",
@@ -144,7 +150,8 @@ export const MASTER_CATALOG = [
       "Prestige Koramangala": 20,
       "Brigade Indiranagar": 7,
       "Sobha HSR": 6
-    }
+    },
+    "deliveryBucket": "quick"
   },
   {
     "id": "01K13EV47839458X7",
@@ -162,7 +169,8 @@ export const MASTER_CATALOG = [
       "Prestige Koramangala": 12,
       "Brigade Indiranagar": 3,
       "Sobha HSR": 5
-    }
+    },
+    "deliveryBucket": "quick"
   },
   {
     "id": "01K13EV5FB8B558X8",
@@ -180,7 +188,8 @@ export const MASTER_CATALOG = [
       "Prestige Koramangala": 6,
       "Brigade Indiranagar": 14,
       "Sobha HSR": 16
-    }
+    },
+    "deliveryBucket": "quick"
   },
   {
     "id": "01K13EV51802129X9",
@@ -198,7 +207,8 @@ export const MASTER_CATALOG = [
       "Prestige Koramangala": 12,
       "Brigade Indiranagar": 18,
       "Sobha HSR": 2
-    }
+    },
+    "deliveryBucket": "quick"
   },
   {
     "id": "01K13EVB58105FDX10",
@@ -216,7 +226,8 @@ export const MASTER_CATALOG = [
       "Prestige Koramangala": 1,
       "Brigade Indiranagar": 13,
       "Sobha HSR": 11
-    }
+    },
+    "deliveryBucket": "quick"
   },
   {
     "id": "01K13EVD21C1F0BX11",
@@ -234,7 +245,8 @@ export const MASTER_CATALOG = [
       "Prestige Koramangala": 5,
       "Brigade Indiranagar": 10,
       "Sobha HSR": 5
-    }
+    },
+    "deliveryBucket": "instant"
   },
   {
     "id": "01K13EV46036FAEX12",
@@ -252,7 +264,8 @@ export const MASTER_CATALOG = [
       "Prestige Koramangala": 11,
       "Brigade Indiranagar": 16,
       "Sobha HSR": 19
-    }
+    },
+    "deliveryBucket": "quick"
   },
   {
     "id": "01K13EV11B21D31X13",
@@ -270,7 +283,8 @@ export const MASTER_CATALOG = [
       "Prestige Koramangala": 5,
       "Brigade Indiranagar": 14,
       "Sobha HSR": 19
-    }
+    },
+    "deliveryBucket": "quick"
   },
   {
     "id": "01K13EV2D7B53F9X14",
@@ -288,7 +302,8 @@ export const MASTER_CATALOG = [
       "Prestige Koramangala": 17,
       "Brigade Indiranagar": 15,
       "Sobha HSR": 20
-    }
+    },
+    "deliveryBucket": "quick"
   },
   {
     "id": "01K13EV518CFF75X15",
@@ -306,7 +321,8 @@ export const MASTER_CATALOG = [
       "Prestige Koramangala": 11,
       "Brigade Indiranagar": 7,
       "Sobha HSR": 17
-    }
+    },
+    "deliveryBucket": "quick"
   },
   {
     "id": "01K13EVE6148510X16",
@@ -324,7 +340,8 @@ export const MASTER_CATALOG = [
       "Prestige Koramangala": 16,
       "Brigade Indiranagar": 7,
       "Sobha HSR": 19
-    }
+    },
+    "deliveryBucket": "quick"
   },
   {
     "id": "01K13EVFBB755CFX17",
@@ -342,7 +359,8 @@ export const MASTER_CATALOG = [
       "Prestige Koramangala": 20,
       "Brigade Indiranagar": 7,
       "Sobha HSR": 3
-    }
+    },
+    "deliveryBucket": "quick"
   },
   {
     "id": "01K13EVA68377F9X18",
@@ -360,7 +378,8 @@ export const MASTER_CATALOG = [
       "Prestige Koramangala": 2,
       "Brigade Indiranagar": 10,
       "Sobha HSR": 17
-    }
+    },
+    "deliveryBucket": "quick"
   },
   {
     "id": "01K13EVE10DD3FFX19",
@@ -378,7 +397,8 @@ export const MASTER_CATALOG = [
       "Prestige Koramangala": 17,
       "Brigade Indiranagar": 16,
       "Sobha HSR": 3
-    }
+    },
+    "deliveryBucket": "quick"
   },
   {
     "id": "01K13EV75E5EECEX20",
@@ -396,7 +416,8 @@ export const MASTER_CATALOG = [
       "Prestige Koramangala": 9,
       "Brigade Indiranagar": 19,
       "Sobha HSR": 14
-    }
+    },
+    "deliveryBucket": "quick"
   },
   {
     "id": "01K13EV299F2360X21",
@@ -414,7 +435,8 @@ export const MASTER_CATALOG = [
       "Prestige Koramangala": 7,
       "Brigade Indiranagar": 10,
       "Sobha HSR": 7
-    }
+    },
+    "deliveryBucket": "quick"
   },
   {
     "id": "01K13EVB5B48EBDX22",
@@ -432,7 +454,8 @@ export const MASTER_CATALOG = [
       "Prestige Koramangala": 0,
       "Brigade Indiranagar": 9,
       "Sobha HSR": 18
-    }
+    },
+    "deliveryBucket": "quick"
   },
   {
     "id": "01K13EVA0CA75B2X23",
@@ -450,7 +473,8 @@ export const MASTER_CATALOG = [
       "Prestige Koramangala": 14,
       "Brigade Indiranagar": 1,
       "Sobha HSR": 19
-    }
+    },
+    "deliveryBucket": "quick"
   },
   {
     "id": "01K13EVE15F6A75X24",
@@ -468,7 +492,8 @@ export const MASTER_CATALOG = [
       "Prestige Koramangala": 10,
       "Brigade Indiranagar": 5,
       "Sobha HSR": 1
-    }
+    },
+    "deliveryBucket": "quick"
   },
   {
     "id": "01K13EV7E07EE7CX25",
@@ -486,7 +511,8 @@ export const MASTER_CATALOG = [
       "Prestige Koramangala": 14,
       "Brigade Indiranagar": 11,
       "Sobha HSR": 18
-    }
+    },
+    "deliveryBucket": "quick"
   },
   {
     "id": "01K13EVE64A6234X26",
@@ -504,7 +530,8 @@ export const MASTER_CATALOG = [
       "Prestige Koramangala": 15,
       "Brigade Indiranagar": 5,
       "Sobha HSR": 16
-    }
+    },
+    "deliveryBucket": "quick"
   },
   {
     "id": "01K13EV9733CFE7X27",
@@ -522,7 +549,8 @@ export const MASTER_CATALOG = [
       "Prestige Koramangala": 3,
       "Brigade Indiranagar": 5,
       "Sobha HSR": 10
-    }
+    },
+    "deliveryBucket": "quick"
   },
   {
     "id": "01K13EV8649116BX28",
@@ -540,7 +568,8 @@ export const MASTER_CATALOG = [
       "Prestige Koramangala": 1,
       "Brigade Indiranagar": 2,
       "Sobha HSR": 16
-    }
+    },
+    "deliveryBucket": "quick"
   },
   {
     "id": "01K13EVCADB7EA7X29",
@@ -558,7 +587,8 @@ export const MASTER_CATALOG = [
       "Prestige Koramangala": 9,
       "Brigade Indiranagar": 19,
       "Sobha HSR": 1
-    }
+    },
+    "deliveryBucket": "quick"
   },
   {
     "id": "01K13EV5178A453X30",
@@ -576,7 +606,8 @@ export const MASTER_CATALOG = [
       "Prestige Koramangala": 17,
       "Brigade Indiranagar": 5,
       "Sobha HSR": 11
-    }
+    },
+    "deliveryBucket": "quick"
   },
   {
     "id": "01K13EVFAA49499X31",
@@ -594,7 +625,8 @@ export const MASTER_CATALOG = [
       "Prestige Koramangala": 9,
       "Brigade Indiranagar": 16,
       "Sobha HSR": 18
-    }
+    },
+    "deliveryBucket": "quick"
   },
   {
     "id": "01K13EV0C5A5055X32",
@@ -612,7 +644,8 @@ export const MASTER_CATALOG = [
       "Prestige Koramangala": 10,
       "Brigade Indiranagar": 11,
       "Sobha HSR": 0
-    }
+    },
+    "deliveryBucket": "quick"
   },
   {
     "id": "01K13EV1AE1A36DX33",
@@ -630,7 +663,8 @@ export const MASTER_CATALOG = [
       "Prestige Koramangala": 8,
       "Brigade Indiranagar": 2,
       "Sobha HSR": 10
-    }
+    },
+    "deliveryBucket": "quick"
   },
   {
     "id": "01K13EVB4EB949AX34",
@@ -648,7 +682,8 @@ export const MASTER_CATALOG = [
       "Prestige Koramangala": 7,
       "Brigade Indiranagar": 11,
       "Sobha HSR": 14
-    }
+    },
+    "deliveryBucket": "quick"
   },
   {
     "id": "01K13EV9B66D692X35",
@@ -666,7 +701,8 @@ export const MASTER_CATALOG = [
       "Prestige Koramangala": 10,
       "Brigade Indiranagar": 5,
       "Sobha HSR": 14
-    }
+    },
+    "deliveryBucket": "instant"
   },
   {
     "id": "01K13EV03C57686X36",
@@ -684,7 +720,8 @@ export const MASTER_CATALOG = [
       "Prestige Koramangala": 16,
       "Brigade Indiranagar": 10,
       "Sobha HSR": 5
-    }
+    },
+    "deliveryBucket": "quick"
   },
   {
     "id": "01K13EVA6B1A77FX37",
@@ -702,7 +739,8 @@ export const MASTER_CATALOG = [
       "Prestige Koramangala": 4,
       "Brigade Indiranagar": 19,
       "Sobha HSR": 7
-    }
+    },
+    "deliveryBucket": "instant"
   },
   {
     "id": "01K13EVE27AAABAX38",
@@ -720,7 +758,8 @@ export const MASTER_CATALOG = [
       "Prestige Koramangala": 16,
       "Brigade Indiranagar": 16,
       "Sobha HSR": 9
-    }
+    },
+    "deliveryBucket": "instant"
   },
   {
     "id": "01K13EV88BDC7F8X39",
@@ -738,7 +777,8 @@ export const MASTER_CATALOG = [
       "Prestige Koramangala": 18,
       "Brigade Indiranagar": 18,
       "Sobha HSR": 5
-    }
+    },
+    "deliveryBucket": "quick"
   },
   {
     "id": "01K13EV5FB8B558X40",
@@ -756,7 +796,8 @@ export const MASTER_CATALOG = [
       "Prestige Koramangala": 8,
       "Brigade Indiranagar": 18,
       "Sobha HSR": 16
-    }
+    },
+    "deliveryBucket": "quick"
   },
   {
     "id": "01K13EV51802129X41",
@@ -774,14 +815,15 @@ export const MASTER_CATALOG = [
       "Prestige Koramangala": 0,
       "Brigade Indiranagar": 7,
       "Sobha HSR": 15
-    }
+    },
+    "deliveryBucket": "quick"
   }
 ];
 
 export const NODE_DATA = {
-  "Prestige Koramangala": { nearestDistanceKm: 1.2, brandsInZone: 42, highDemandBrands: 18, demandBrands: ["Minimalist", "The Whole Truth", "What's Up Wellness", "Kapiva"] },
+  "Prestige Whitefield": { nearestDistanceKm: 1.2, brandsInZone: 42, highDemandBrands: 18, demandBrands: ["Minimalist", "The Whole Truth", "What's Up Wellness", "Kapiva"] },
   "Brigade Indiranagar": { nearestDistanceKm: 0.8, brandsInZone: 38, highDemandBrands: 24, demandBrands: ["What's Up Wellness", "Minimalist", "Blue Tokai", "The Whole Truth"] },
-  "Sobha HSR": { nearestDistanceKm: 1.6, brandsInZone: 46, highDemandBrands: 12, demandBrands: ["Blue Tokai", "The Whole Truth", "Minimalist", "What's Up Wellness"] },
+  "HSR Layout": { nearestDistanceKm: 1.6, brandsInZone: 46, highDemandBrands: 12, demandBrands: ["Blue Tokai", "The Whole Truth", "Minimalist", "What's Up Wellness"] },
 } as const;
 
 export const QUICK_CATEGORIES = [

@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Drawer } from "vaul";
 import { Brain, ChevronRight, Activity, Clock } from "lucide-react";
+import { useCartStore } from "../store/useCartStore";
+import { useSurgeState } from "../hooks/useSurgeState";
 
 const INTENT_LAYERS = ["personalization", "clarification", "risk", "outcome", "comparison", "value"];
 const INTENT_LABELS: Record<string, string> = {
@@ -24,11 +26,18 @@ const INTENT_COLORS: Record<string, string> = {
 };
 
 export default function LivePulseCard({ product, handleAddToCart, handleCardClick }: { product: any, handleAddToCart: any, handleCardClick?: any }) {
+    const { addItem, setIsCartOpen } = useCartStore();
+    const { isSurgeActive } = useSurgeState();
     const [activeIntent, setActiveIntent] = useState<string | null>(null);
+    const [imgError, setImgError] = useState(false);
+
+    console.log('Product Bucket:', product.deliveryBucket);
 
     // Fallback to empty intent object if ai_intent_layers is missing
     const intentData = product.ai_intent_layers || {};
     const hasIntentData = Object.keys(intentData).length > 0;
+
+    const isOutOfStock = (product.deliveryBucket === 'instant' || product.deliveryBucket === 'quick') && product.fulfilledBy !== 'Brand' && (product.stock === 0 || product.stock === undefined);
 
     return (
         <div className="bg-white rounded-[16px] md:rounded-[24px] shadow-[0_4px_20px_rgba(0,0,0,0.03)] md:shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-gray-100/50 overflow-visible group hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] transition-all duration-300 flex flex-col h-full relative">
@@ -46,7 +55,14 @@ export default function LivePulseCard({ product, handleAddToCart, handleCardClic
                     </span>
                 )}
                 <div className="w-[80px] md:w-[140px] h-[80px] md:h-[140px] relative group-hover:scale-105 transition-transform duration-500 md:mt-2">
-                    <img referrerPolicy="no-referrer" src={product.image_url} alt={product.name} loading="lazy" className="w-full h-full object-contain filter drop-shadow-sm" />
+                    <img 
+                        referrerPolicy="no-referrer" 
+                        src={imgError ? `https://placehold.co/600x600/1a1a1a/ffffff?text=${encodeURIComponent(product.name)}` : (product.image_url || `https://placehold.co/600x600/1a1a1a/ffffff?text=${encodeURIComponent(product.name)}`)} 
+                        alt={product.name} 
+                        loading="lazy" 
+                        onError={() => setImgError(true)}
+                        className="w-full h-full object-contain filter drop-shadow-sm" 
+                    />
                 </div>
             </div>
 
@@ -58,7 +74,7 @@ export default function LivePulseCard({ product, handleAddToCart, handleCardClic
                     </div>
                     <p className="text-[9px] md:text-[11px] text-gray-500 font-medium mb-1 md:mb-2 line-clamp-1">{product.brand}</p>
 
-                    <div className="flex items-center gap-1.5 md:gap-2 mb-1.5 md:mb-2">
+                    <div className="flex items-center gap-1.5 md:gap-2 mb-1.5 md:mb-2 mt-1 md:mt-0">
                         <span className="font-black text-gray-900 text-[14px] md:text-lg tracking-tight">₹{product.price}</span>
                         {product.mrp && <span className="text-[10px] md:text-xs text-gray-400 font-medium line-through">₹{product.mrp}</span>}
                     </div>
@@ -124,37 +140,63 @@ export default function LivePulseCard({ product, handleAddToCart, handleCardClic
 
 
 
-                {/* Desktop Action Button / Mobile Compact Plus Button */}
                 <div className="mt-auto pt-2">
-                    {/* Delivery Badge Nudge */}
-                    {((product.name.charCodeAt(0) * 13 + product.name.length) % 10) < 7 && (
-                        <div className="mb-2">
-                            <span className={`inline-flex ${product.fulfilledBy === 'Brand' ? 'bg-blue-50 text-blue-700' : 'bg-yellow-400 text-yellow-900'} text-[9px] font-black uppercase md:tracking-widest tracking-wider px-1.5 py-0.5 md:py-1 md:px-2 rounded md:rounded-md shadow-sm items-center gap-0.5 md:gap-1 w-max`}>
-                                {product.fulfilledBy !== 'Brand' && <span className="text-[10px] md:text-[12px] drop-shadow-sm leading-none">⚡</span>}
-                                <span className="leading-tight">{product.fulfilledBy === 'Brand' ? '3-5 Days Delivery' : '60 Mins Delivery'}</span>
-                            </span>
-                        </div>
-                    )}
+                    <div className="mb-2">
+                        {product.fulfilledBy === 'Brand' || product.fulfilledBy === 'FBB' ? null : (
+                            product.deliveryBucket === 'instant' ? (
+                                <span className="inline-flex bg-[#FF3B30] text-white font-black text-[9px] uppercase md:tracking-widest tracking-wider px-1.5 py-0.5 md:py-1 md:px-2 rounded md:rounded-md shadow-sm items-center w-max">
+                                    30 MIN PULSE
+                                </span>
+                            ) : product.deliveryBucket === 'quick' ? (
+                                <span className={`inline-flex ${isSurgeActive ? "bg-amber-600 text-white" : "bg-[#FFD700] text-gray-900"} font-black text-[9px] uppercase md:tracking-widest tracking-wider px-1.5 py-0.5 md:py-1 md:px-2 rounded md:rounded-md shadow-sm items-center w-max`}>
+                                    {isSurgeActive ? "90 MIN (WEATHER SURGE)" : "60 MIN QUICK"}
+                                </span>
+                            ) : (
+                                <span className="inline-flex bg-gray-100 text-gray-600 font-black text-[9px] uppercase md:tracking-widest tracking-wider px-1.5 py-0.5 md:py-1 md:px-2 rounded md:rounded-md shadow-sm items-center w-max">
+                                    Standard: 3-5 Days
+                                </span>
+                            )
+                        )}
+                    </div>
                     {/* Mobile Button Wrapper */}
-                    <div className="flex md:hidden items-center justify-between w-full">
-                        <span className="font-black text-gray-900 text-[13px] tracking-tight leading-none text-blue-600">₹{product.price}</span>
-                        <button
-                            onClick={(e) => { e.stopPropagation(); handleAddToCart(product); }}
-                            className="flex md:hidden items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white shadow-md active:scale-95 transition-transform"
-                        >
-                            <span className="text-lg leading-none">+</span>
-                        </button>
+                    <div className="flex md:hidden items-center justify-end w-full">
+                        {isOutOfStock ? (
+                            <button disabled className="flex items-center justify-center h-8 px-3 rounded-full bg-gray-200 text-gray-500 text-[10px] font-bold cursor-not-allowed shadow-inner w-max">
+                                OUT OF STOCK
+                            </button>
+                        ) : (
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    addItem({ ...product, id: product.id || product.name, brandName: product.brand || 'Unknown', isFastTrack: product.fulfilledBy !== 'Brand', imageUrl: product.image_url, deliveryBucket: product.deliveryBucket });
+                                    setIsCartOpen(true);
+                                }}
+                                className="flex items-center justify-center w-8 h-8 rounded-full bg-[#FFD700] text-gray-900 shadow-md active:scale-95 transition-transform"
+                            >
+                                <span className="text-lg leading-none">+</span>
+                            </button>
+                        )}
                     </div>
 
                     {/* Desktop Button */}
-                    <button
-                        onClick={(e) => { e.stopPropagation(); handleAddToCart(product); }}
-                        className="hidden md:flex items-center justify-center w-full py-2.5 rounded-xl text-xs font-bold transition-all relative overflow-hidden group/btn bg-blue-600 text-white border border-[#D1E0FF] hover:bg-blue-700 mt-2 gap-2"
-                    >
-                        <span className="relative z-10 flex items-center justify-center gap-2">
-                            <span>➕</span> Add to Cart
-                        </span>
-                    </button>
+                    {isOutOfStock ? (
+                        <button disabled className="hidden md:flex items-center justify-center w-full py-2.5 rounded-xl text-xs font-bold transition-all bg-gray-200 text-gray-500 cursor-not-allowed mt-2">
+                            Out of Stock
+                        </button>
+                    ) : (
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                addItem({ ...product, id: product.id || product.name, brandName: product.brand || 'Unknown', isFastTrack: product.fulfilledBy !== 'Brand', imageUrl: product.image_url, deliveryBucket: product.deliveryBucket });
+                                setIsCartOpen(true);
+                            }}
+                            className="hidden md:flex items-center justify-center w-full py-2.5 rounded-xl text-xs font-bold transition-all relative overflow-hidden group/btn bg-[#FFD700] text-gray-900 border border-[#FFD700]/30 hover:bg-[#FFD700]/90 mt-2 gap-2"
+                        >
+                            <span className="relative z-10 flex items-center justify-center gap-2">
+                                <span>➕</span> Add to Cart
+                            </span>
+                        </button>
+                    )}
                 </div>
             </div>
         </div>

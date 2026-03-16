@@ -7,6 +7,12 @@ import { useRouter } from "next/navigation";
 import ReactMarkdown from 'react-markdown';
 import LivePulseCard from "../src/components/LivePulseCard";
 import ENRICHED_CATALOG from "../data/enriched_catalog.json";
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 const ScrollableRow = ({ children, className = "" }: { children: React.ReactNode, className?: string }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -35,8 +41,70 @@ const ScrollableRow = ({ children, className = "" }: { children: React.ReactNode
   );
 };
 import { BRAND_LOGOS, MASTER_CATALOG, NODE_DATA, HERO_BANNERS, QUICK_CATEGORIES } from "../src/data/constants";
-import { useCart } from "../src/context/CartContext";
+import { useCartStore } from "../src/store/useCartStore";
 import { useLocation } from "../src/context/LocationContext";
+import BrandDiscoveryFeed from "../src/components/BrandDiscoveryFeed";
+import AgenticResponse from "../src/components/AgenticResponse";
+import { useSurgeState } from "../src/hooks/useSurgeState";
+
+const TrendingBrandCard = ({ brand, setActiveBrand }: { brand: string; setActiveBrand: (b: string) => void }) => {
+  const [imgError, setImgError] = useState(false);
+  return (
+    <div
+      className="w-[180px] snap-start bg-white rounded-3xl p-6 hover:shadow-xl transition-all duration-300 flex flex-col items-center text-center border border-gray-100 group cursor-pointer"
+      onClick={() => setActiveBrand(brand)}
+    >
+      <div className="h-16 w-full flex items-center justify-center mb-4">
+        {BRAND_LOGOS[brand] ? (
+          <img
+            src={imgError ? `https://placehold.co/600x600/1a1a1a/ffffff?text=${encodeURIComponent(brand)}` : BRAND_LOGOS[brand]}
+            alt={brand}
+            className="max-h-full max-w-full object-contain grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500"
+            onError={() => setImgError(true)}
+          />
+        ) : (
+          <span className="text-3xl font-bold text-gray-300">{brand.substring(0, 2)}</span>
+        )}
+      </div>
+      <p className="text-sm font-bold text-gray-900 mb-1">{brand}</p>
+      <p className="text-[9px] text-gray-500 font-bold uppercase tracking-widest mb-4">
+        Strong Local Traction
+      </p>
+      <button className="mt-auto text-[10px] font-bold px-6 py-2.5 rounded-xl bg-gray-100 text-gray-600 group-hover:bg-[#111827] group-hover:text-white transition-colors duration-300 w-full uppercase tracking-widest">
+        Explore
+      </button>
+    </div>
+  );
+};
+
+const HotDealCard = ({ item, handleAddToCart }: { item: any; handleAddToCart: (name: string) => void }) => {
+  const [imgError, setImgError] = useState(false);
+  return (
+    <div className="min-w-[160px] max-w-[160px] snap-start bg-white border border-gray-100/60 rounded-2xl p-3 flex flex-col relative shadow-sm hover:shadow-md transition-shadow">
+      <div className="w-full h-24 mb-3 flex items-center justify-center relative p-1 mix-blend-multiply">
+        <span className="absolute top-0 right-0 bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded shadow-sm z-10">-25%</span>
+        <img 
+          referrerPolicy="no-referrer" 
+          src={imgError ? `https://placehold.co/600x600/1a1a1a/ffffff?text=${encodeURIComponent(item.name || 'Product')}` : item.image_url} 
+          alt={item.name} 
+          loading="lazy" 
+          className="h-full w-full object-contain drop-shadow-sm group-hover:scale-105 transition-transform duration-300"
+          onError={() => setImgError(true)}
+        />
+      </div>
+      <p className="text-[11px] font-bold text-gray-800 leading-snug mb-1 line-clamp-2 min-h-[32px] px-1">{item.name}</p>
+      <div className="flex items-end justify-between mt-auto px-1">
+        <div className="flex flex-col">
+          <span className="text-[9px] text-gray-400 line-through leading-none mb-0.5">₹{item.mrp || Math.floor(item.price * 1.33)}</span>
+          <span className="text-sm font-black text-gray-900 leading-none">₹{item.price}</span>
+        </div>
+        <button onClick={(e) => { e.stopPropagation(); handleAddToCart(item.name); }} className="w-8 h-8 flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-md active:scale-95 flex-shrink-0 transition">
+          <span className="text-lg leading-none">+</span>
+        </button>
+      </div>
+    </div>
+  );
+};
 
 const generateNodeItems = (nodeName: string) => {
   // Track which brands already have a "brand direct" product
@@ -79,13 +147,26 @@ const AGENTIC_DROPS = [
 export default function Home({ searchParams }: { searchParams?: { preview?: string; search?: string } }) {
   const isPreviewRenderer = searchParams?.preview === "1";
   const router = useRouter();
-  const [products, setProducts] = useState(ENRICHED_CATALOG);
+  const [products, setProducts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [greeting, setGreeting] = useState("Good morning");
 
   // USE CONTEXTS
   const { selectedNode, setSelectedNode, setNodeOpen } = useLocation();
-  const { cartItems, cartCount, cartOpen, setCartOpen, handleAddToCart, handleDecrease, handleRemoveItem, clearCart, total, subtotal, localShipping, brandShipping, amountRemaining, progressPercentage, showCartToast, toastItem } = useCart();
+  const { items: cartItems, addItem: addToZustandCart, clearCart, getTotalItems, setIsCartOpen } = useCartStore();
+  const cartCount = getTotalItems();
+
+  const handleAddToCart = (productOrName: any) => {
+    let p = typeof productOrName === 'string' ? products.find((x: any) => x.name === productOrName) : productOrName;
+    if (!p) p = MASTER_CATALOG.find((x: any) => x.name === productOrName) || ENRICHED_CATALOG.find((x: any) => x.name === productOrName);
+    if (p) {
+      addToZustandCart({ id: p.id || p.name, name: p.name, price: p.price || 0, isFastTrack: p.fulfilledBy !== 'Brand', brandName: p.brand || 'Unknown', imageUrl: p.image_url });
+      setAddedItem(p.name);
+    } else if (typeof productOrName === 'string') {
+      addToZustandCart({ id: productOrName, name: productOrName, price: 0, isFastTrack: true, brandName: 'Unknown' });
+    }
+    setIsCartOpen(true);
+  };
 
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [addedItem, setAddedItem] = useState<string | null>(null);
@@ -111,11 +192,14 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
   const [battleStep, setBattleStep] = useState(0);
   const [battleAnswer, setBattleAnswer] = useState<boolean | null>(null);
   const [lockedProducts, setLockedProducts] = useState<Set<string>>(new Set());
+  const [activeFilter, setActiveFilter] = useState('All Relevance'); // Added for search filters
 
-  // NEW: Floating Mobile Insight Bubble State
+
   const [showInsight, setShowInsight] = useState(false);
   const [insightData, setInsightData] = useState({ title: "", text: "", icon: "" });
-  const [opsAlertActive, setOpsAlertActive] = useState(true);
+  const { isSurgeActive } = useSurgeState();
+  const [localOpsAlertClosed, setLocalOpsAlertClosed] = useState(false);
+  const opsAlertActive = isSurgeActive && !localOpsAlertClosed;
 
   useEffect(() => {
     // Show insight bubble every 45 to 60 seconds (throttled)
@@ -210,19 +294,70 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
   useEffect(() => {
     async function syncWithBackend() {
       try {
-        const response = await fetch('https://dash24-backend.onrender.com/api/products');
-        if (response.ok) {
-          const freshData = await response.json();
-          setProducts(freshData);
+        const [brandsRes, productsRes] = await Promise.all([
+          supabase.from('brands').select('id, name'),
+          supabase.from('products').select('*')
+        ]);
+
+        if (productsRes.data && brandsRes.data) {
+          console.log("Supabase Storefront Fetch:", { products: productsRes.data, brands: brandsRes.data });
+          const brandMap = new Map(brandsRes.data.map(b => [b.id, b.name]));
+
+          const mapped = productsRes.data.map(item => {
+            const brandName = brandMap.get(item.brand_id) || "Unknown Brand";
+            return {
+              ...item,
+              id: item.id,
+              name: item.name || "Unnamed Product",
+              brand: brandName,
+              category: item.category || "Uncategorized",
+              price: item.price,
+              mrp: item.mrp || item.price,
+              image_url: item.image_url,
+              fulfilledBy: item.is_fbb ? "Brand" : "Dash24",
+              stock: item.stock_inventory || 0,
+              localAvailable: (item.stock_inventory || 0) > 0,
+              refillInDays: (item.stock_inventory || 0) === 0 ? 1 : 0,
+              brandDeliveryDays: item.is_fbb ? 4 : 0,
+              isBrandDirect: item.is_fbb,
+              rating: 4.8,
+              lastPurchased: Math.floor(Math.random() * 30),
+              consumptionCycle: item.replenishment_period_days || 15,
+              low: false,
+              deliveryBucket: item.delivery_time || (item.is_fbb ? 'standard' : 'quick')
+            };
+          });
+          setProducts(mapped);
+          setUserItems(mapped);
         }
       } catch (error) {
-        console.error("Backend not ready, staying with local data.");
+        console.error("Supabase fetch error", error);
       } finally {
         setIsLoading(false);
       }
     }
     syncWithBackend();
-  }, []);
+  }, [selectedNode]); // MISSION 46: Trigger refetch/remap on location change
+
+  // MISSION 46: Node-Based Inventory Mocking
+  useEffect(() => {
+    if (products.length > 0) {
+      const nodeFactor = selectedNode.length % 3; // 0, 1, or 2 based on node name length
+      const remapped = products.map(item => {
+        // Mock depleting stock in certain zones to create "Out of Stock" vs "In Stock" variety
+        const isDepleted = nodeFactor === 0 && item.id % 4 === 0; 
+        const isLow = nodeFactor === 1 && item.id % 5 === 0;
+        
+        return {
+          ...item,
+          stock: isDepleted ? 0 : isLow ? 2 : item.stock,
+          localAvailable: isDepleted ? false : item.localAvailable,
+          low: isLow
+        };
+      });
+      setUserItems(remapped);
+    }
+  }, [selectedNode, products]);
 
 
   useEffect(() => {
@@ -259,39 +394,30 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
     }
 
     const sanitizedQuery = query.toLowerCase().trim();
+
+    // MISSION 46: Hybrid Search Router
+    const triggers = ['vs', 'compare', 'recommend', 'best'];
+    const isAiQuery = triggers.some(t => sanitizedQuery.includes(t));
+
+    if (!isAiQuery) {
+      // Direct Supabase / Local match mode - bypass AI Fetch to save cycles/latency
+      setIntent("product");
+      setAiMode(false);
+      setAgenticRawData(null); // Clear previous AI results
+      return; // The layout already renders `scoredItems` below
+    }
+
+    setIntent(sanitizedQuery.includes('vs') || sanitizedQuery.includes('compare') ? "compare" : "question");
+    setAiMode(true);
+
     const cachedResponse = sessionStorage.getItem(sanitizedQuery);
 
     if (cachedResponse) {
       try {
         const parsedCache = JSON.parse(cachedResponse);
         setAgenticRawData(parsedCache);
-        setAgenticReasoning(parsedCache.globalHook);
-        setAgenticComparison(parsedCache.isComparison ? parsedCache.comparisonData : null);
-
-        if (parsedCache.recommendations && Array.isArray(parsedCache.recommendations)) {
-          const normalize = (str: string) => str.toLowerCase().replace(/[^a-z0-9]/g, '');
-          const safeRecommendations = parsedCache.recommendations || [];
-          const matchedProducts = safeRecommendations.map((rec: any) => {
-            if (!rec || !rec.productName) return null;
-            const normalizedRec = normalize(rec.productName);
-            const lp = [...MASTER_CATALOG, ...scoredItems];
-            const found = lp.find(p => {
-              const normalizedCatalog = normalize(p.name);
-              return normalizedCatalog.includes(normalizedRec) || normalizedRec.includes(normalizedCatalog);
-            });
-            if (found) {
-              return { id: found.id, reason: rec.reason, name: found.name };
-            }
-            return null;
-          }).filter(Boolean);
-          setAgenticMatches(matchedProducts);
-        } else {
-          setAgenticMatches([]);
-        }
       } catch (e) {
-        setAgenticReasoning(cachedResponse);
-        setAgenticMatches([]);
-        setAgenticComparison(null);
+        setAgenticRawData(null);
       }
       return;
     }
@@ -303,43 +429,19 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           prompt: query,
-          lastOrderContext: "User previously bought: Whole Truth Protein Bars, Blue Tokai Coffee"
+          lastOrderContext: "User previously bought: Whole Truth Protein Bars, Blue Tokai Coffee",
+          catalog: products.map(p => ({ id: p.id, name: p.name, stock: p.stock }))
         })
       });
       const resJson = await response.json();
 
       if (resJson.data) {
-        console.log("Parsed AI Data:", resJson.data);
-        const { isComparison, globalHook, comparisonData, recommendations } = resJson.data;
-
+        console.log("Parsed Agentic AI Data:", resJson.data);
         sessionStorage.setItem(sanitizedQuery, JSON.stringify(resJson.data));
         setAgenticRawData(resJson.data);
-        setAgenticReasoning(globalHook);
-        setAgenticComparison(isComparison ? comparisonData : null);
-
-        if (recommendations && Array.isArray(recommendations)) {
-          const normalize = (str: string) => str.toLowerCase().replace(/[^a-z0-9]/g, '');
-          const safeRecommendations = recommendations || [];
-          const matchedProducts = safeRecommendations.map((rec: any) => {
-            if (!rec || !rec.productName) return null;
-            const normalizedRec = normalize(rec.productName);
-            const lp = [...MASTER_CATALOG, ...scoredItems];
-            const found = lp.find(p => {
-              const normalizedCatalog = normalize(p.name);
-              return normalizedCatalog.includes(normalizedRec) || normalizedRec.includes(normalizedCatalog);
-            });
-            if (found) {
-              return { id: found.id, reason: rec.reason, name: found.name };
-            }
-            return null;
-          }).filter(Boolean);
-          setAgenticMatches(matchedProducts);
-        } else {
-          setAgenticMatches([]);
-        }
       }
     } catch (err) {
-      console.error("Search API failed", err);
+      console.error("Agentic Search API failed", err);
     } finally {
       setIsSearching(false);
     }
@@ -347,7 +449,7 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
 
   const currentNode = NODE_DATA[selectedNode as keyof typeof NODE_DATA];
 
-  const [userItems, setUserItems] = useState(() => generateNodeItems("Prestige Koramangala"));
+  const [userItems, setUserItems] = useState<any[]>([]);
 
   const scoredItems = userItems.map((item) => {
     let score = item.rating * 10;
@@ -357,33 +459,48 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
     return { ...item, score };
   }).sort((a, b) => b.score - a.score);
 
+  // MISSION 47.5: Search Filtering & Fallbacks
+  const searchFilteredItems = scoredItems.filter((item) => {
+    if (!searchQuery) return false;
+    const exactMatch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                       (item.brand && item.brand.toLowerCase().includes(searchQuery.toLowerCase())) ||
+                       (item.category && item.category.toLowerCase().includes(searchQuery.toLowerCase()));
+    if (exactMatch) return true;
+    const keywords = searchQuery.toLowerCase().split(' ').filter((k: string) => k.length >= 3);
+    if (keywords.length === 0) return false;
+    return keywords.some((k: string) => 
+      item.name.toLowerCase().includes(k) || 
+      (item.brand && item.brand.toLowerCase().includes(k)) ||
+      (item.category && item.category.toLowerCase().includes(k))
+    );
+  });
+
+  const fuzzySearchResultsFallback = scoredItems.map(item => {
+
+    if (!searchQuery) return { ...item, matchCount: 0 };
+    const keywords = searchQuery.toLowerCase().split(' ').filter((k: string) => k.length >= 2); // Relax to 2 chars
+    const matchCount = keywords.filter((k: string) => 
+      item.name.toLowerCase().includes(k) || 
+      (item.brand && item.brand.toLowerCase().includes(k)) ||
+      (item.category && item.category.toLowerCase().includes(k))
+    ).length;
+    return { ...item, matchCount };
+  }).filter(item => item.matchCount > 0).sort((a, b) => b.matchCount - a.matchCount);
+
+  let finalSearchResults = searchFilteredItems.length > 0 ? searchFilteredItems : fuzzySearchResultsFallback;
+
+  // MISSION 47.5: Apply Action Filters (Sort)
+  if (activeFilter === 'Price: Low to High') {
+    finalSearchResults = [...finalSearchResults].sort((a, b) => a.price - b.price);
+  } else if (activeFilter === 'Price: High to Low') {
+    finalSearchResults = [...finalSearchResults].sort((a, b) => b.price - a.price);
+  } else if (activeFilter === 'Top Rated') {
+    finalSearchResults = [...finalSearchResults].sort((a, b) => (b.rating || 4.5) - (a.rating || 4.5)); // Fallback rating
+  }
+
+
+
   const hasRunningLow = userItems.some((item) => item.lastPurchased >= item.consumptionCycle - 3);
-
-  const handleNodeChange = (node: string) => {
-    if (node === selectedNode) return;
-    setNodeOpen(false);
-    setIsTransitioning(true);
-    clearCart();
-    setAddedItem(null);
-    setCartOpen(false);
-    setTimeout(() => {
-      setSelectedNode(node);
-      setUserItems(generateNodeItems(node));
-      setIsTransitioning(false);
-    }, 200);
-  };
-
-  const handleAutoAddSimulation = () => {
-    const itemToReadd = cartItems[0]?.name;
-    clearCart();
-    setAddedItem(null);
-    setCartOpen(false);
-    if (itemToReadd) {
-      setTimeout(() => {
-        handleAddToCart(itemToReadd);
-      }, 2000);
-    }
-  };
 
   const classifyIntent = (query: string) => {
     const q = query.toLowerCase().trim();
@@ -464,9 +581,9 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
               <span className="text-xl animate-pulse">🚨</span>
               <span className="leading-tight">
                 <span className="uppercase tracking-widest text-red-200 mr-2 md:inline hidden">Dynamic Ops Alert:</span>
-                Heavy traffic detected in Indiranagar. Dash24 ETAs temporarily adjusted from 60 mins to 90 mins.
+                {isSurgeActive ? "Weather Surge detected. Dash24 ETAs adjusted to 90 mins." : "Heavy traffic detected in Indiranagar. Dash24 ETAs temporarily adjusted from 60 mins to 90 mins."}
               </span>
-              <button onClick={() => setOpsAlertActive(false)} className="ml-auto w-7 h-7 shrink-0 flex items-center justify-center bg-white/20 rounded-full hover:bg-white/30 transition shadow-sm text-sm">✕</button>
+              <button onClick={() => setLocalOpsAlertClosed(true)} className="ml-auto w-7 h-7 shrink-0 flex items-center justify-center bg-white/20 rounded-full hover:bg-white/30 transition shadow-sm text-sm">✕</button>
             </div>
           </div>
         )}
@@ -489,30 +606,6 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
               </div>
             ))}
           </ScrollableRow>
-        </div>
-
-        {/* Mobile: Greeting + Shortened Location (above hero) */}
-        <div className="md:hidden px-4 py-2 flex items-center justify-between">
-          <span className="text-sm font-bold text-gray-600">{greeting}, Kunal 👋</span>
-          <div className="flex items-center gap-1.5 bg-yellow-50 border border-yellow-200 px-2.5 py-1 rounded-lg">
-            <span className="text-xs">⚡</span>
-            <span className="text-[11px] font-bold text-yellow-800">{selectedNode}</span>
-          </div>
-        </div>
-
-        {/* Desktop: Greeting + Location + Last Order Bar (between header and hero) */}
-        <div className="hidden md:flex max-w-[1200px] mx-auto px-6 py-3 items-center justify-between">
-          <div className="flex items-center gap-4">
-            <span className="text-sm font-bold text-gray-600">{greeting}, Kunal 👋</span>
-            <div className={`flex items-center gap-1.5 border px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${opsAlertActive ? 'bg-red-50 border-red-200 text-red-800' : 'bg-yellow-50 border-yellow-200 text-yellow-800'}`}>
-              <span className={opsAlertActive ? "animate-pulse" : ""}>{opsAlertActive ? "🚨" : "⚡"}</span>
-              <span>{opsAlertActive ? "90Mins" : "60Mins"} to {selectedNode}</span>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="text-[10px] uppercase tracking-widest font-bold text-gray-400">Last Order</span>
-            <span className="text-xs font-bold text-gray-700">Face Wash • Delivered 2 days ago</span>
-          </div>
         </div>
 
         {/* --- DYNAMIC HERO BANNER --- */}
@@ -639,7 +732,11 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                     <div key={item.id} className="w-full">
                       <LivePulseCard
                         product={item}
-                        handleAddToCart={(p: any) => { handleAddToCart(p.name); setCartOpen(true); }}
+                        handleAddToCart={(p: any) => {
+                          handleAddToCart(p.name);
+                          setCartOpen(true);
+                          addToZustandCart({ id: p.id || p.name, name: p.name, price: p.price, isFastTrack: p.fulfilledBy !== 'Brand', brandName: p.brand || 'Unknown', imageUrl: p.image_url });
+                        }}
                         handleCardClick={() => router.push(`/product/${item.id}`)}
                       />
                     </div>
@@ -678,7 +775,10 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                     <div key={item.id} className="w-full">
                       <LivePulseCard
                         product={item}
-                        handleAddToCart={(p: any) => handleAddToCart(p.name)}
+                        handleAddToCart={(p: any) => {
+                          handleAddToCart(p.name);
+                          addToZustandCart({ id: p.id || p.name, name: p.name, price: p.price, isFastTrack: p.fulfilledBy !== 'Brand', brandName: p.brand || 'Unknown', imageUrl: p.image_url });
+                        }}
                         handleCardClick={() => router.push(`/product/${item.id}`)}
                       />
                     </div>
@@ -693,10 +793,6 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
           {/* ========================================================= */}
           {!selectedCategory && (
             <div className={`px-4 md:px-10 py-6 md:py-8 space-y-10 md:space-y-14 transition-opacity duration-200 ${isTransitioning ? "opacity-60" : "opacity-100"}`}>
-
-
-
-              {/* REORDER / FOR YOU (Horizontal Scroll) */}
               <div className="space-y-6">
                 <div className="flex items-center gap-3">
                   <h2 className="text-xl font-black text-gray-900 tracking-tight">🛒 For You</h2>
@@ -718,6 +814,9 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                   })}
                 </ScrollableRow>
               </div>
+
+              {/* Move Brand Discovery Grid here to not push 'For You' below the fold */}
+              <BrandDiscoveryFeed />
 
               {/* ========================================================= */}
               {/* THE PULSE MATRIX (Now rendered inline for Continuous Scroll) */}
@@ -758,9 +857,13 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                       <div className="text-xs text-white/80 mt-1 mb-2 font-medium">Lock between ₹499 - ₹599</div>
 
                       <button
-                        onClick={() => { handleAddToCart(AGENTIC_DROPS[agenticIndex].name, agenticPrice); setLockedProducts(prev => new Set([...prev, AGENTIC_DROPS[agenticIndex].name])); setCartOpen(true); }}
+                        onClick={() => {
+                          setLockedProducts(prev => new Set([...prev, AGENTIC_DROPS[agenticIndex].name]));
+                          addToZustandCart({ id: AGENTIC_DROPS[agenticIndex].name, name: AGENTIC_DROPS[agenticIndex].name, price: agenticPrice, isFastTrack: true, brandName: 'Agentic Drop', imageUrl: AGENTIC_DROPS[agenticIndex].img });
+                          setIsCartOpen(true);
+                        }}
                         disabled={lockedProducts.has(AGENTIC_DROPS[agenticIndex].name)}
-                        className={`w-full py-1.5 md:py-3.5 rounded-lg md:rounded-xl text-[10px] md:text-sm font-bold transition-all shadow-lg hover:-translate-y-1 mt-auto ${lockedProducts.has(AGENTIC_DROPS[agenticIndex].name) ? 'bg-green-600 text-white shadow-green-600/40 cursor-default' : 'bg-red-600 text-white hover:bg-red-500 shadow-red-600/40'}`}
+                        className={`w-full py-1.5 md:py-3.5 rounded-lg md:rounded-xl text-[10px] md:text-sm font-bold transition-all shadow-lg hover:-translate-y-1 mt-auto ${lockedProducts.has(AGENTIC_DROPS[agenticIndex].name) ? 'bg-green-600 text-white shadow-green-600/40 cursor-default' : 'bg-[#FFD700] text-gray-900 hover:bg-[#FFD700]/90 shadow-[#FFD700]/40'}`}
                       >
                         {lockedProducts.has(AGENTIC_DROPS[agenticIndex].name) ? "Locked ✓" : "Lock the Deal"}
                       </button>
@@ -866,31 +969,8 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                 </div>
 
                 <ScrollableRow className="grid grid-rows-2 grid-flow-col gap-4 pb-2 snap-x">
-                  {Array.from(new Set([...currentNode.demandBrands, ...Object.keys(BRAND_LOGOS)])).slice(0, 10).map((brand) => (
-                    <div
-                      key={brand}
-                      className="w-[180px] snap-start bg-white rounded-3xl p-6 hover:shadow-xl transition-all duration-300 flex flex-col items-center text-center border border-gray-100 group cursor-pointer"
-                      onClick={() => setActiveBrand(brand)}
-                    >
-                      <div className="h-16 w-full flex items-center justify-center mb-4">
-                        {BRAND_LOGOS[brand] ? (
-                          <img
-                            src={BRAND_LOGOS[brand]}
-                            alt={brand}
-                            className="max-h-full max-w-full object-contain grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500"
-                          />
-                        ) : (
-                          <span className="text-3xl font-bold text-gray-300">{brand.substring(0, 2)}</span>
-                        )}
-                      </div>
-                      <p className="text-sm font-bold text-gray-900 mb-1">{brand}</p>
-                      <p className="text-[9px] text-gray-500 font-bold uppercase tracking-widest mb-4">
-                        Strong Local Traction
-                      </p>
-                      <button className="mt-auto text-[10px] font-bold px-6 py-2.5 rounded-xl bg-gray-100 text-gray-600 group-hover:bg-[#111827] group-hover:text-white transition-colors duration-300 w-full uppercase tracking-widest">
-                        Explore
-                      </button>
-                    </div>
+                  {Array.from(new Set([...(currentNode?.demandBrands || []), ...Object.keys(BRAND_LOGOS)])).slice(0, 10).map((brand) => (
+                    <TrendingBrandCard key={brand} brand={brand} setActiveBrand={setActiveBrand} />
                   ))}
                 </ScrollableRow>
               </div>
@@ -903,22 +983,7 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                 </div>
                 <ScrollableRow className="flex gap-4 pb-4 snap-x">
                   {scoredItems.slice(0, 8).map((item, idx) => (
-                    <div key={idx} className="min-w-[160px] max-w-[160px] snap-start bg-white border border-gray-100/60 rounded-2xl p-3 flex flex-col relative shadow-sm hover:shadow-md transition-shadow">
-                      <div className="w-full h-24 mb-3 flex items-center justify-center relative p-1 mix-blend-multiply">
-                        <span className="absolute top-0 right-0 bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded shadow-sm z-10">-25%</span>
-                        <img referrerPolicy="no-referrer" src={item.image_url} alt={item.name} loading="lazy" className="h-full w-full object-contain drop-shadow-sm group-hover:scale-105 transition-transform duration-300" />
-                      </div>
-                      <p className="text-[11px] font-bold text-gray-800 leading-snug mb-1 line-clamp-2 min-h-[32px] px-1">{item.name}</p>
-                      <div className="flex items-end justify-between mt-auto px-1">
-                        <div className="flex flex-col">
-                          <span className="text-[9px] text-gray-400 line-through leading-none mb-0.5">₹{item.mrp || Math.floor(item.price * 1.33)}</span>
-                          <span className="text-sm font-black text-gray-900 leading-none">₹{item.price}</span>
-                        </div>
-                        <button onClick={(e) => { e.stopPropagation(); handleAddToCart(item.name); }} className="w-8 h-8 flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-md active:scale-95 flex-shrink-0 transition">
-                          <span className="text-lg leading-none">+</span>
-                        </button>
-                      </div>
-                    </div>
+                    <HotDealCard key={item.id || idx} item={item} handleAddToCart={handleAddToCart} />
                   ))}
                 </ScrollableRow>
               </div>
@@ -1064,9 +1129,9 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
         {/* ========================================= */}
         {
           searchFocused && (
-            <div className="fixed inset-0 z-[120] bg-white text-gray-900 flex flex-col animate-in slide-in-from-bottom-full duration-300">
+            <div className="fixed inset-0 z-[120] bg-black/95 backdrop-blur-xl text-white flex flex-col animate-in slide-in-from-bottom-full duration-300">
               {/* Header / Input Area + Mobile Filters */}
-              <div className="p-4 md:p-8 border-b border-gray-200 bg-white/95 backdrop-blur-xl sticky top-0 z-10 flex flex-col gap-4 shadow-sm">
+              <div className="p-4 md:p-8 border-b border-white/10 bg-transparent sticky top-0 z-10 flex flex-col gap-4 shadow-sm">
                 <div className="flex items-center gap-4">
                   <button onClick={() => { setSearchFocused(false); setSearchQuery(''); }} className="w-10 h-10 flex items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-full transition text-2xl font-black shrink-0">✕</button>
                   <div className="relative flex-1">
@@ -1102,9 +1167,9 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                 </div>
               </div>
 
-              {/* Content Area - Constrained to 60% Center View */}
-              <div className="flex-1 overflow-y-auto p-4 md:p-8 bg-white">
-                <div className="w-full max-w-md mx-auto space-y-8">
+              {/* Content Area - Full Screen Agentic Layout */}
+              <div className="flex-1 overflow-y-auto w-screen px-4 md:px-16 py-8">
+                <div className="w-full max-w-7xl mx-auto space-y-8 h-full flex flex-col items-center justify-center">
                   {!searchQuery ? (
                     <>
                       {/* Default AI Suggestions */}
@@ -1121,7 +1186,10 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                                   setTimeout(() => {
                                     const mockData = {
                                       isComparison: true,
+                                      thought_process: ["Comparing active formulations...", "Analyzing clinical vs botanical benefits..."],
                                       globalHook: "Minimalist offers clinical-grade active treatment, while Mamaearth focuses on instant hydration and surface glow.",
+                                      headline: "Clinical Treatment vs Daily Botanical Glow",
+                                      primary_product_id: 1, // Assumes item #1 exists or can load
                                       comparisonData: {
                                         features: [
                                           "Core Active", "Texture", "Skin Type", "Primary Benefit", "Bonus Booster",
@@ -1162,7 +1230,10 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                                   setTimeout(() => {
                                     const mockData = {
                                       isComparison: true,
+                                      thought_process: ["Comparing hardware specs...", "Analyzing battery life differentials..."],
                                       globalHook: "Noise offers superior display brightness and fitness tracking accuracy, while boAt dominates in battery life and rugged build quality.",
+                                      headline: "Display Brightness vs Rugged Battery Endurance",
+                                      primary_product_id: 2, // Assumes item #2 exists
                                       comparisonData: {
                                         features: [
                                           "Display Tech", "Peak Brightness", "Battery Life", "Calling Features", "Heart Rate Sensor Accuracy",
@@ -1211,12 +1282,16 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                         <div className="mt-8 space-y-4">
                           <p className="text-xs uppercase tracking-widest text-gray-500 font-bold ml-1">Local Matches for "{searchQuery}"</p>
                           <div className="grid grid-cols-2 gap-3">
-                            {products.filter(p => p.name.toLowerCase().replace(/[^a-z0-9]/g, '').includes(searchQuery.toLowerCase().replace(/[^a-z0-9]/g, ''))).slice(0, 4).map(item => (
+                            {products.filter(p => 
+                              p.name.toLowerCase().replace(/[^a-z0-9]/g, '').includes(searchQuery.toLowerCase().replace(/[^a-z0-9]/g, '')) ||
+                              (p.brand && p.brand.toLowerCase().includes(searchQuery.toLowerCase())) ||
+                              (p.category && p.category.toLowerCase().includes(searchQuery.toLowerCase()))
+                            ).map(item => (
                               <div key={`local-search-${item.id}`} onClick={() => { setSearchFocused(false); router.push(`/product/${item.id || 0}`); }} className="bg-white rounded-xl border border-gray-100 shadow-sm p-3 flex flex-col justify-between cursor-pointer group hover:shadow-md transition text-black">
                                 <div className="w-full h-28 mb-3 relative overflow-hidden flex items-center justify-center">
                                   <img referrerPolicy="no-referrer" src={item.image_url} alt={item.name} className="max-w-full max-h-full object-contain group-hover:scale-110 transition duration-300 mix-blend-multiply" />
                                 </div>
-                                <div>
+                                <div className="p-1">
                                   <div className="flex items-center gap-1.5 mb-1.5">
                                     <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded-sm line-clamp-1">{item.brand}</span>
                                   </div>
@@ -1226,7 +1301,10 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                               </div>
                             ))}
                           </div>
-                          {products.filter(p => p.name.toLowerCase().replace(/[^a-z0-9]/g, '').includes(searchQuery.toLowerCase().replace(/[^a-z0-9]/g, ''))).length === 0 && (
+                          {products.filter(p => 
+                            p.name.toLowerCase().replace(/[^a-z0-9]/g, '').includes(searchQuery.toLowerCase().replace(/[^a-z0-9]/g, '')) ||
+                            (p.category && p.category.toLowerCase().includes(searchQuery.toLowerCase()))
+                          ).length === 0 && (
                             <p className="text-sm text-gray-500 italic ml-1">No local products found. Press Enter to ask AI.</p>
                           )}
                         </div>
@@ -1237,10 +1315,10 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
 
 
                       <div className="flex items-start gap-4 mb-4">
-                        <div className="bg-white border border-gray-200 p-4 rounded-2xl rounded-tl-sm text-gray-800 text-sm leading-relaxed max-w-xl shadow-sm">
+                        <div className="bg-white/10 border border-white/20 p-4 rounded-2xl rounded-tl-sm text-gray-200 text-sm leading-relaxed max-w-xl shadow-sm">
                           <p className="font-medium flex items-center gap-2">
-                            <span className="text-blue-600">✨</span>
-                            Here's what I found for <span className="text-gray-900 font-bold">"{searchQuery}"</span>:
+                            <span className="text-blue-400">✨</span>
+                            Here's what I found for <span className="text-white font-bold">"{searchQuery}"</span>:
                           </p>
                         </div>
                       </div>
@@ -1264,109 +1342,69 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                         </div>
                       )}
 
-                      {/* Premium AI Reasoning Block - Clean Typography */}
-                      {agenticReasoning && (
-                        <div className="mb-6 relative text-gray-900">
-                          <h2 className="text-lg font-semibold text-gray-800 leading-snug tracking-tight mb-4 mt-2">
-                            <ReactMarkdown>{agenticReasoning}</ReactMarkdown>
-                          </h2>
+                      {/* Premium Agentic Response Block */}
+                      {agenticRawData && agenticRawData.thought_process ? (
+                        <div className="mb-6 w-full">
+                          <AgenticResponse 
+                             data={agenticRawData} 
+                             catalog={products} 
+                             onAddToCart={handleAddToCart} 
+                             onProductClick={(id) => { setSearchFocused(false); router.push(`/product/${id || 0}`); }} 
+                          />
+                        </div>
+                      ) : (
+                        <div className="flex flex-col gap-4">
+                          {/* MISSION 47: Filter Chips */}
+                          <div className="flex overflow-x-auto gap-2 py-4 px-4 mb-4 border-b">
+                            {['All Relevance', 'Price: Low to High', 'Price: High to Low', 'Top Rated'].map((filter) => (
+                              <button
+                                key={filter}
+                                onClick={() => setActiveFilter(filter)}
+                                className={`rounded-full px-4 py-1.5 text-sm font-bold border-0 transition-all shrink-0 whitespace-nowrap ${
+                                  activeFilter === filter 
+                                    ? 'bg-white text-gray-900 shadow-md scale-105' 
+                                    : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                                }`}
+                              >
+                                {filter}
+                              </button>
+                            ))}
+                          </div>
+
+                          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 p-4">
+
+                            {finalSearchResults.map(item => (
+
+                              <div key={`search-${item.id}`} onClick={() => { setSearchFocused(false); router.push(`/product/${item.id || 0}`); }} className="bg-white rounded-xl border border-gray-100 shadow-sm p-3 flex flex-col justify-between cursor-pointer group hover:shadow-md transition text-black">
+                                <div className="w-full h-28 mb-3 relative overflow-hidden flex items-center justify-center">
+                                  <img referrerPolicy="no-referrer" src={item.image_url} alt={item.name} className="max-h-full max-w-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500" />
+                                </div>
+                                <p className="text-sm font-semibold text-gray-900 line-clamp-2 leading-tight">{item.name}</p>
+                                <div className="mt-auto flex items-center justify-between pt-2">
+                                  <p className="text-base font-bold text-gray-900">₹{item.price}</p>
+                                  <button className="w-8 h-8 rounded-full bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center shadow-md shadow-blue-600/20 active:scale-95 transition-transform" onClick={(e) => { e.stopPropagation(); handleAddToCart(item.name); }}>
+                                    <span className="text-lg leading-none">+</span>
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       )}
 
-                      {/* AI Product Comparison Table */}
-                      {agenticComparison && agenticComparison.features && agenticComparison.products && (
-                        <div className="mb-6 w-full max-w-full rounded-xl border border-gray-200 shadow-sm bg-white">
-                          <table className="w-full table-fixed border-collapse text-xs md:text-sm">
-                            <thead>
-                              <tr>
-                                <th className="w-[28%] break-words whitespace-normal p-2 md:p-3 align-top border border-gray-200 bg-gray-50 font-semibold text-gray-500 uppercase tracking-wider">
-                                  Features
-                                </th>
-                                {agenticComparison.products.map((p: any, idx: number) => (
-                                  <th key={idx} className="w-[36%] break-words whitespace-normal p-2 md:p-3 align-top border border-gray-200 bg-gray-50 font-bold text-gray-900">
-                                    {p.name}
-                                  </th>
-                                ))}
-                              </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-100">
-                              {agenticComparison.features.map((feature: string, featureIdx: number) => (
-                                <tr key={featureIdx} className="hover:bg-gray-50/50 transition-colors">
-                                  <td className="break-words whitespace-normal p-2 md:p-3 align-top border border-gray-200 bg-gray-50/30 font-semibold text-gray-700">
-                                    {feature}
-                                  </td>
-                                  {agenticComparison.products.map((p: any, pIdx: number) => (
-                                    <td key={pIdx} className="break-words whitespace-normal p-2 md:p-3 align-top border border-gray-200 text-gray-700">
-                                      {p.values[featureIdx] || "-"}
-                                    </td>
-                                  ))}
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      )}
-                      <div className="flex flex-col gap-4">
-                        {agenticMatches.length > 0 ? (
-                          agenticMatches.filter((val, idx, arr) => arr.findIndex(t => t.name === val.name) === idx).map(match => {
-                            const item = scoredItems.find(i => i.id === match.id) || MASTER_CATALOG.find(i => i.id === match.id);
-                            if (!item) return null;
+                       {!isSearching && !agenticRawData && finalSearchResults.length === 0 && !Object.keys(BRAND_LOGOS).find(b => b.toLowerCase().includes(searchQuery.toLowerCase())) && (
 
-                            const formatText = (text: string) => text.split('**').map((part, i) => i % 2 === 1 ? <strong key={i} className="text-gray-900">{part}</strong> : part);
-
-                            return (
-                              <div key={`rec-${item.id}`} onClick={() => { setSearchFocused(false); router.push(`/product/${item.id || 0}`); }} className="flex flex-col md:flex-row w-full bg-white border border-gray-100 rounded-xl p-4 shadow-sm gap-4 items-start cursor-pointer group hover:shadow-md transition text-black">
-                                <div className="w-24 h-24 md:w-32 md:h-32 flex-shrink-0 relative overflow-hidden flex items-center justify-center bg-gray-50 rounded-lg p-2 border border-gray-50">
-                                  <img referrerPolicy="no-referrer" src={item.image_url} alt={item.name} className="max-h-full max-w-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-500" />
-                                </div>
-                                <div className="flex-1 flex flex-col justify-between h-full w-full">
-                                  <div>
-                                    <h3 className="text-sm md:text-base font-bold text-gray-900 mb-1 group-hover:text-blue-600 transition-colors leading-tight">{item.name}</h3>
-                                    {match.reason && (
-                                      <p className="text-[11px] md:text-xs text-gray-600 font-medium leading-relaxed mb-3 line-clamp-3 md:line-clamp-none">
-                                        ✨ {formatText(match.reason)}
-                                      </p>
-                                    )}
-                                  </div>
-                                  <div className="mt-auto flex items-center justify-between pt-2">
-                                    <p className="text-base md:text-lg font-black text-gray-900">₹{item.price}</p>
-                                    <button className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center shadow-md shadow-blue-600/20 active:scale-95 transition-transform" onClick={(e) => { e.stopPropagation(); handleAddToCart(item.name); }}>
-                                      <span className="text-lg md:text-xl font-medium leading-none mb-0.5">+</span>
-                                    </button>
-                                  </div>
-                                </div>
-                              </div>
-                            );
-                          })
-                        ) : (
-                          scoredItems.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()) || (item.brand && item.brand.toLowerCase().includes(searchQuery.toLowerCase()))).slice(0, 8).map(item => (
-                            <div key={`search-${item.id}`} onClick={() => { setSearchFocused(false); router.push(`/product/${item.id || 0}`); }} className="bg-white rounded-xl border border-gray-100 shadow-sm p-3 flex flex-col justify-between cursor-pointer group hover:shadow-md transition text-black">
-                              <div className="w-full h-28 mb-3 relative overflow-hidden flex items-center justify-center">
-                                <img referrerPolicy="no-referrer" src={item.image_url} alt={item.name} className="max-h-full max-w-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500" />
-                              </div>
-                              <p className="text-sm font-semibold text-gray-900 line-clamp-2 leading-tight">{item.name}</p>
-                              <div className="mt-auto flex items-center justify-between pt-2">
-                                <p className="text-base font-bold text-gray-900">₹{item.price}</p>
-                                <button className="w-8 h-8 rounded-full bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center shadow-md shadow-blue-600/20 active:scale-95 transition-transform" onClick={(e) => { e.stopPropagation(); handleAddToCart(item.name); }}>
-                                  <span className="text-lg leading-none">+</span>
-                                </button>
-                              </div>
-                            </div>
-                          ))
-                        )}
-
-                        {!isSearching && !agenticReasoning && agenticMatches.length === 0 && scoredItems.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()) || (item.brand && item.brand.toLowerCase().includes(searchQuery.toLowerCase()))).length === 0 && !Object.keys(BRAND_LOGOS).find(b => b.toLowerCase().includes(searchQuery.toLowerCase())) && (
                           <div className="col-span-2 mt-4">
-                            <div className="bg-white border border-gray-200 p-8 rounded-3xl text-center shadow-sm w-full mx-auto">
-                              <div className="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center text-2xl mx-auto mb-4 border border-orange-100 shadow-inner">
+                            <div className="bg-white/5 border border-white/10 p-8 rounded-3xl text-center shadow-sm w-full mx-auto">
+                              <div className="w-16 h-16 bg-blue-500/10 rounded-full flex items-center justify-center text-2xl mx-auto mb-4 border border-blue-500/20 shadow-inner">
                                 <span className="opacity-70">🔍</span>
                               </div>
-                              <h3 className="text-xl font-black text-gray-900 tracking-tight mb-2">We don't have exact matches</h3>
-                              <p className="text-sm font-medium text-gray-500 mb-6">But check out these top brands for equivalent products:</p>
+                              <h3 className="text-xl font-black text-white tracking-tight mb-2">We don't have exact matches</h3>
+                              <p className="text-sm font-medium text-gray-400 mb-6">But check out these top brands for equivalent products:</p>
 
                               <div className="flex flex-wrap justify-center gap-3 md:gap-4">
                                 {Object.keys(BRAND_LOGOS).slice(0, 6).map(brand => (
-                                  <div key={brand} onClick={() => { setSearchFocused(false); setActiveBrand(brand); }} className="w-16 h-16 md:w-20 md:h-20 bg-white border border-gray-200 hover:border-orange-300 rounded-[18px] p-2 flex items-center justify-center cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all">
+                                  <div key={brand} onClick={() => { setSearchFocused(false); setActiveBrand(brand); }} className="w-16 h-16 md:w-20 md:h-20 bg-white/95 border border-white/20 hover:border-blue-400 rounded-[18px] p-2 flex items-center justify-center cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all">
                                     <img referrerPolicy="no-referrer" src={BRAND_LOGOS[brand]} alt={brand} className="max-w-full max-h-full object-contain mix-blend-multiply" />
                                   </div>
                                 ))}
@@ -1374,7 +1412,6 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                             </div>
                           </div>
                         )}
-                      </div>
                     </div>
                   )}
                 </div>
@@ -1460,7 +1497,11 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                         Auto-delivered every <span className="font-bold text-gray-900">{activeProduct.consumptionCycle} days</span>. Cancel anytime.
                       </p>
                       <button
-                        onClick={() => { handleAddToCart(activeProduct.name); setActiveProduct(null); }}
+                        onClick={() => {
+                          handleAddToCart(activeProduct.name);
+                          setActiveProduct(null);
+                          addToZustandCart({ id: activeProduct.id || activeProduct.name, name: activeProduct.name, price: activeProduct.price, isFastTrack: activeProduct.fulfilledBy !== 'Brand', brandName: activeProduct.brand || 'Unknown', imageUrl: activeProduct.image_url });
+                        }}
                         className="w-[calc(100%-2.5rem)] ml-10 bg-green-600 text-white py-4 rounded-xl text-sm font-bold group-hover:bg-green-500 transition shadow-lg shadow-green-600/20"
                       >
                         Set up Subscription

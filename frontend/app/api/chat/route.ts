@@ -5,68 +5,92 @@ import products from '../../../data/enriched_catalog.json';
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { prompt, lastOrderContext } = body;
+    const { prompt, lastOrderContext, catalog } = body;
 
     if (!prompt) {
       return NextResponse.json({ error: 'Prompt is required' }, { status: 400 });
     }
 
-    const apiKey = process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+    const keys = [
+      process.env.GEMINI_API_KEY_PRIMARY,
+      process.env.GEMINI_API_KEY_SECONDARY,
+      process.env.GEMINI_API_KEY,
+      process.env.NEXT_PUBLIC_GEMINI_API_KEY
+    ].filter(Boolean);
 
-    if (!apiKey) {
+    if (keys.length === 0) {
       return NextResponse.json(
-        { error: "Gemini API key is missing. Please configure GEMINI_API_KEY in your .env file." },
+        { error: "Gemini API key is missing. Please configure GEMINI_API_KEY_PRIMARY in your .env file." },
         { status: 500 }
       );
     }
 
-    const ai = new GoogleGenAI({ apiKey: apiKey });
 
-    const availableProducts = products.map((p: any) => p.name);
+    let catalogString = "";
+    if (catalog && Array.isArray(catalog)) {
+      const slimCatalog = catalog.map((p: any) => ({ id: p.id, name: p.name, stock: p.stock }));
+      catalogString = JSON.stringify(slimCatalog);
+    } else {
+      const slimCatalog = products.map((p: any) => ({ id: p.id, name: p.name, stock: p.inventory ? Object.values(p.inventory).reduce((a:any,b:any)=>a+b,0) : 0 }));
+      catalogString = JSON.stringify(slimCatalog);
+    }
 
-    const systemPrompt = `You are the Dash24 Quick Commerce AI. You MUST select 1 to 3 relevant products strictly from this list: ${JSON.stringify(availableProducts)}. Do not hallucinate products or recommend any product not on this list.
+    const systemPrompt = `You are the Katzen OS Agent. Analyze user intent (e.g., 'bhook lagi hai') and return product recommendations based strictly on the catalog provided below.
 
-RULE 1: Never apologize or say 'we do not carry' a brand. Confidently suggest the closest alternative from our catalog.
+CATALOG (Array of objects with id, name, and stock):
+${catalogString}
 
-RULE 2: Write like a top-tier e-commerce conversion expert. Use sharp, structured formatting (bullet points, bold keywords). Maximize insight and provide detailed, LLM-style analysis.
-
-RULE 3: If the user query implies a comparison (e.g., uses 'vs'), set \`isComparison: true\`. You MUST return exactly two products from the catalog. You MUST evaluate them across exactly 10 distinct, highly relevant variables (e.g., Specs, Build, Price, Delivery Speed, Use Case, etc.) formatted as strings in the \`specs\` array for each product so the frontend table can render them perfectly.
-
-RULE 4: You MUST return strictly UNIQUE products. Never recommend the exact same product twice in your response.
-
-You must ALWAYS return a JSON object with this exact schema: 
+RULE 1: You MUST return a JSON object with strictly this exact schema:
 { 
-  "isComparison": boolean,
-  "globalHook": "One punchy intro sentence.", 
-  "comparisonData": {
-    "features": ["String", "String", "String", "String", "String", "String", "String", "String", "String", "String"],
-    "products": [
-      {
-        "name": "Product A Name",
-        "values": ["Value 1", "Value 2", "Value 3", "Value 4", "Value 5", "Value 6", "Value 7", "Value 8", "Value 9", "Value 10"]
-      },
-      {
-        "name": "Product B Name",
-        "values": ["Value 1", "Value 2", "Value 3", "Value 4", "Value 5", "Value 6", "Value 7", "Value 8", "Value 9", "Value 10"]
-      }
-    ]
-  } | null,
-  "recommendations": [ 
-    { "productName": "Exact Name from Catalog", "reason": "Short reason" } 
-  ] 
+  "thought_process": [
+    "Locality: Scanning options near the user...", 
+    "Intent: Analyzing need for...", 
+    "Logistics: Checking stock & fast-delivery...", 
+    "Solution: Finalizing top match..."
+  ],
+  "pitch_title": "String (A large, persuasive title e.g. 'High potassium, zero prep')", 
+  "reasoning": "String (A Personalized Synthesis explicitly linking the user's intent & location to the final choice. Example: 'Since you're in Bangalore and feeling hungry, I bypassed 14 other snacks to prioritize this [Product Name] from [Brand] because it offers instant energy.')",
+  "primary_product_id": "String (exact product id from the catalog)", 
+  "alternative_product_ids": ["String", "String"] 
 }
-(Note: isComparison and comparisonData should be null or false for standard non-comparison queries).
-Do not wrap it in markdown code blocks (\`\`\`json). Do not include any conversational text outside the JSON.`;
+
+RULE 2: Your thought_process must ALWAYS be exactly 4 human-centric logs detailing the theater of search: [Locality, Intent, Logistics, Solution].
+
+RULE 3: The primary_product_id logic MUST prioritize high-stock items from the catalog.
+
+RULE 4: If you cannot find any suitable product, return a fallback headline with an empty string for primary_product_id and empty array for alternative_product_ids rather than breaking. Do not hallucinate product IDs.
+
+RULE 5: Do NOT wrap the JSON in Markdown formatting (e.g. \`\`\`json). Return raw JSON only.`;
 
     const fullPrompt = `${systemPrompt}\n\nUser Query: ${prompt}\n\nContext:\n${lastOrderContext || 'None'}`;
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: fullPrompt,
-      config: {
-        responseMimeType: "application/json",
+    let response;
+    let lastError = null;
+
+    for (const key of keys) {
+      try {
+        const ai = new GoogleGenAI({ apiKey: key });
+        response = await ai.models.generateContent({
+          model: 'gemini-2.5-flash',
+          contents: fullPrompt,
+          config: {
+            responseMimeType: "application/json",
+          }
+        });
+        if (response) break;
+      } catch (e: any) {
+        lastError = e;
+        console.warn(`Gemini key failed, trying next fallback...`);
       }
-    });
+    }
+
+    if (!response) {
+      return NextResponse.json({
+        status: 'error',
+        error: "All Gemini API keys failed or quota exhausted. " + (lastError?.message || lastError?.toString())
+      }, { status: 500 });
+    }
+
 
     // Parse the response to ensure it's valid JSON before sending it to the frontend
     let jsonResponse;

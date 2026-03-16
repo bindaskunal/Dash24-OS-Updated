@@ -1,8 +1,11 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, Suspense } from "react";
 import Link from "next/link";
-import { BRAND_LOGOS, MASTER_CATALOG } from "../../src/data/constants";
+import { useSearchParams } from "next/navigation";
+import { supabase } from "../../src/lib/supabaseClient";
+import { useLiveInventory } from "../../src/hooks/useLiveInventory";
+import { useCallback } from "react";
 
 const BRAND_CATEGORIES = [
     { name: "Health & Wellness", img: "/icon-health.png" },
@@ -13,14 +16,50 @@ const BRAND_CATEGORIES = [
     { name: "Fashion", img: "/icon-Fashion.PNG" },
 ];
 
-export default function BrandsPage() {
+function BrandCatalog() {
+    const searchParams = useSearchParams();
     const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
     const [activeCategory, setActiveCategory] = useState<string | null>(null);
+    const [brands, setBrands] = useState<any[]>([]);
+    const [products, setProducts] = useState<any[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    const fetchData = async () => {
+        setIsLoading(true);
+        const [{ data: bData }, { data: pData }] = await Promise.all([
+            supabase.from('brands').select('*'),
+            supabase.from('products').select('*')
+        ]);
+        if (bData) setBrands(bData);
+        if (pData) setProducts(pData);
+        setIsLoading(false);
+    };
+
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    const handleRealtimeUpdate = useCallback((newProduct: any) => {
+        setProducts(prev => prev.map(p => p.id === newProduct.id ? { ...p, ...newProduct } : p));
+    }, []);
+
+    useLiveInventory(handleRealtimeUpdate);
+
+    useEffect(() => {
+        const name = searchParams.get('name');
+        if (name) setSelectedBrand(name);
+    }, [searchParams]);
 
     const FEATURED_BRANDS = ["The Whole Truth", "Minimalist", "Snitch"];
     const TRENDING_BRANDS = ["Cult Fit", "boAt", "Noise", "Sleepy Owl"];
 
-    const allBrands = useMemo(() => Object.keys(BRAND_LOGOS).sort(), []);
+    const allBrands = useMemo(() => brands.map(b => b.name).sort(), [brands]);
+
+    const BRAND_LOGOS = useMemo(() => {
+        const logos: Record<string, string> = {};
+        brands.forEach(b => { logos[b.name] = b.logo_url; });
+        return logos;
+    }, [brands]);
 
     const brandsByLetter = useMemo(() => {
         const map: Record<string, string[]> = {};
@@ -33,6 +72,10 @@ export default function BrandsPage() {
     }, [allBrands]);
 
     const sortedLetters = useMemo(() => Object.keys(brandsByLetter).sort(), [brandsByLetter]);
+
+    if (isLoading) {
+        return <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-8"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div></div>;
+    }
 
     return (
         <div className="min-h-screen bg-[#F8FAFC] text-gray-900 pb-32 overflow-x-hidden">
@@ -60,7 +103,7 @@ export default function BrandsPage() {
                                     <img referrerPolicy="no-referrer" src={BRAND_LOGOS[brand]} alt={brand} className="max-h-full max-w-full object-contain filter group-hover:scale-110 transition duration-500" />
                                 </div>
                                 <h3 className="text-sm font-black text-gray-900">{brand}</h3>
-                                <span className="text-[10px] text-[#F97316] font-bold uppercase tracking-widest mt-2">{MASTER_CATALOG.filter(p => p.brand === brand).length} Products</span>
+                                <span className="text-[10px] text-[#F97316] font-bold uppercase tracking-widest mt-2">{products.filter(p => p.brands?.name === brand || brands.find(b => b.id === p.brand_id)?.name === brand).length} Products</span>
                             </div>
                         ))}
                     </div>
@@ -134,18 +177,40 @@ export default function BrandsPage() {
                         </div>
                         <div className="p-6 md:p-12 overflow-y-auto bg-[#F8FAFC]">
                             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-                                {MASTER_CATALOG.filter(i => i.brand === selectedBrand).map(item => (
+                                {products.filter(i => {
+                                    const bName = brands.find(b => b.id === i.brand_id)?.name;
+                                    return bName === selectedBrand;
+                                }).map(item => (
                                     <div key={item.name} className="bg-white rounded-3xl p-5 border border-gray-100 shadow-sm hover:shadow-lg transition flex flex-col">
                                         <div className="aspect-square bg-[#F8FAFC] rounded-2xl mb-4 flex items-center justify-center p-3 relative overflow-hidden group">
                                             <img referrerPolicy="no-referrer" src={item.image_url} alt={item.name} className="object-contain w-full h-full mix-blend-multiply group-hover:scale-110 transition duration-500" />
-                                            {item.low && <span className="absolute top-2 right-2 text-[8px] bg-orange-100 text-orange-600 px-2 py-1 rounded-full font-bold">LowStock</span>}
+                                            {item.stock_count <= 100 && <span className="absolute top-2 right-2 text-[8px] bg-orange-100 text-orange-600 px-2 py-1 rounded-full font-bold">LowStock</span>}
                                         </div>
                                         <p className="text-[11px] font-bold text-gray-900 leading-tight mb-2 flex-1">{item.name}</p>
                                         <div className="flex items-center gap-2 mb-4">
                                             <span className="text-sm font-black text-gray-900">₹{item.price}</span>
                                             <span className="text-[10px] text-gray-400 line-through">₹{item.mrp}</span>
                                         </div>
-                                        <button className="w-full py-3 bg-[#111827] text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-gray-800 transition">Add to Cart</button>
+                                        <div className="mb-3">
+                                            {item.is_fbb ? (
+                                                <span className="inline-flex bg-gray-100 text-gray-600 font-black text-[9px] uppercase tracking-widest px-1.5 py-0.5 rounded shadow-sm">
+                                                    Brand Direct: {item.delivery_time}
+                                                </span>
+                                            ) : (
+                                                <span className="inline-flex bg-[#FFD700] text-gray-900 font-black text-[9px] uppercase tracking-widest px-1.5 py-0.5 rounded shadow-sm">
+                                                    ⚡ {item.delivery_time}
+                                                </span>
+                                            )}
+                                        </div>
+                                        <button
+                                            disabled={item.stock_count <= 0}
+                                            className={`w-full py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition ${item.stock_count <= 0
+                                                ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                                                : "bg-[#111827] text-white hover:bg-gray-800"
+                                                }`}
+                                        >
+                                            {item.stock_count <= 0 ? "Out of Stock" : "Add to Cart"}
+                                        </button>
                                     </div>
                                 ))}
                             </div>
@@ -162,5 +227,13 @@ export default function BrandsPage() {
                 <Link href="/track" className="flex flex-col items-center gap-1 opacity-50"><span className="text-xl">📍</span><span className="text-[9px] font-bold">Track</span></Link>
             </div>
         </div>
+    );
+}
+
+export default function BrandsPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-8"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div></div>}>
+            <BrandCatalog />
+        </Suspense>
     );
 }

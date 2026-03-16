@@ -29,7 +29,8 @@
       "Prestige Koramangala": 100,
       "Brigade Indiranagar": 100,
       "Sobha HSR": 100
-    }
+    },
+    "deliveryBucket": "instant"
   },
   {
     "id": "01K13EV7C8B5415X1",
@@ -61,7 +62,8 @@
       "Prestige Koramangala": 100,
       "Brigade Indiranagar": 100,
       "Sobha HSR": 100
-    }
+    },
+    "deliveryBucket": "instant"
   },
   {
     "id": "01K13EVE192F5E7X2",
@@ -93,7 +95,8 @@
       "Prestige Koramangala": 100,
       "Brigade Indiranagar": 100,
       "Sobha HSR": 100
-    }
+    },
+    "deliveryBucket": "instant"
   },
   {
     "id": "01K13EVCB72ADC4X3",
@@ -125,7 +128,8 @@
       "Prestige Koramangala": 100,
       "Brigade Indiranagar": 100,
       "Sobha HSR": 100
-    }
+    },
+    "deliveryBucket": "instant"
   },
   {
     "id": "01K13EV27FFED26X4",
@@ -157,7 +161,8 @@
       "Prestige Koramangala": 100,
       "Brigade Indiranagar": 100,
       "Sobha HSR": 100
-    }
+    },
+    "deliveryBucket": "instant"
   },
   {
     "id": "01K13EV76FA4EB1X5",
@@ -189,7 +194,8 @@
       "Prestige Koramangala": 100,
       "Brigade Indiranagar": 100,
       "Sobha HSR": 100
-    }
+    },
+    "deliveryBucket": "instant"
   },
   {
     "id": "01K13EV910A89D3X6",
@@ -221,7 +227,8 @@
       "Prestige Koramangala": 100,
       "Brigade Indiranagar": 100,
       "Sobha HSR": 100
-    }
+    },
+    "deliveryBucket": "instant"
   },
   {
     "id": "01K13EV47839458X7",
@@ -253,7 +260,8 @@
       "Prestige Koramangala": 100,
       "Brigade Indiranagar": 100,
       "Sobha HSR": 100
-    }
+    },
+    "deliveryBucket": "instant"
   },
   {
     "id": "01K13EV5FB8B558X8",
@@ -285,7 +293,8 @@
       "Prestige Koramangala": 100,
       "Brigade Indiranagar": 100,
       "Sobha HSR": 100
-    }
+    },
+    "deliveryBucket": "instant"
   },
   {
     "id": "01K13EV51802129X9",
@@ -317,7 +326,8 @@
       "Prestige Koramangala": 100,
       "Brigade Indiranagar": 100,
       "Sobha HSR": 100
-    }
+    },
+    "deliveryBucket": "instant"
   },
   {
     "id": "01K13EVB58105FDX10",
@@ -349,7 +359,8 @@
       "Prestige Koramangala": 100,
       "Brigade Indiranagar": 100,
       "Sobha HSR": 100
-    }
+    },
+    "deliveryBucket": "instant"
   },
   {
     "id": "01K13EVD21C1F0BX11",
@@ -381,7 +392,8 @@
       "Prestige Koramangala": 100,
       "Brigade Indiranagar": 100,
       "Sobha HSR": 100
-    }
+    },
+    "deliveryBucket": "instant"
   },
   {
     "id": "NEW_CSV_PROD_13",
@@ -415,7 +427,8 @@
       "Sobha HSR": 500
     },
     "localAvailable": true,
-    "brandDeliveryDays": 3
+    "brandDeliveryDays": 3,
+    "deliveryBucket": "instant"
   },
   {
     "id": "NEW_CSV_PROD_14",
@@ -449,7 +462,8 @@
       "Sobha HSR": 500
     },
     "localAvailable": true,
-    "brandDeliveryDays": 4
+    "brandDeliveryDays": 4,
+    "deliveryBucket": "instant"
   },
   {
     "id": "NEW_CSV_PROD_15",
@@ -483,7 +497,8 @@
       "Sobha HSR": 0
     },
     "localAvailable": false,
-    "brandDeliveryDays": 3
+    "brandDeliveryDays": 3,
+    "deliveryBucket": "instant"
   },
   {
     "id": "NEW_CSV_PROD_16",
@@ -517,7 +532,8 @@
       "Sobha HSR": 500
     },
     "localAvailable": true,
-    "brandDeliveryDays": 3
+    "brandDeliveryDays": 3,
+    "deliveryBucket": "instant"
   },
   {
     "id": "NEW_CSV_PROD_17",
@@ -551,7 +567,8 @@
       "Sobha HSR": 500
     },
     "localAvailable": true,
-    "brandDeliveryDays": 3
+    "brandDeliveryDays": 3,
+    "deliveryBucket": "quick"
   },
   {
     "id": "NEW_CSV_PROD_18",
@@ -585,7 +602,8 @@
       "Sobha HSR": 0
     },
     "localAvailable": false,
-    "brandDeliveryDays": 2
+    "brandDeliveryDays": 2,
+    "deliveryBucket": "quick"
   },
   {
     "id": "NEW_CSV_PROD_19",
@@ -619,7 +637,8 @@
       "Sobha HSR": 500
     },
     "localAvailable": true,
-    "brandDeliveryDays": 3
+    "brandDeliveryDays": 3,
+    "deliveryBucket": "quick"
   },
   {
     "id": "NEW_CSV_PROD_20",
@@ -653,7 +672,8 @@
       "Sobha HSR": 500
     },
     "localAvailable": true,
-    "brandDeliveryDays": 4
+    "brandDeliveryDays": 4,
+    "deliveryBucket": "quick"
   },
   {
     "id": "NEW_CSV_PROD_21",
@@ -687,7 +707,8 @@
       "Sobha HSR": 500
     },
     "localAvailable": true,
-    "brandDeliveryDays": 2
+    "brandDeliveryDays": 2,
+    "deliveryBucket": "quick"
   },
   {
     "id": "NEW_CSV_PROD_22",
@@ -721,7 +742,8 @@
       "Sobha HSR": 0
     },
     "localAvailable": false,
-    "brandDeliveryDays": 3
+    "brandDeliveryDays": 3,
+    "deliveryBucket": "quick"
   },
   {
     "id": "NEW_CSV_PROD_23",
@@ -755,7 +777,8 @@
       "Sobha HSR": 500
     },
     "localAvailable": true,
-    "brandDeliveryDays": 2
+    "brandDeliveryDays": 2,
+    "deliveryBucket": "quick"
   },
   {
     "id": "NEW_CSV_PROD_24",
@@ -789,7 +812,8 @@
       "Sobha HSR": 500
     },
     "localAvailable": true,
-    "brandDeliveryDays": 2
+    "brandDeliveryDays": 2,
+    "deliveryBucket": "quick"
   },
   {
     "id": "NEW_CSV_PROD_25",
@@ -823,7 +847,8 @@
       "Sobha HSR": 0
     },
     "localAvailable": false,
-    "brandDeliveryDays": 4
+    "brandDeliveryDays": 4,
+    "deliveryBucket": "quick"
   },
   {
     "id": "NEW_CSV_PROD_26",
@@ -857,7 +882,8 @@
       "Sobha HSR": 500
     },
     "localAvailable": true,
-    "brandDeliveryDays": 2
+    "brandDeliveryDays": 2,
+    "deliveryBucket": "quick"
   },
   {
     "id": "NEW_CSV_PROD_27",
@@ -891,7 +917,8 @@
       "Sobha HSR": 500
     },
     "localAvailable": true,
-    "brandDeliveryDays": 2
+    "brandDeliveryDays": 2,
+    "deliveryBucket": "quick"
   },
   {
     "id": "NEW_CSV_PROD_28",
@@ -925,7 +952,8 @@
       "Sobha HSR": 0
     },
     "localAvailable": false,
-    "brandDeliveryDays": 3
+    "brandDeliveryDays": 3,
+    "deliveryBucket": "quick"
   },
   {
     "id": "NEW_CSV_PROD_29",
@@ -959,7 +987,8 @@
       "Sobha HSR": 500
     },
     "localAvailable": true,
-    "brandDeliveryDays": 2
+    "brandDeliveryDays": 2,
+    "deliveryBucket": "quick"
   },
   {
     "id": "NEW_CSV_PROD_30",
@@ -993,7 +1022,8 @@
       "Sobha HSR": 500
     },
     "localAvailable": true,
-    "brandDeliveryDays": 3
+    "brandDeliveryDays": 3,
+    "deliveryBucket": "quick"
   },
   {
     "id": "NEW_CSV_PROD_31",
@@ -1027,7 +1057,8 @@
       "Sobha HSR": 0
     },
     "localAvailable": false,
-    "brandDeliveryDays": 2
+    "brandDeliveryDays": 2,
+    "deliveryBucket": "quick"
   },
   {
     "id": "NEW_CSV_PROD_32",
@@ -1061,7 +1092,8 @@
       "Sobha HSR": 500
     },
     "localAvailable": true,
-    "brandDeliveryDays": 4
+    "brandDeliveryDays": 4,
+    "deliveryBucket": "quick"
   },
   {
     "id": "NEW_CSV_PROD_33",
@@ -1095,7 +1127,8 @@
       "Sobha HSR": 500
     },
     "localAvailable": true,
-    "brandDeliveryDays": 2
+    "brandDeliveryDays": 2,
+    "deliveryBucket": "quick"
   },
   {
     "id": "NEW_CSV_PROD_34",
@@ -1129,7 +1162,8 @@
       "Sobha HSR": 0
     },
     "localAvailable": false,
-    "brandDeliveryDays": 3
+    "brandDeliveryDays": 3,
+    "deliveryBucket": "quick"
   },
   {
     "id": "NEW_CSV_PROD_35",
@@ -1163,7 +1197,8 @@
       "Sobha HSR": 500
     },
     "localAvailable": true,
-    "brandDeliveryDays": 4
+    "brandDeliveryDays": 4,
+    "deliveryBucket": "quick"
   },
   {
     "id": "NEW_CSV_PROD_36",
@@ -1197,7 +1232,8 @@
       "Sobha HSR": 500
     },
     "localAvailable": true,
-    "brandDeliveryDays": 2
+    "brandDeliveryDays": 2,
+    "deliveryBucket": "instant"
   },
   {
     "id": "NEW_CSV_PROD_37",
@@ -1231,7 +1267,8 @@
       "Sobha HSR": 0
     },
     "localAvailable": false,
-    "brandDeliveryDays": 3
+    "brandDeliveryDays": 3,
+    "deliveryBucket": "quick"
   },
   {
     "id": "NEW_CSV_PROD_38",
@@ -1265,7 +1302,8 @@
       "Sobha HSR": 500
     },
     "localAvailable": true,
-    "brandDeliveryDays": 2
+    "brandDeliveryDays": 2,
+    "deliveryBucket": "instant"
   },
   {
     "id": "NEW_CSV_PROD_39",
@@ -1299,7 +1337,8 @@
       "Sobha HSR": 500
     },
     "localAvailable": true,
-    "brandDeliveryDays": 4
+    "brandDeliveryDays": 4,
+    "deliveryBucket": "instant"
   },
   {
     "id": "NEW_CSV_PROD_40",
@@ -1333,7 +1372,8 @@
       "Sobha HSR": 0
     },
     "localAvailable": false,
-    "brandDeliveryDays": 4
+    "brandDeliveryDays": 4,
+    "deliveryBucket": "quick"
   },
   {
     "id": "NEW_CSV_PROD_41",
@@ -1367,7 +1407,8 @@
       "Sobha HSR": 500
     },
     "localAvailable": true,
-    "brandDeliveryDays": 2
+    "brandDeliveryDays": 2,
+    "deliveryBucket": "quick"
   },
   {
     "id": "NEW_CSV_PROD_42",
@@ -1401,6 +1442,7 @@
       "Sobha HSR": 500
     },
     "localAvailable": true,
-    "brandDeliveryDays": 2
+    "brandDeliveryDays": 2,
+    "deliveryBucket": "quick"
   }
 ]

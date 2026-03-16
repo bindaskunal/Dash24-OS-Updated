@@ -12,7 +12,7 @@ type LocationContextType = {
 const LocationContext = createContext<LocationContextType | undefined>(undefined);
 
 export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [selectedNode, setSelectedNode] = useState("Prestige Koramangala");
+    const [selectedNode, setSelectedNode] = useState("Prestige Whitefield");
     const [nodeOpen, setNodeOpen] = useState(false);
 
     return (

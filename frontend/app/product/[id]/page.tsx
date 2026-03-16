@@ -1,17 +1,19 @@
-import ENRICHED_CATALOG from '../../../data/enriched_catalog.json';
-import { MASTER_CATALOG } from '../../../src/data/constants';
+import { createClient } from '@supabase/supabase-js';
 import ProductClient from './ProductClient';
 
-export default function ProductPage({ params }: { params: { id: string } }) {
-  // Try to find in enriched catalog first
-  let product: any = ENRICHED_CATALOG.find((p: any) => p.id === params.id);
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
-  // Fallback to master catalog
-  if (!product) {
-    product = (MASTER_CATALOG as any[]).find((p: any) => p.id === params.id) as any;
-  }
+export default async function ProductPage({ params }: { params: { id: string } }) {
+  const { data: productData, error } = await supabase
+    .from('products')
+    .select('*, brands(name)')
+    .eq('id', params.id)
+    .single();
 
-  if (!product) {
+  if (error || !productData) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-gray-50">
         <h2 className="text-xl font-bold mb-4">Product Not Found</h2>
@@ -20,6 +22,14 @@ export default function ProductPage({ params }: { params: { id: string } }) {
       </div>
     );
   }
+
+  const product = {
+    ...productData,
+    brand: productData.brands?.name || 'Dash24',
+    fulfilledBy: productData.is_fbb ? 'Brand' : 'Dash24',
+    stock: productData.stock_inventory || 0,
+    deliveryBucket: productData.delivery_time || (productData.is_fbb ? 'standard' : 'quick')
+  };
 
   // Inject the required JSON-LD schema
   const jsonLd = {

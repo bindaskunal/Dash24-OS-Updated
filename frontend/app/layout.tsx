@@ -18,6 +18,7 @@ import { CartProvider } from '../src/context/CartContext'
 import { AuthProvider } from '../lib/auth'
 import GlobalHeader from '../src/components/GlobalHeader'
 import CartDrawer from '../src/components/CartDrawer'
+import FloatingCartBar from '../src/components/FloatingCartBar'
 
 import { MASTER_CATALOG } from '../src/data/constants';
 
@@ -103,6 +104,7 @@ export default function RootLayout({
                   <CartDrawer />
                 </div>
               </div>
+              <FloatingCartBar />
             </CartProvider>
           </LocationProvider>
         </AuthProvider>

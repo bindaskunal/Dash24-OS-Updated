@@ -8,7 +8,7 @@ export default function MobileBottomNav() {
     const router = useRouter();
     const pathname = usePathname();
 
-    if (pathname?.startsWith('/dashboard')) return null;
+    if (pathname?.startsWith('/dashboard') || pathname === '/landing') return null;
 
     return (
         <div className="md:hidden fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-xl border-t border-gray-100 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] z-[999] pb-safe pb-4 pt-3 px-6 flex justify-between items-center isolate">
