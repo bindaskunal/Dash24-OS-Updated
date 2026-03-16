@@ -854,7 +854,9 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                         <span className="text-red-400 font-sans tracking-tighter shadow-sm">₹{agenticPrice}</span>
                         <span className="line-through text-white/60 text-sm ml-2">₹899</span>
                       </div>
-                      <div className="text-xs text-white/80 mt-1 mb-2 font-medium">Lock between ₹499 - ₹599</div>
+                      <div className="text-xs text-white/80 mt-1 mb-2 font-medium">
+                        Lock between ₹{Math.floor(AGENTIC_DROPS[agenticIndex].startPrice * 0.9)} - ₹{Math.ceil(AGENTIC_DROPS[agenticIndex].startPrice * 1.1)}
+                      </div>
 
                       <button
                         onClick={() => {

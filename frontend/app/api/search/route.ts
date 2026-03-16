@@ -1,20 +1,23 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import fs from 'fs';
-import path from 'path';
 
-// Load catalog directly. Path is relative to this file (frontend/app/api/search/route.ts).
+// Load catalog directly. Path is relative to this file.
 import enrichedCatalog from '../../../data/enriched_catalog.json';
 
-const API_KEY = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
-
-// Simple in-memory cache object (cleared on server restart)
+// Simple in-memory cache object
 const memoryCache: Record<string, { matchedProductIds: string[], aiReasoning: string, suggestedCategory: string }> = {};
 
 export async function POST(req: Request) {
-    if (!API_KEY) {
+    const keys = [
+        process.env.GEMINI_API_KEY_PRIMARY,
+        process.env.GEMINI_API_KEY_SECONDARY,
+        process.env.GEMINI_API_KEY,
+        process.env.NEXT_PUBLIC_GEMINI_API_KEY
+    ].filter(Boolean);
+
+    if (keys.length === 0) {
         return NextResponse.json(
-            { error: "Gemini API key is missing. Please configure NEXT_PUBLIC_GEMINI_API_KEY in your .env file." },
+            { error: "Gemini API key is missing. Please configure GEMINI_API_KEY_PRIMARY in Vercel." },
             { status: 500 }
         );
     }
@@ -29,17 +32,13 @@ export async function POST(req: Request) {
 
         const normalizedQuery = query.toLowerCase().trim();
 
-        // -------------------------------------------------------------------
-        // TIER 1: Exact Local Match (Zero Latency)
-        // -------------------------------------------------------------------
+        // TIER 1: Exact Local Match
         const exactMatches = enrichedCatalog.filter((item: any) =>
             item.name.toLowerCase().includes(normalizedQuery) ||
             item.brand.toLowerCase().includes(normalizedQuery) ||
             item.category.toLowerCase().includes(normalizedQuery)
         );
 
-        // If we found a direct name/brand match, return instantly without hitting LLM
-        // (We require at least a 3-letter query to avoid returning everything on "a", etc)
         if (normalizedQuery.length >= 3 && exactMatches.length > 0) {
             const matchedProductIds = exactMatches.map((item: any) => item.id).slice(0, 8);
             return NextResponse.json({
@@ -49,42 +48,60 @@ export async function POST(req: Request) {
             });
         }
 
-        // -------------------------------------------------------------------
-        // TIER 2: Memory Cache Match (Zero Latency)
-        // -------------------------------------------------------------------
+        // TIER 2: Memory Cache Match
         if (memoryCache[normalizedQuery]) {
             console.log("Memory Cache Hit for:", normalizedQuery);
             return NextResponse.json(memoryCache[normalizedQuery]);
         }
 
-        // -------------------------------------------------------------------
-        // TIER 3: Mock AI Mode (Bypassing Gemini for UI Testing)
-        // -------------------------------------------------------------------
-        // The user requested a pause on Gemini API usage for UI testing.
-        console.log("Mock AI Mode triggered for:", normalizedQuery);
+        // TIER 3: Semantic AI Search (Gemini API)
+        console.log("Semantic AI Search triggered for:", normalizedQuery);
 
-        // Simple local keyword search including intent layers
-        const mockMatches = enrichedCatalog.filter((item: any) => {
-            const searchObj = JSON.stringify(item).toLowerCase();
-            return searchObj.includes(normalizedQuery.split(' ')[0]); // Very basic keyword match
-        });
+        const slimCatalog = enrichedCatalog.map((item: any) => ({
+            id: item.id,
+            name: item.name,
+            category: item.category,
+            brand: item.brand,
+            tags: item.ai_intent_layers ? Object.values(item.ai_intent_layers).join(" ") : ""
+        }));
 
-        const matchedProductIds = mockMatches.map((item: any) => item.id).slice(0, 8);
+        const prompt = `You are a semantic search engine. The user searched for: "${query}".
+Return a JSON array of up to 8 product IDs from the catalog below that best match the query's intent. 
+IMPORTANT: If the query is "bhook lagi hai" (I am hungry), return food items, snacks, or beverages. Do NOT return non-food items like shampoo, skincare, or face wash for hunger-related queries. Ensure strict semantic relevance based on user need.
 
-        memoryCache[normalizedQuery] = {
-            matchedProductIds: matchedProductIds,
-            aiReasoning: "✨ UI Test Mode: AI Intelligence Paused. Exhibiting local keyword match results.",
-            suggestedCategory: mockMatches.length > 0 ? mockMatches[0].category : "General"
-        };
+CATALOG:
+${JSON.stringify(slimCatalog)}
 
-        return NextResponse.json(memoryCache[normalizedQuery]);
+Return ONLY a raw JSON array of strings (the product IDs). No markdown, no explanations. Example: ["123", "456"]`;
 
-    } catch (error: any) {
-        console.error("Mock Search API Error:", error);
-        return NextResponse.json({
-            matchedProductIds: [],
-            aiReasoning: "✨ UI Test Mode: AI Intelligence Paused. No results found.",
-            suggestedCategory: "General"
-        }, { status: 200 });
-    }
-}
+        let resultText = "";
+        let lastError = null;
+
+        for (const key of keys) {
+            try {
+                const ai = new GoogleGenerativeAI(key as string);
+                const model = ai.getGenerativeModel({ model: "gemini-2.5-flash" });
+                const response = await model.generateContent(prompt);
+                resultText = response.response.text();
+                if (resultText) break;
+            } catch (e: any) {
+                lastError = e;
+                // 🚨 THIS IS THE FIX: LOUD ERROR LOGGING 🚨
+                console.error(`Gemini API Crash (Key: ${key?.substring(0, 5)}...):`, e.message || e);
+            }
+        }
+
+        if (!resultText) {
+             console.error("All AI attempts failed. Last error was:", lastError);
+             return NextResponse.json({ matchedProductIds: [], aiReasoning: "✨ AI Service unavailable. Relying on explicit matches.", suggestedCategory: "General" });
+        }
+
+        let matchedProductIds: string[] = [];
+        try {
+            const cleaned = resultText.replace(/
+http://googleusercontent.com/immersive_entry_chip/0
+3. Wait for Vercel to turn green.
+4. Open the **Logs** tab in Vercel.
+5. Go to your website and search "Bhook lagi hai". 
+
+You will now see a bright red error in Vercel telling you *exactly* why Google is rejecting the connection (or, if we're lucky, the API was just glitching and it will work instantly). Paste whatever shows up in that Vercel log right here!

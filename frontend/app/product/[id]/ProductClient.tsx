@@ -123,7 +123,7 @@ export default function ProductClient({ product, params }: { product: any, param
                     <div className="flex gap-3 w-full">
                         <button
                             onClick={onAddToCart}
-                            className="flex-1 bg-white border border-[#111827] text-[#111827] font-black uppercase tracking-widest text-[11px] py-4 rounded-[16px] shadow-sm hover:bg-gray-50 transition active:scale-95 flex items-center justify-center"
+                            className="flex-1 bg-[#2563eb] text-white font-black uppercase tracking-widest text-[11px] py-4 rounded-[16px] shadow-sm hover:bg-blue-700 transition active:scale-95 flex items-center justify-center border border-[#2563eb]"
                         >
                             Add to Cart <span className="text-lg leading-none ml-1 align-middle">+</span>
                         </button>

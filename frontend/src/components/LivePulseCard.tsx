@@ -159,10 +159,10 @@ export default function LivePulseCard({ product, handleAddToCart, handleCardClic
                         )}
                     </div>
                     {/* Mobile Button Wrapper */}
-                    <div className="flex md:hidden items-center justify-end w-full">
+                    <div className="flex md:hidden items-center justify-end w-full mt-2">
                         {isOutOfStock ? (
-                            <button disabled className="flex items-center justify-center h-8 px-3 rounded-full bg-gray-200 text-gray-500 text-[10px] font-bold cursor-not-allowed shadow-inner w-max">
-                                OUT OF STOCK
+                            <button disabled className="flex items-center justify-center w-full py-2.5 rounded-xl bg-gray-200 text-gray-500 text-[10px] font-bold cursor-not-allowed shadow-inner">
+                                Out of Stock
                             </button>
                         ) : (
                             <button
@@ -171,9 +171,9 @@ export default function LivePulseCard({ product, handleAddToCart, handleCardClic
                                     addItem({ ...product, id: product.id || product.name, brandName: product.brand || 'Unknown', isFastTrack: product.fulfilledBy !== 'Brand', imageUrl: product.image_url, deliveryBucket: product.deliveryBucket });
                                     setIsCartOpen(true);
                                 }}
-                                className="flex items-center justify-center w-8 h-8 rounded-full bg-[#FFD700] text-gray-900 shadow-md active:scale-95 transition-transform"
+                                className="flex items-center justify-center w-full py-2.5 rounded-xl bg-[#2563eb] text-white font-bold text-xs shadow-md active:scale-95 transition-transform gap-2"
                             >
-                                <span className="text-lg leading-none">+</span>
+                                <span className="text-sm leading-none">+</span> Add to Cart
                             </button>
                         )}
                     </div>
@@ -190,7 +190,7 @@ export default function LivePulseCard({ product, handleAddToCart, handleCardClic
                                 addItem({ ...product, id: product.id || product.name, brandName: product.brand || 'Unknown', isFastTrack: product.fulfilledBy !== 'Brand', imageUrl: product.image_url, deliveryBucket: product.deliveryBucket });
                                 setIsCartOpen(true);
                             }}
-                            className="hidden md:flex items-center justify-center w-full py-2.5 rounded-xl text-xs font-bold transition-all relative overflow-hidden group/btn bg-[#FFD700] text-gray-900 border border-[#FFD700]/30 hover:bg-[#FFD700]/90 mt-2 gap-2"
+                            className="hidden md:flex items-center justify-center w-full py-2.5 rounded-xl text-xs font-bold transition-all relative overflow-hidden group/btn bg-[#2563eb] text-white border border-[#2563eb]/30 hover:bg-[#2563eb]/90 mt-2 gap-2"
                         >
                             <span className="relative z-10 flex items-center justify-center gap-2">
                                 <span>➕</span> Add to Cart

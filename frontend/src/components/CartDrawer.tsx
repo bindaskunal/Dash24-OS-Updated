@@ -7,13 +7,18 @@ import { useLocation } from "../context/LocationContext";
 import { MASTER_CATALOG } from "../data/constants";
 
 import { useCartStore } from "../store/useCartStore";
+import { useUserStore } from "../store/useUserStore";
 import ENRICHED_CATALOG from "../../data/enriched_catalog.json";
 import PredictiveRestock from "./PredictiveRestock";
+import { supabase } from "../lib/supabaseClient";
 
 export default function CartDrawer() {
     // ---------------- HOOKS (Top Level) ----------------
     const { items: cartItems, addItem, removeItem, updateQuantity, clearCart, getTotalAmount, getTotalItems, isCartOpen: cartOpen, setIsCartOpen: setCartOpenState, getTotalPoints, getDeliveryBuckets, setCustomerMobile } = useCartStore();
     const cartCount = getTotalItems();
+    
+    // User Store for Pulse Points
+    const { isAuthenticated, addPulsePoints } = useUserStore();
 
     const [showCartToast, setShowCartToast] = useState(false);
     const [toastItem, setToastItem] = useState<any>(null);
@@ -22,9 +27,8 @@ export default function CartDrawer() {
     const [mounted, setMounted] = useState(false);
     const { selectedNode } = useLocation();
 
-    // Checkout flow states: 'cart' | 'address' | 'payment' | 'success'
-    const [step, setStep] = useState<'cart' | 'address' | 'payment' | 'success'>('cart');
-    const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
+    // Checkout flow states: 'cart' | 'address' | 'success'
+    const [step, setStep] = useState<'cart' | 'address' | 'success'>('cart');
 
     const pathname = usePathname();
     const router = useRouter();
@@ -62,7 +66,6 @@ export default function CartDrawer() {
     useEffect(() => {
         if (!cartOpen) {
             setStep('cart');
-            setPaymentMethod(null);
             setOrderId('');
             setIsProcessing(false);
         }
@@ -108,7 +111,6 @@ export default function CartDrawer() {
     };
 
     const handlePlaceOrder = async () => {
-        if (!paymentMethod) return;
         setIsProcessing(true);
 
         try {
@@ -160,6 +162,44 @@ export default function CartDrawer() {
                     try {
                         console.log("Razorpay Success Handler Triggered. Trace Started.");
                         console.log("Payment Payload:", response);
+
+                        // 1. Immediately Sync with Supabase Orders
+                        const { error: updateError } = await supabase
+                            .from('orders')
+                            .update({
+                                payment_status: 'Paid',
+                                status: 'Confirmed',
+                                razorpay_payment_id: response.razorpay_payment_id
+                            })
+                            .eq('id', orderData.dbOrderId);
+
+                        if (updateError) {
+                            console.error("Failed to sync order Paid status to Supabase:", updateError);
+                        }
+
+                        // 2. Calculate and Accumulate Pulse Points
+                        const pointsEarned = Math.floor(total * 0.1);
+                        if (isAuthenticated) {
+                            const { data: userAuthData } = await supabase.auth.getUser();
+                            if (userAuthData.user) {
+                                // Call RPC or update profiles directly
+                                const { data: currentProfile } = await supabase
+                                    .from('profiles')
+                                    .select('pulse_points')
+                                    .eq('id', userAuthData.user.id)
+                                    .single();
+                                
+                                const newPoints = (currentProfile?.pulse_points || 0) + pointsEarned;
+                                
+                                await supabase
+                                    .from('profiles')
+                                    .update({ pulse_points: newPoints })
+                                    .eq('id', userAuthData.user.id);
+                                
+                                addPulsePoints(pointsEarned);
+                                console.log(`Added ${pointsEarned} Pulse Points securely.`);
+                            }
+                        }
 
                         // 4. Verify Payment Signature
                         const verifyRes = await fetch('/api/verify', {
@@ -358,8 +398,7 @@ export default function CartDrawer() {
 
     const drawerTitle = step === 'cart' ? 'Your Cart'
         : step === 'address' ? 'Delivery Address'
-            : step === 'payment' ? 'Payment'
-                : 'Order Confirmed';
+            : 'Order Confirmed';
 
     const handleAutoAddDemo = () => {
         // 1. Close drawer and reset to simulate time passing
@@ -422,7 +461,7 @@ export default function CartDrawer() {
                         <div className="flex justify-between items-center px-6 md:px-8 pt-6 pb-4 border-b border-gray-100 shrink-0">
                             <div className="flex items-center gap-3">
                                 {step !== 'cart' && step !== 'success' && (
-                                    <button onClick={() => setStep(step === 'payment' ? 'address' : 'cart')} className="w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition text-sm">←</button>
+                                    <button onClick={() => setStep('cart')} className="w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition text-sm">←</button>
                                 )}
                                 <h2 className="text-xl font-black text-gray-900 tracking-tight">{drawerTitle}</h2>
                             </div>
@@ -430,24 +469,22 @@ export default function CartDrawer() {
                         </div>
 
                         {/* Step indicator for checkout */}
-                        {(step === 'address' || step === 'payment') && (
+                        {step === 'address' && (
                             <div className="px-6 md:px-8 py-3 border-b border-gray-50 shrink-0">
                                 <div className="flex items-center gap-2">
-                                    {['Address', 'Payment'].map((label, i) => {
-                                        const stepNum = i + 1;
-                                        const isActive = (step === 'address' && stepNum === 1) || (step === 'payment' && stepNum === 2);
-                                        const isDone = (step === 'payment' && stepNum === 1);
-                                        return (
-                                            <div key={label} className="flex items-center gap-2 flex-1">
-                                                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black
-                                            ${isDone ? 'bg-green-500 text-white' : isActive ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-400'}`}>
-                                                    {isDone ? '✓' : stepNum}
-                                                </div>
-                                                <span className={`text-[11px] font-bold ${isActive || isDone ? 'text-gray-900' : 'text-gray-400'}`}>{label}</span>
-                                                {i < 1 && <div className={`flex-1 h-0.5 mx-1 ${isDone ? 'bg-green-400' : 'bg-gray-200'}`} />}
-                                            </div>
-                                        );
-                                    })}
+                                    <div className="flex items-center gap-2 flex-1">
+                                        <div className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black bg-blue-600 text-white">
+                                            1
+                                        </div>
+                                        <span className="text-[11px] font-bold text-gray-900">Address</span>
+                                        <div className="flex-1 h-0.5 mx-1 bg-gray-200" />
+                                    </div>
+                                    <div className="flex items-center gap-2 flex-1">
+                                        <div className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black bg-gray-200 text-gray-400">
+                                            2
+                                        </div>
+                                        <span className="text-[11px] font-bold text-gray-400">Payment</span>
+                                    </div>
                                 </div>
                             </div>
                         )}
@@ -608,67 +645,7 @@ export default function CartDrawer() {
                                 </div>
                             )}
 
-                            {/* ============ PAYMENT STEP ============ */}
-                            {step === 'payment' && (
-                                <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-200">
-                                    <div className="space-y-2.5">
-                                        {[
-                                            { id: 'upi', label: 'UPI / Google Pay', icon: '📱', desc: 'Instant via UPI' },
-                                            { id: 'card', label: 'Credit / Debit Card', icon: '💳', desc: 'Visa, Mastercard, Rupay' },
-                                            { id: 'netbanking', label: 'Net Banking', icon: '🏦', desc: 'All major banks' },
-                                            { id: 'cod', label: 'Cash on Delivery', icon: '💵', desc: '+₹29 extra' },
-                                        ].map((method) => (
-                                            <div
-                                                key={method.id}
-                                                onClick={() => setPaymentMethod(method.id)}
-                                                className={`flex items-center gap-3 p-3.5 rounded-xl border cursor-pointer transition-all
-                                            ${paymentMethod === method.id
-                                                        ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-100'
-                                                        : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'}`}
-                                            >
-                                                <span className="text-xl">{method.icon}</span>
-                                                <div className="flex-1">
-                                                    <p className="text-sm font-bold text-gray-900">{method.label}</p>
-                                                    <p className="text-[11px] text-gray-500">{method.desc}</p>
-                                                </div>
-                                                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${paymentMethod === method.id ? 'border-blue-600' : 'border-gray-300'}`}>
-                                                    {paymentMethod === method.id && <div className="w-2.5 h-2.5 bg-blue-600 rounded-full" />}
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
 
-                                    {/* Amount */}
-                                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
-                                        <div className="flex justify-between mb-1 text-xs">
-                                            <span className="text-gray-500">Subtotal</span>
-                                            <span className="font-bold text-gray-900">₹{subtotal}</span>
-                                        </div>
-                                        {localShipping > 0 && (
-                                            <div className="flex justify-between mb-1 text-xs">
-                                                <span className="text-gray-500">Dash24 Delivery</span>
-                                                <span className="font-bold text-gray-900">₹{localShipping}</span>
-                                            </div>
-                                        )}
-                                        {brandShipping > 0 && (
-                                            <div className="flex justify-between mb-1 text-xs">
-                                                <span className="text-gray-500">Brand Direct Delivery</span>
-                                                <span className="font-bold text-gray-900">₹{brandShipping}</span>
-                                            </div>
-                                        )}
-                                        {paymentMethod === 'cod' && (
-                                            <div className="flex justify-between mb-1 text-xs">
-                                                <span className="text-gray-500">COD Charge</span>
-                                                <span className="font-bold text-gray-900">₹29</span>
-                                            </div>
-                                        )}
-                                        <div className="border-t border-gray-200 pt-2 mt-2 flex justify-between items-end">
-                                            <span className="text-sm font-black text-gray-900">Total</span>
-                                            <span className="text-xl font-black text-gray-900">₹{total + (paymentMethod === 'cod' ? 29 : 0)}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
 
                             {/* ============ SUCCESS ============ */}
                             {step === 'success' && (
@@ -755,33 +732,20 @@ export default function CartDrawer() {
 
                         {/* Address footer */}
                         {step === 'address' && (
-                            <div className="border-t border-gray-200 px-6 md:px-8 pt-4 pb-6 shrink-0">
-                                <button
-                                    onClick={() => setStep('payment')}
-                                    className="w-full bg-blue-600 text-white py-4 rounded-xl text-base font-bold hover:bg-blue-700 transition shadow-xl shadow-blue-600/30 active:scale-[0.98]"
-                                >
-                                    Continue to Payment →
-                                </button>
-                            </div>
-                        )}
-
-                        {/* Payment footer */}
-                        {step === 'payment' && (
                             <div className="border-t border-gray-200 px-6 md:px-8 pt-4 pb-6 shrink-0 relative overflow-hidden">
                                 <button
                                     onClick={handlePlaceOrder}
-                                    disabled={!paymentMethod || isProcessing}
-                                    className={`relative z-10 w-full py-4 rounded-xl text-base font-bold transition-all shadow-xl
-                                ${paymentMethod && !isProcessing ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-blue-600/30' : 'bg-gray-200 text-gray-400 cursor-not-allowed shadow-none'} 
-                                ${isProcessing ? 'opacity-90 overflow-hidden' : 'active:scale-[0.98]'}`}
+                                    disabled={isProcessing}
+                                    className={`relative z-10 w-full py-4 rounded-xl text-base font-bold transition-all shadow-xl bg-blue-600 text-white hover:bg-blue-700 shadow-blue-600/30
+                                    ${isProcessing ? 'opacity-90 overflow-hidden' : 'active:scale-[0.98]'}`}
                                 >
                                     <span className={`transition-opacity duration-200 ${isProcessing ? 'opacity-0' : 'opacity-100'}`}>
-                                        Pay Now (₹{total + (paymentMethod === 'cod' ? 29 : 0)})
+                                        Proceed to Pay (₹{total})
                                     </span>
                                     {isProcessing && (
                                         <div className="absolute inset-0 flex items-center justify-center gap-2">
                                             <svg className="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                                            <span className="text-gray-500 font-bold">Processing Securely...</span>
+                                            <span className="text-white font-bold">Processing Securely...</span>
                                         </div>
                                     )}
                                     {isProcessing && <div className="absolute top-0 bottom-0 left-[-20%] w-[150%] animate-pulse bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-[-20deg]" />}

@@ -9,19 +9,20 @@ export default function LandingPage() {
     const [fullName, setFullName] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
 
+    const bucketBase = "https://sjdvllcrwnsrbvwwkmnw.supabase.co/storage/v1/object/public/products-hq/";
     const topBrands = [
-        { name: "Snitch", logo: "👔" },
-        { name: "Minimalist", logo: "🧴" },
-        { name: "True Elements", logo: "🥣" },
-        { name: "Sleepy Owl", logo: "☕" },
-        { name: "Giva", logo: "✨" },
-        { name: "MyFitness", logo: "🥜" },
-        { name: "Whole Truth", logo: "🍫" },
-        { name: "Plum Goodness", logo: "🌿" },
-        { name: "Bella Vita", logo: "🌸" },
-        { name: "Nutty Gritties", logo: "🌰" },
-        { name: "Bold Care", logo: "💪" },
-        { name: "Happilo", logo: "🍇" },
+        { name: "Snitch", logoUrl: bucketBase + "snitch_shirt.jpg" },
+        { name: "Minimalist", logoUrl: bucketBase + "minimalist_serum.jpg" },
+        { name: "True Elements", logoUrl: bucketBase + "true_elements_oats.jpg" },
+        { name: "Sleepy Owl", logoUrl: bucketBase + "sleepy_owl_coffee.jpg" },
+        { name: "Giva", logoUrl: bucketBase + "giva_necklace.jpg" },
+        { name: "MyFitness", logoUrl: bucketBase + "myfitness_pb.jpg" },
+        { name: "Whole Truth", logoUrl: bucketBase + "whole_truth_bar.jpg" },
+        { name: "Plum Goodness", logoUrl: bucketBase + "plum_toner.jpg" },
+        { name: "Bella Vita", logoUrl: bucketBase + "bella_vita_perfume.jpg" },
+        { name: "Nutty Gritties", logoUrl: bucketBase + "nutty_gritties_mix.jpg" },
+        { name: "Bold Care", logoUrl: bucketBase + "bold_care_shampoo.jpg" },
+        { name: "Happilo", logoUrl: bucketBase + "happilo_walnuts.jpg" },
     ];
 
     return (
@@ -76,10 +77,68 @@ export default function LandingPage() {
                             >
                                 Register & Claim ₹500
                             </button>
-                            <Link href="/" className="bg-white text-gray-900 border-2 border-slate-200 px-8 py-4 rounded-full text-lg font-bold hover:bg-slate-50 hover:border-slate-300 transition-colors w-full sm:w-auto">
+                            <Link href="/" className="bg-white text-gray-900 border-2 border-slate-200 px-8 py-4 rounded-full text-lg font-bold hover:bg-slate-50 hover:border-slate-300 transition-colors w-full sm:w-auto text-center flex items-center justify-center gap-2">
                                 Browse Storefront
                             </Link>
                         </div>
+                        
+                        {/* Order Tracking Quick Form */}
+                        <div className="mt-16 bg-white p-6 md:p-8 rounded-[32px] shadow-[0_10px_40px_rgba(0,0,0,0.05)] border border-slate-100 max-w-2xl mx-auto flex flex-col gap-5 relative z-20">
+                            <div className="flex items-center gap-3">
+                                <span className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xl shadow-inner border border-blue-100">📍</span>
+                                <div className="text-left">
+                                    <h3 className="text-xl font-black text-gray-900 tracking-tight">Track Your Dash</h3>
+                                    <p className="text-sm text-gray-500 font-medium">Enter your details to track active orders instantly.</p>
+                                </div>
+                            </div>
+                            <form className="flex flex-col sm:flex-row gap-3 w-full" onSubmit={(e) => { e.preventDefault(); }}>
+                                <input 
+                                    type="text" 
+                                    placeholder="Order ID (e.g., ORD-2026)" 
+                                    className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-5 py-3.5 text-gray-900 font-medium placeholder:text-gray-400 focus:outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-50 transition-all"
+                                />
+                                <input 
+                                    type="tel" 
+                                    placeholder="Mobile No." 
+                                    className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-5 py-3.5 text-gray-900 font-medium placeholder:text-gray-400 focus:outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-50 transition-all"
+                                />
+                                <button type="submit" className="bg-blue-600 text-white font-bold py-3.5 px-8 rounded-xl shadow-md hover:bg-blue-700 hover:shadow-lg transition-all active:scale-95 whitespace-nowrap">
+                                    Track Now
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </section>
+
+                {/* Final CTA Bridge (Moved from bottom to immediately below hero per Mission 50) */}
+                <section className="py-24 px-4 relative flex flex-col items-center justify-center bg-gray-900 overflow-hidden">
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#00FF41]/10 rounded-full blur-[100px] pointer-events-none" />
+                    
+                    <div className="relative z-10 max-w-xl mx-auto text-center">
+                        <h3 className="text-4xl md:text-5xl font-black mb-6 text-white tracking-tight">Stop waiting. <br/>Start combining.</h3>
+                        <p className="text-gray-400 text-lg mb-10">
+                            Register now, claim your <span className="text-white font-bold">₹500 Welcome Bonus</span>, and place your first multi-brand order.
+                        </p>
+                        
+                        <form className="flex flex-col gap-4 max-w-sm mx-auto p-8 bg-black/40 border border-white/10 rounded-3xl backdrop-blur-xl" onSubmit={(e) => { e.preventDefault(); setIsModalOpen(true); }}>
+                            <input 
+                                type="tel" 
+                                placeholder="Mobile Number" 
+                                value={customerMobile}
+                                onChange={(e) => setCustomerMobile(e.target.value)}
+                                className="bg-black/50 border border-white/20 rounded-xl px-4 py-4 text-white placeholder-gray-500 text-center font-mono focus:outline-none focus:border-[#00FF41] transition-colors" 
+                            />
+                            <input 
+                                type="text" 
+                                placeholder="Full Name" 
+                                value={fullName}
+                                onChange={(e) => setFullName(e.target.value)}
+                                className="bg-black/50 border border-white/20 rounded-xl px-4 py-4 text-white placeholder-gray-500 text-center focus:outline-none focus:border-[#00FF41] transition-colors" 
+                            />
+                            <button type="submit" className="bg-[#00FF41] text-black font-black py-4 rounded-xl hover:bg-[#00cc33] transition-all shadow-[0_0_20px_rgba(0,255,65,0.3)] mt-2 uppercase tracking-wide">
+                                Activate Account
+                            </button>
+                        </form>
                     </div>
                 </section>
 
@@ -192,8 +251,13 @@ export default function LandingPage() {
                         
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
                             {topBrands.map((brand, idx) => (
-                                <div key={idx} className="bg-slate-50 rounded-2xl p-6 flex flex-col items-center justify-center gap-3 border border-slate-100 hover:border-[#00FF41]/50 hover:bg-emerald-50/30 transition-colors cursor-pointer group">
-                                    <div className="text-3xl grayscale group-hover:grayscale-0 transition-all scale-95 group-hover:scale-110">{brand.logo}</div>
+                                <div key={idx} className="bg-slate-50 rounded-2xl p-6 flex flex-col items-center justify-center gap-3 border border-slate-100 hover:border-[#00FF41]/50 hover:bg-emerald-50/30 transition-colors cursor-pointer group overflow-hidden">
+                                    <img 
+                                        src={brand.logoUrl} 
+                                        alt={brand.name} 
+                                        className="w-16 h-16 object-contain mix-blend-multiply group-hover:scale-110 transition-transform rounded-lg" 
+                                        onError={(e) => { e.currentTarget.src = 'https://placehold.co/100x100?text=' + brand.name.substring(0,2); e.currentTarget.className = 'w-16 h-16 rounded-xl object-contain opacity-50'; }} 
+                                    />
                                     <span className="text-xs font-bold text-slate-600 group-hover:text-gray-900 text-center uppercase tracking-widest">{brand.name}</span>
                                 </div>
                             ))}
@@ -205,38 +269,6 @@ export default function LandingPage() {
                             </span>
                         </div>
                      </div>
-                </section>
-
-                {/* Final CTA Bridge */}
-                <section className="py-32 px-4 relative flex flex-col items-center justify-center bg-gray-900 overflow-hidden">
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#00FF41]/10 rounded-full blur-[100px] pointer-events-none" />
-                    
-                    <div className="relative z-10 max-w-xl mx-auto text-center">
-                        <h3 className="text-4xl md:text-5xl font-black mb-6 text-white tracking-tight">Stop waiting. <br/>Start combining.</h3>
-                        <p className="text-gray-400 text-lg mb-10">
-                            Register now, claim your <span className="text-white font-bold">₹500 Welcome Bonus</span>, and place your first multi-brand order.
-                        </p>
-                        
-                        <form className="flex flex-col gap-4 max-w-sm mx-auto p-8 bg-black/40 border border-white/10 rounded-3xl backdrop-blur-xl" onSubmit={(e) => { e.preventDefault(); setIsModalOpen(true); }}>
-                            <input 
-                                type="tel" 
-                                placeholder="Mobile Number" 
-                                value={customerMobile}
-                                onChange={(e) => setCustomerMobile(e.target.value)}
-                                className="bg-black/50 border border-white/20 rounded-xl px-4 py-4 text-white placeholder-gray-500 text-center font-mono focus:outline-none focus:border-[#00FF41] transition-colors" 
-                            />
-                            <input 
-                                type="text" 
-                                placeholder="Full Name" 
-                                value={fullName}
-                                onChange={(e) => setFullName(e.target.value)}
-                                className="bg-black/50 border border-white/20 rounded-xl px-4 py-4 text-white placeholder-gray-500 text-center focus:outline-none focus:border-[#00FF41] transition-colors" 
-                            />
-                            <button type="submit" className="bg-[#00FF41] text-black font-black py-4 rounded-xl hover:bg-[#00cc33] transition-all shadow-[0_0_20px_rgba(0,255,65,0.3)] mt-2 uppercase tracking-wide">
-                                Activate Account
-                            </button>
-                        </form>
-                    </div>
                 </section>
 
             </main>

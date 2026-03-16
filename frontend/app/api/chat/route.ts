@@ -26,18 +26,44 @@ export async function POST(req: Request) {
     }
 
 
-    let catalogString = "";
-    if (catalog && Array.isArray(catalog)) {
-      const slimCatalog = catalog.map((p: any) => ({ id: p.id, name: p.name, stock: p.stock }));
-      catalogString = JSON.stringify(slimCatalog);
-    } else {
-      const slimCatalog = products.map((p: any) => ({ id: p.id, name: p.name, stock: p.inventory ? Object.values(p.inventory).reduce((a:any,b:any)=>a+b,0) : 0 }));
-      catalogString = JSON.stringify(slimCatalog);
+    const hungerKeywords = ['bhook', 'bhuk', 'hungry', 'hunger', 'eat', 'food', 'snack', 'craving'];
+    const isHungerIntent = hungerKeywords.some(kw => prompt.toLowerCase().includes(kw));
+
+    let processedCatalog = catalog && Array.isArray(catalog) ? catalog : products;
+
+    if (isHungerIntent) {
+      processedCatalog = processedCatalog.filter((p: any) => {
+        const cat = (p.category || '').toLowerCase();
+        const aiTags = p.ai_intent_layers ? Object.values(p.ai_intent_layers).join(" ").toLowerCase() : "";
+        const name = (p.name || '').toLowerCase();
+        // Check for food related categories or tags
+        return cat.includes('food') || cat.includes('snack') || cat.includes('eat') || 
+               cat.includes('beverage') || cat.includes('drink') || cat.includes('chocolate') || 
+               cat.includes('sweet') || cat.includes('grocery') || cat.includes('instant') ||
+               aiTags.includes('snack') || aiTags.includes('food') || aiTags.includes('hunger');
+      });
+      
+      // Fallback if filtering is too strict
+      if (processedCatalog.length === 0) {
+        processedCatalog = catalog && Array.isArray(catalog) ? catalog : products;
+      }
     }
 
-    const systemPrompt = `You are the Katzen OS Agent. Analyze user intent (e.g., 'bhook lagi hai') and return product recommendations based strictly on the catalog provided below.
+    const slimCatalog = processedCatalog.map((p: any) => ({ 
+      id: p.id, 
+      name: p.name, 
+      category: p.category,
+      brand: p.brand,
+      tags: p.ai_intent_layers ? Object.values(p.ai_intent_layers).join(" ") : "",
+      stock: p.stock !== undefined ? p.stock : (p.inventory ? Object.values(p.inventory).reduce((a:any,b:any)=>a+b,0) : 0)
+    }));
+    
+    let catalogString = JSON.stringify(slimCatalog);
 
-CATALOG (Array of objects with id, name, and stock):
+    const systemPrompt = `You are the Katzen OS Agent. Analyze user intent (e.g., 'bhook lagi hai') and return product recommendations based strictly on the catalog provided below.
+IMPORTANT: If the user searches for food or hunger (like "bhook lagi hai"), you MUST ONLY return items that are food, snacks, or beverages. Do not return non-food items like shampoo, face wash, or skincare.
+
+CATALOG (Array of objects with id, name, category, and stock):
 ${catalogString}
 
 RULE 1: You MUST return a JSON object with strictly this exact schema:
