@@ -4,11 +4,13 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 // Load catalog directly. Path is relative to this file.
 import enrichedCatalog from '../../../data/enriched_catalog.json';
 
-// Cache interface updated for the Katzen Persona structure
+// Cache interface updated for the Katzen Persona structure AND Name Mapping
 interface CacheEntry {
     matchedProductIds: string[];
     focusItemId: string | null;
+    focusItemName: string | null; // Added for Fuzzy UI Matching
     carouselItemIds: string[];
+    carouselItemNames: string[];  // Added for Fuzzy UI Matching
     aiReasoning: string;
     suggestedCategory: string;
 }
@@ -52,12 +54,16 @@ export async function POST(req: Request) {
         if (normalizedQuery.length >= 3 && exactMatches.length > 0) {
             const matchedProductIds = exactMatches.map((item: any) => item.id).slice(0, 5);
             const focusItemId = matchedProductIds.length > 0 ? matchedProductIds[0] : null;
+            const focusItemName = exactMatches.length > 0 ? exactMatches[0].name : null;
             const carouselItemIds = matchedProductIds.slice(1);
+            const carouselItemNames = exactMatches.slice(1, 5).map((item: any) => item.name);
 
             return NextResponse.json({
                 matchedProductIds,
                 focusItemId,
+                focusItemName,
                 carouselItemIds,
+                carouselItemNames,
                 aiReasoning: `I found these items ready for 60-minute delivery to your Prestige Whitefield node.`,
                 suggestedCategory: exactMatches[0].category || "General"
             });
@@ -126,7 +132,9 @@ Return ONLY a raw JSON object matching this exact structure. No markdown, no exp
              return NextResponse.json({ 
                  matchedProductIds: [], 
                  focusItemId: null,
+                 focusItemName: null,
                  carouselItemIds: [],
+                 carouselItemNames: [],
                  aiReasoning: "✨ AI Service temporarily unavailable. Please browse our categories.", 
                  suggestedCategory: "General" 
              });
@@ -152,10 +160,21 @@ Return ONLY a raw JSON object matching this exact structure. No markdown, no exp
 
         const matchedItems = enrichedCatalog.filter((c: any) => matchedProductIds.includes(c.id));
 
+        // -------------------------------------------------------------------
+        // THE BRIDGE: Lookup the actual item names to send to the Frontend
+        // -------------------------------------------------------------------
+        const focusItemObj = enrichedCatalog.find((c: any) => c.id === focusItemId);
+        const focusItemName = focusItemObj ? focusItemObj.name : null;
+        
+        const carouselItemObjs = enrichedCatalog.filter((c: any) => carouselItemIds.includes(c.id));
+        const carouselItemNames = carouselItemObjs.map((c: any) => c.name);
+
         memoryCache[normalizedQuery] = {
             matchedProductIds: matchedProductIds,
             focusItemId: focusItemId,
+            focusItemName: focusItemName,
             carouselItemIds: carouselItemIds,
+            carouselItemNames: carouselItemNames,
             aiReasoning: parsedData.conciergeMessage || `✨ Powered by Katzen: Curated selection for your request.`,
             suggestedCategory: matchedItems.length > 0 ? matchedItems[0].category : "General"
         };
@@ -167,7 +186,9 @@ Return ONLY a raw JSON object matching this exact structure. No markdown, no exp
         return NextResponse.json({
             matchedProductIds: [],
             focusItemId: null,
+            focusItemName: null,
             carouselItemIds: [],
+            carouselItemNames: [],
             aiReasoning: "✨ Search Error. No results found.",
             suggestedCategory: "General"
         }, { status: 200 });
