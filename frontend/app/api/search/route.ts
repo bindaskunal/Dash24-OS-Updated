@@ -1,10 +1,7 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-
-// Load catalog directly. Path is relative to this file.
 import enrichedCatalog from '../../../data/enriched_catalog.json';
 
-// Simple in-memory cache object
 const memoryCache: Record<string, { matchedProductIds: string[], aiReasoning: string, suggestedCategory: string }> = {};
 
 export async function POST(req: Request) {
@@ -54,7 +51,7 @@ export async function POST(req: Request) {
             return NextResponse.json(memoryCache[normalizedQuery]);
         }
 
-        // TIER 3: Semantic AI Search (Gemini API)
+        // TIER 3: Semantic AI Search
         console.log("Semantic AI Search triggered for:", normalizedQuery);
 
         const slimCatalog = enrichedCatalog.map((item: any) => ({
@@ -86,7 +83,6 @@ Return ONLY a raw JSON array of strings (the product IDs). No markdown, no expla
                 if (resultText) break;
             } catch (e: any) {
                 lastError = e;
-                // 🚨 THIS IS THE FIX: LOUD ERROR LOGGING 🚨
                 console.error(`Gemini API Crash (Key: ${key?.substring(0, 5)}...):`, e.message || e);
             }
         }
@@ -98,10 +94,28 @@ Return ONLY a raw JSON array of strings (the product IDs). No markdown, no expla
 
         let matchedProductIds: string[] = [];
         try {
-            const cleaned = resultText.replace(/
-http://googleusercontent.com/immersive_entry_chip/0
-3. Wait for Vercel to turn green.
-4. Open the **Logs** tab in Vercel.
-5. Go to your website and search "Bhook lagi hai". 
+            const cleaned = resultText.replace(/```json/g, '').replace(/```/g, '').trim();
+            matchedProductIds = JSON.parse(cleaned);
+        } catch(e) {
+            console.error("Failed to parse Gemini semantic search response:", resultText);
+        }
 
-You will now see a bright red error in Vercel telling you *exactly* why Google is rejecting the connection (or, if we're lucky, the API was just glitching and it will work instantly). Paste whatever shows up in that Vercel log right here!
+        const matchedItems = enrichedCatalog.filter((c: any) => matchedProductIds.includes(c.id));
+
+        memoryCache[normalizedQuery] = {
+            matchedProductIds: matchedProductIds,
+            aiReasoning: `✨ Powered by Gemini: Displaying AI semantic results for "${query}".`,
+            suggestedCategory: matchedItems.length > 0 ? matchedItems[0].category : "General"
+        };
+
+        return NextResponse.json(memoryCache[normalizedQuery]);
+
+    } catch (error: any) {
+        console.error("Search API Error:", error);
+        return NextResponse.json({
+            matchedProductIds: [],
+            aiReasoning: "✨ Search Error. No results found.",
+            suggestedCategory: "General"
+        }, { status: 200 });
+    }
+}
