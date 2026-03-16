@@ -157,15 +157,17 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
   const cartCount = getTotalItems();
 
   const handleAddToCart = (productOrName: any) => {
+    // Mission 57: Enforce Supabase UUIDs. Strict lookup against the `products` array securely loaded from Postgres.
     let p = typeof productOrName === 'string' ? products.find((x: any) => x.name === productOrName) : productOrName;
-    if (!p) p = MASTER_CATALOG.find((x: any) => x.name === productOrName) || ENRICHED_CATALOG.find((x: any) => x.name === productOrName);
-    if (p) {
-      addToZustandCart({ id: p.id || p.name, name: p.name, price: p.price || 0, isFastTrack: p.fulfilledBy !== 'Brand', brandName: p.brand || 'Unknown', imageUrl: p.image_url });
+    
+    // If we receive a product object, ensure its ID looks like a UUID (has hyphens) and isn't falling back to name
+    if (p && p.id && String(p.id).includes('-')) {
+      addToZustandCart({ id: p.id, name: p.name, price: p.price || 0, isFastTrack: p.fulfilledBy !== 'Brand', brandName: p.brand || 'Unknown', imageUrl: p.image_url });
       setAddedItem(p.name);
-    } else if (typeof productOrName === 'string') {
-      addToZustandCart({ id: productOrName, name: productOrName, price: 0, isFastTrack: true, brandName: 'Unknown' });
+      setIsCartOpen(true);
+    } else {
+      console.error(`🚨 Checkout Blocked: Item '${typeof productOrName === 'string' ? productOrName : productOrName?.name}' lacks a valid Postgres UUID. Prevented catalog pollution.`);
     }
-    setIsCartOpen(true);
   };
 
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -843,9 +845,14 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
 
                       <button
                         onClick={() => {
-                          setLockedProducts(prev => new Set([...prev, AGENTIC_DROPS[agenticIndex].name]));
-                          addToZustandCart({ id: AGENTIC_DROPS[agenticIndex].name, name: AGENTIC_DROPS[agenticIndex].name, price: agenticPrice, isFastTrack: true, brandName: 'Agentic Drop', imageUrl: AGENTIC_DROPS[agenticIndex].img });
-                          setIsCartOpen(true);
+                          const dbMatch = products.find(p => p.name === AGENTIC_DROPS[agenticIndex].name);
+                          if (dbMatch && dbMatch.id && String(dbMatch.id).includes('-')) {
+                            setLockedProducts(prev => new Set([...prev, AGENTIC_DROPS[agenticIndex].name]));
+                            addToZustandCart({ id: dbMatch.id, name: dbMatch.name, price: agenticPrice, isFastTrack: true, brandName: 'Agentic Drop', imageUrl: AGENTIC_DROPS[agenticIndex].img });
+                            setIsCartOpen(true);
+                          } else {
+                             console.error(`🚨 Agentic Drop Error: No valid UUID found for ${AGENTIC_DROPS[agenticIndex].name}`);
+                          }
                         }}
                         disabled={lockedProducts.has(AGENTIC_DROPS[agenticIndex].name)}
                         className={`w-full py-1.5 md:py-3.5 rounded-lg md:rounded-xl text-[10px] md:text-sm font-bold transition-all shadow-lg hover:-translate-y-1 mt-auto ${lockedProducts.has(AGENTIC_DROPS[agenticIndex].name) ? 'bg-green-600 text-white shadow-green-600/40 cursor-default' : 'bg-[#FFD700] text-gray-900 hover:bg-[#FFD700]/90 shadow-[#FFD700]/40'}`}

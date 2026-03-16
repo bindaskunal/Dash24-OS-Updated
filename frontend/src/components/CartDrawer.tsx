@@ -45,6 +45,9 @@ export default function CartDrawer() {
     });
 
     const [currentTime, setCurrentTime] = useState(Date.now());
+    
+    // Mission 57: Graceful Checkout Error Handling
+    const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
     // ---------------- EFFECTS ----------------
     useEffect(() => {
@@ -112,6 +115,7 @@ export default function CartDrawer() {
 
     const handlePlaceOrder = async () => {
         setIsProcessing(true);
+        setCheckoutError(null);
 
         try {
             const response = await fetch('/api/checkout', {
@@ -126,12 +130,12 @@ export default function CartDrawer() {
             const textData = await response.text();
 
             if (!response.ok) {
-                let errorMsg = textData;
+                let errorMsg = "Checkout failed. Some items may be unavailable.";
                 try {
                     const jsonData = JSON.parse(textData);
-                    errorMsg = jsonData.error || textData;
+                    errorMsg = jsonData.error || errorMsg;
                 } catch (parseError) {
-                    // It's raw HTML/Text, leave errorMsg as textData
+                    console.error("Non-JSON error from checkout API:", textData);
                 }
                 throw new Error(errorMsg);
             }
@@ -164,17 +168,21 @@ export default function CartDrawer() {
                         console.log("Payment Payload:", response);
 
                         // 1. Immediately Sync with Supabase Orders
-                        const { error: updateError } = await supabase
-                            .from('orders')
-                            .update({
-                                payment_status: 'Paid',
-                                status: 'Confirmed',
-                                razorpay_payment_id: response.razorpay_payment_id
-                            })
-                            .eq('id', orderData.dbOrderId);
+                        try {
+                            const { error: updateError } = await supabase
+                                .from('orders')
+                                .update({
+                                    payment_status: 'Paid',
+                                    status: 'Confirmed',
+                                    razorpay_payment_id: response.razorpay_payment_id
+                                })
+                                .eq('id', orderData.dbOrderId);
 
-                        if (updateError) {
-                            console.error("Failed to sync order Paid status to Supabase:", updateError);
+                            if (updateError) {
+                                console.error("Supabase Order Update Error:", updateError);
+                            }
+                        } catch (err) {
+                            console.error("Fatal exception during Supabase order sync:", err);
                         }
 
                         // 2. Calculate and Accumulate Pulse Points
@@ -249,45 +257,30 @@ export default function CartDrawer() {
                         } else {
                             throw new Error(verifyData.error || "Payment Verification Failed on Backend");
                         }
-                    } catch (err: any) {
-                        console.error("CRITICAL ERROR IN CHECKOUT HANDLER:", err);
-                        
-                        if (process.env.NODE_ENV === 'development') {
-                            console.warn("DEVELOPMENT FAILSAFE TRIGGERED: Bypassing checkout verification failure.");
-                            const bypassId = response?.razorpay_payment_id || 'DEV-BYPASS-' + Date.now();
-                            setOrderId(bypassId);
-                            setLastOrder([...cartItems]);
-                            setCustomerMobile(address.phone);
-                            clearCart();
-                            setCartOpen(false);
-                            setStep('cart');
-                            setIsProcessing(false);
-                            router.push(`/order-success?orderId=${bypassId}`);
-                        } else {
-                            alert("Verification Failed: " + (err.message || "Unknown error occurred"));
-                            setIsProcessing(false);
-                        }
+                    } catch (error: any) {
+                        console.error("Payment Verification Failed:", error);
+                        setCheckoutError(error.message || "Payment verification failed.");
+                        setIsProcessing(false);
                     }
                 },
                 prefill: {
                     name: address.name,
-                    contact: address.phone,
+                    contact: address.phone.replace(/[^0-9]/g, ''),
                 },
-                theme: { color: "#111827" },
-                modal: {
-                    ondismiss: function () {
-                        setIsProcessing(false);
-                    }
-                }
+                theme: { color: "#000000" }
             };
 
-            const paymentObject = new (window as any).Razorpay(options);
-            paymentObject.open();
+            const rzp = new (window as any).Razorpay(options);
+            rzp.on('payment.failed', function (response: any) {
+                console.error("Razorpay UI Error:", response.error);
+                setCheckoutError(response.error.description || "Payment failed or was cancelled.");
+                setIsProcessing(false);
+            });
+            rzp.open();
 
         } catch (error: any) {
-            console.error('Checkout Error:', error);
-            alert(error.message || "Something went wrong during checkout");
-        } finally {
+            console.error("Handle Place Order Error:", error);
+            setCheckoutError(error.message || "Could not initialize checkout.");
             setIsProcessing(false);
         }
     };
