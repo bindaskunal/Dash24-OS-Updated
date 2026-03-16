@@ -229,6 +229,20 @@ export default function CartDrawer() {
                                     .update({ pulse_points: newPoints })
                                     .eq('id', userAuthData.user.id);
                                 
+                                // Mission 60: Action 2 - Wallet Logs
+                                const { error: walletError } = await supabase
+                                    .from('wallet_logs')
+                                    .insert({
+                                        user_id: userAuthData.user.id,
+                                        amount: pointsEarned,
+                                        type: 'earned',
+                                        description: `Order ${orderData.dbOrderId || response.razorpay_order_id} Reward`
+                                    });
+                                
+                                if (walletError) {
+                                    console.error("Supabase Wallet Log Insert Error:", walletError);
+                                }
+                                
                                 addPulsePoints(pointsEarned);
                                 console.log(`Added ${pointsEarned} Pulse Points securely.`);
                             }

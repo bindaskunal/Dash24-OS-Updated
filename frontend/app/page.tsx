@@ -189,6 +189,9 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
   const [agenticReasoning, setAgenticReasoning] = useState<string | null>(null);
   const [agenticComparison, setAgenticComparison] = useState<any>(null);
   const [agenticRawData, setAgenticRawData] = useState<any>(null);
+  // Mission 60 states
+  const [heroReasoning, setHeroReasoning] = useState<string | null>(null);
+  const [productPitches, setProductPitches] = useState<Record<string, string>>({});
 
   const [showBattle, setShowBattle] = useState(false);
   const [battleStep, setBattleStep] = useState(0);
@@ -390,6 +393,8 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
     if (!query || !searchFocused) {
       setAgenticMatches([]);
       setAgenticReasoning(null);
+      setHeroReasoning(null);
+      setProductPitches({});
       setAgenticComparison(null);
       setAgenticRawData(null);
       return;
@@ -416,9 +421,13 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
           setAgenticMatches(parsedCache.matchedProductIds || []);
         }
         setAgenticReasoning(parsedCache.aiReasoning || null);
+        setHeroReasoning(parsedCache.heroReasoning || null);
+        setProductPitches(parsedCache.productPitches || {});
       } catch (e) {
         setAgenticMatches([]);
         setAgenticReasoning(null);
+        setHeroReasoning(null);
+        setProductPitches({});
       }
       return;
     }
@@ -436,19 +445,25 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
         console.log("Parsed Agentic AI Search Data (Name based):", resJson);
         sessionStorage.setItem(sanitizedQuery, JSON.stringify(resJson));
         
-        // Mission 59: Extract names
+        // Mission 59/60: Extract names and hero text
         const namesToMatch = [resJson.focusItemName, ...(resJson.carouselItemNames || [])].filter(Boolean);
         setAgenticMatches(namesToMatch.length > 0 ? namesToMatch : (resJson.matchedProductIds || []));
         setAgenticReasoning(resJson.aiReasoning);
+        setHeroReasoning(resJson.heroReasoning || null);
+        setProductPitches(resJson.productPitches || {});
       } else if (resJson && resJson.matchedProductIds) {
         // Fallback for older api structures
         console.log("Parsed Agentic AI Search Data (ID based fallback):", resJson);
         sessionStorage.setItem(sanitizedQuery, JSON.stringify(resJson));
         setAgenticMatches(resJson.matchedProductIds);
         setAgenticReasoning(resJson.aiReasoning);
+        setHeroReasoning(null);
+        setProductPitches({});
       } else {
         setAgenticMatches([]);
         setAgenticReasoning(null);
+        setHeroReasoning(null);
+        setProductPitches({});
       }
     } catch (err) {
       console.error("Agentic Search API failed", err);
@@ -1326,50 +1341,78 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                   ) : (
                     <div className="space-y-6">
 
-                      {/* Display AI Reasoning if available */}
-                      {agenticReasoning && (
-                        <div className="flex items-start gap-4 mb-4">
-                          <div className="bg-white/10 border border-white/20 p-4 rounded-2xl rounded-tl-sm text-gray-200 text-sm leading-relaxed max-w-xl shadow-sm">
-                            <p className="font-medium flex items-center gap-2">
-                              <span className="text-blue-400">✨</span>
-                              {agenticReasoning}
-                            </p>
-                          </div>
-                        </div>
-                      )}
-
-                      {!agenticReasoning && (
-                        <div className="flex items-start gap-4 mb-4">
-                          <div className="bg-white/10 border border-white/20 p-4 rounded-2xl rounded-tl-sm text-gray-200 text-sm leading-relaxed max-w-xl shadow-sm">
-                            <p className="font-medium flex items-center gap-2">
-                              <span className="text-blue-400">✨</span>
-                              Here's what I found for <span className="text-white font-bold">"{searchQuery}"</span>:
-                            </p>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Brand Tile Match for Search */}
-                      {Object.keys(BRAND_LOGOS).find(b => b.toLowerCase().includes(searchQuery.toLowerCase())) && (
-                        <div className="mb-6 max-w-xs">
-                          <p className="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-2">Brand Match</p>
-                          <div
-                            onClick={() => { setSearchFocused(false); setActiveBrand(Object.keys(BRAND_LOGOS).find(b => b.toLowerCase().includes(searchQuery.toLowerCase()))!); }}
-                            className="bg-white border border-gray-200 p-3 rounded-2xl flex items-center gap-4 cursor-pointer hover:bg-gray-50 hover:shadow-md transition shadow-sm"
-                          >
-                            <div className="w-12 h-12 bg-white rounded-xl p-1 border border-gray-100 flex items-center justify-center">
-                              <img referrerPolicy="no-referrer" src={BRAND_LOGOS[Object.keys(BRAND_LOGOS).find(b => b.toLowerCase().includes(searchQuery.toLowerCase()))!]} alt="Brand" className="w-full h-full object-contain" />
+                      {/* HERO FOCUS LAYOUT */}
+                      {heroReasoning && finalSearchResults.length > 0 ? (
+                        <div className="space-y-8 animate-in slide-in-from-bottom-4 duration-700 w-full mb-8">
+                          {/* Top Split */}
+                          <div className="grid grid-cols-1 md:grid-cols-5 gap-8 items-stretch">
+                            {/* Left: Text */}
+                            <div className="md:col-span-3 flex flex-col justify-center bg-gray-900 border border-gray-800 p-8 rounded-[2rem] shadow-2xl relative overflow-hidden">
+                                <div className="absolute top-0 right-0 w-64 h-64 bg-green-500/10 blur-[100px] rounded-full pointer-events-none"></div>
+                                <h2 className="text-3xl md:text-4xl font-black text-white mb-6 leading-tight tracking-tight">
+                                  <span className="text-[#00FF00] mr-3">✨</span>
+                                  {agenticReasoning || `Here are your ${searchQuery} results`}
+                                </h2>
+                                <p className="text-gray-300 text-base md:text-lg leading-relaxed font-medium">
+                                  {heroReasoning}
+                                </p>
                             </div>
+                            {/* Right: Focus Product Card */}
+                            <div className="md:col-span-2 group h-full">
+                              <div onClick={() => { setSearchFocused(false); router.push(`/product/${finalSearchResults[0].id || 0}`); }} className="h-full bg-white rounded-[2rem] border-2 border-transparent hover:border-[#00FF00] shadow-xl p-6 flex flex-col justify-between cursor-pointer transition-all duration-300 hover:shadow-[#00FF00]/20">
+                                <div className="w-full h-48 md:h-64 mb-6 relative overflow-hidden flex items-center justify-center rounded-xl bg-gray-50">
+                                  <img referrerPolicy="no-referrer" src={finalSearchResults[0].image_url} alt={finalSearchResults[0].name} className="max-h-full max-w-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-500" />
+                                </div>
+                                <div>
+                                  <div className="flex items-center gap-2 mb-2">
+                                     <span className="text-xs font-black uppercase tracking-wider text-gray-900 bg-[#00FF00] px-2 py-1 rounded-md">{finalSearchResults[0].brand || 'Dash24'}</span>
+                                  </div>
+                                  <h3 className="font-black text-xl text-gray-900 leading-tight mb-2 group-hover:text-blue-600 transition">{finalSearchResults[0].name}</h3>
+                                  {productPitches[finalSearchResults[0].id] && (
+                                    <p className="text-sm font-bold text-[#00FF00] mb-4 leading-snug">{productPitches[finalSearchResults[0].id]}</p>
+                                  )}
+                                </div>
+                                <div className="mt-auto flex items-center justify-between pt-4 border-t border-gray-100">
+                                  <p className="text-3xl font-black text-gray-900">₹{finalSearchResults[0].price}</p>
+                                  <button className="h-12 w-12 rounded-full bg-[#00FF00] hover:bg-[#00ba00] text-black flex items-center justify-center shadow-lg hover:shadow-[#00FF00]/40 transition text-2xl font-black" onClick={(e) => { e.stopPropagation(); handleAddToCart(finalSearchResults[0]); }}>
+                                    +
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Alternatives Carousel */}
+                          {finalSearchResults.length > 1 && (
                             <div>
-                              <h3 className="text-sm font-bold text-gray-900">{Object.keys(BRAND_LOGOS).find(b => b.toLowerCase().includes(searchQuery.toLowerCase()))}</h3>
-                              <p className="text-[10px] text-blue-600 font-bold mt-0.5">Visit Brand Store ↗</p>
+                              <div className="flex items-center gap-3 mb-4 px-2">
+                                <div className="h-px bg-white/20 flex-1"></div>
+                                <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest text-center">Alternatives</h3>
+                                <div className="h-px bg-white/20 flex-1"></div>
+                              </div>
+                              <div className="flex overflow-x-auto gap-4 pb-4 hide-scrollbar snap-x px-2">
+                                {finalSearchResults.slice(1).map(item => (
+                                  <div key={`hero-alt-${item.id}`} onClick={() => { setSearchFocused(false); router.push(`/product/${item.id || 0}`); }} className="min-w-[240px] md:min-w-[280px] snap-start bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex flex-col cursor-pointer group hover:shadow-lg transition">
+                                    <div className="w-full h-32 mb-4 relative overflow-hidden flex items-center justify-center rounded-lg bg-gray-50">
+                                      <img referrerPolicy="no-referrer" src={item.image_url} alt={item.name} className="max-h-full max-w-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500" />
+                                    </div>
+                                    <h4 className="font-bold text-sm text-gray-900 leading-snug line-clamp-2 mb-1 group-hover:text-blue-600 transition">{item.name}</h4>
+                                    {productPitches[item.id] && (
+                                      <p className="text-[11px] font-bold text-[#00ba00] mb-3 leading-tight line-clamp-2">{productPitches[item.id]}</p>
+                                    )}
+                                    <div className="mt-auto flex items-center justify-between pt-3 border-t border-gray-50">
+                                      <p className="text-base font-black text-gray-900">₹{item.price}</p>
+                                      <button className="h-8 w-8 rounded-full bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center shadow-md active:scale-95 transition font-black text-lg" onClick={(e) => { e.stopPropagation(); handleAddToCart(item); }}>
+                                        +
+                                      </button>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
                             </div>
-                          </div>
+                          )}
                         </div>
-                      )}
-
-                      {/* Premium Agentic Response Block */}
-                      {agenticRawData && agenticRawData.thought_process ? (
+                      ) : agenticRawData && agenticRawData.thought_process ? (
                         <div className="mb-6 w-full">
                           <AgenticResponse 
                              data={agenticRawData} 
@@ -1380,8 +1423,31 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                         </div>
                       ) : (
                         <div className="flex flex-col gap-4">
-                          {/* MISSION 47: Filter Chips */}
-                          <div className="flex overflow-x-auto gap-2 py-4 px-4 mb-4 border-b">
+                          {/* Display AI Reasoning if available */}
+                          {agenticReasoning && (
+                            <div className="flex items-start gap-4 mb-4">
+                              <div className="bg-white/10 border border-white/20 p-4 rounded-2xl rounded-tl-sm text-gray-200 text-sm leading-relaxed max-w-xl shadow-sm">
+                                <p className="font-medium flex items-center gap-2">
+                                  <span className="text-blue-400">✨</span>
+                                  {agenticReasoning}
+                                </p>
+                              </div>
+                            </div>
+                          )}
+
+                          {!agenticReasoning && (
+                            <div className="flex items-start gap-4 mb-4">
+                              <div className="bg-white/10 border border-white/20 p-4 rounded-2xl rounded-tl-sm text-gray-200 text-sm leading-relaxed max-w-xl shadow-sm">
+                                <p className="font-medium flex items-center gap-2">
+                                  <span className="text-blue-400">✨</span>
+                                  Here's what I found for <span className="text-white font-bold">"{searchQuery}"</span>:
+                                </p>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Filter Chips */}
+                          <div className="flex overflow-x-auto gap-2 py-4 px-4 mb-4 border-b border-gray-100/10">
                             {['All Relevance', 'Price: Low to High', 'Price: High to Low', 'Top Rated'].map((filter) => (
                               <button
                                 key={filter}
@@ -1389,7 +1455,7 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                                 className={`rounded-full px-4 py-1.5 text-sm font-bold border-0 transition-all shrink-0 whitespace-nowrap ${
                                   activeFilter === filter 
                                     ? 'bg-white text-gray-900 shadow-md scale-105' 
-                                    : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                                    : 'bg-white/10 text-gray-300 hover:bg-white/20'
                                 }`}
                               >
                                 {filter}
@@ -1398,9 +1464,7 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                           </div>
 
                           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 p-4">
-
                             {finalSearchResults.map(item => (
-
                               <div key={`search-${item.id}`} onClick={() => { setSearchFocused(false); router.push(`/product/${item.id || 0}`); }} className="bg-white rounded-xl border border-gray-100 shadow-sm p-3 flex flex-col justify-between cursor-pointer group hover:shadow-md transition text-black">
                                 <div className="w-full h-28 mb-3 relative overflow-hidden flex items-center justify-center">
                                   <img referrerPolicy="no-referrer" src={item.image_url} alt={item.name} className="max-h-full max-w-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500" />
@@ -1544,7 +1608,7 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                       </div>
                       <button
                         onClick={() => { handleAddToCart(activeProduct.name); setActiveProduct(null); }}
-                        className="w-[calc(100%-2.5rem)] ml-10 bg-[#111827] text-white py-4 rounded-xl text-sm font-bold group-hover:bg-gray-800 transition shadow-lg shadow-gray-900/20"
+                        className="w-[calc(100%-2.5rem)] ml-10 bg-[#00FF00] text-black py-4 rounded-xl text-sm font-black group-hover:bg-[#00ba00] transition shadow-lg hover:shadow-[#00FF00]/20"
                       >
                         Add to Cart
                       </button>
@@ -1618,7 +1682,7 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
 
                         <button
                           onClick={() => { handleAddToCart(item.name); setCartOpen(true); }}
-                          className={`w-full py-3.5 rounded-xl text-xs font-bold transition-all shadow-sm ${addedItem === item.name ? "bg-green-500 text-white shadow-green-500/20" : "bg-[#111827] text-white hover:bg-gray-800 hover:shadow-gray-900/20"}`}
+                          className={`w-full py-3.5 rounded-xl text-xs font-black transition-all shadow-sm ${addedItem === item.name ? "bg-green-500 text-white shadow-green-500/20" : "bg-[#00FF00] text-black hover:bg-[#00ba00] hover:shadow-[#00FF00]/20"}`}
                         >
                           {addedItem === item.name ? "Added ✓" : "Add to Cart"}
                         </button>

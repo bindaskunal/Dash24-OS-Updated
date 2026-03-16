@@ -206,7 +206,7 @@ function BrandCatalog() {
                                             disabled={item.stock_count <= 0}
                                             className={`w-full py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition ${item.stock_count <= 0
                                                 ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                                                : "bg-[#111827] text-white hover:bg-gray-800"
+                                                : "bg-[#00FF00] text-black hover:bg-[#00ba00]"
                                                 }`}
                                         >
                                             {item.stock_count <= 0 ? "Out of Stock" : "Add to Cart"}
