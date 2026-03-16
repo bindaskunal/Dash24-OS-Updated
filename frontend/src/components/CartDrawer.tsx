@@ -167,22 +167,47 @@ export default function CartDrawer() {
                         console.log("Razorpay Success Handler Triggered. Trace Started.");
                         console.log("Payment Payload:", response);
 
-                        // 1. Immediately Sync with Supabase Orders
+                        // 1. Mission 59: Guarantee Orders Table Write
                         try {
-                            const { error: updateError } = await supabase
-                                .from('orders')
-                                .update({
-                                    payment_status: 'Paid',
-                                    status: 'Confirmed',
-                                    razorpay_payment_id: response.razorpay_payment_id
-                                })
-                                .eq('id', orderData.dbOrderId);
+                            const { data: userAuthData } = await supabase.auth.getUser();
+                            const activeUserId = userAuthData?.user?.id || null;
 
-                            if (updateError) {
-                                console.error("Supabase Order Update Error:", updateError);
+                            const orderPayload = {
+                                ...(orderData.dbOrderId ? { id: orderData.dbOrderId } : {}),
+                                user_id: activeUserId,
+                                total_amount: total,
+                                payment_status: 'Paid',
+                                status: 'Confirmed',
+                                razorpay_order_id: response.razorpay_order_id || orderData.id,
+                                razorpay_payment_id: response.razorpay_payment_id,
+                                cart_items: cartItems.map((item: any) => ({
+                                    product_id: item.id,
+                                    quantity: item.quantity,
+                                    price: item.price
+                                }))
+                            };
+
+                            const { data: syncedOrder, error: syncError } = await supabase
+                                .from('orders')
+                                .upsert(orderPayload)
+                                .select()
+                                .single();
+
+                            if (syncError) {
+                                console.error("Supabase Order Upsert Error:", syncError);
+                            } else if (syncedOrder && !orderData.dbOrderId) {
+                                // Failsafe: explicitly write order_items if the backend API was bypassed/failed
+                                const itemsPayload = cartItems.map((item: any) => ({
+                                    order_id: syncedOrder.id,
+                                    product_id: item.id,
+                                    quantity: item.quantity,
+                                    price_at_purchase: item.price
+                                }));
+                                const { error: itemsError } = await supabase.from('order_items').insert(itemsPayload);
+                                if (itemsError) console.error("Supabase Order Items Failsafe Insert Error:", itemsError);
                             }
                         } catch (err) {
-                            console.error("Fatal exception during Supabase order sync:", err);
+                            console.error("Fatal exception during Supabase explicit order sync:", err);
                         }
 
                         // 2. Calculate and Accumulate Pulse Points

@@ -406,9 +406,16 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
     if (cachedResponse) {
       try {
         const parsedCache = JSON.parse(cachedResponse);
-        setAgenticMatches(parsedCache.matchedProductIds || []);
+        // Mission 59: Use the new name-based resolution from cache
+        const namesToMatch = [parsedCache.focusItemName, ...(parsedCache.carouselItemNames || [])].filter(Boolean);
+        
+        if (namesToMatch.length > 0) {
+          setAgenticMatches(namesToMatch);
+        } else {
+          // Fallback legacy ID cache
+          setAgenticMatches(parsedCache.matchedProductIds || []);
+        }
         setAgenticReasoning(parsedCache.aiReasoning || null);
-        // Optionally map comparison if available in future
       } catch (e) {
         setAgenticMatches([]);
         setAgenticReasoning(null);
@@ -425,8 +432,17 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
       });
       const resJson = await response.json();
 
-      if (resJson && resJson.matchedProductIds) {
-        console.log("Parsed Agentic AI Search Data:", resJson);
+      if (resJson && resJson.focusItemName !== undefined) {
+        console.log("Parsed Agentic AI Search Data (Name based):", resJson);
+        sessionStorage.setItem(sanitizedQuery, JSON.stringify(resJson));
+        
+        // Mission 59: Extract names
+        const namesToMatch = [resJson.focusItemName, ...(resJson.carouselItemNames || [])].filter(Boolean);
+        setAgenticMatches(namesToMatch.length > 0 ? namesToMatch : (resJson.matchedProductIds || []));
+        setAgenticReasoning(resJson.aiReasoning);
+      } else if (resJson && resJson.matchedProductIds) {
+        // Fallback for older api structures
+        console.log("Parsed Agentic AI Search Data (ID based fallback):", resJson);
         sessionStorage.setItem(sanitizedQuery, JSON.stringify(resJson));
         setAgenticMatches(resJson.matchedProductIds);
         setAgenticReasoning(resJson.aiReasoning);
@@ -454,13 +470,18 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
     return { ...item, score };
   }).sort((a, b) => b.score - a.score);
 
-  // MISSION 54: Map final results precisely based on backend API Search mapping
+  // MISSION 54/59: Map final results precisely based on backend API Search mapping
   let finalSearchResults: any[] = [];
   
   if (agenticMatches && agenticMatches.length > 0) {
-    // If the backend has returned IDs, map them strictly to catalog items
+    // Mission 59: Fuzzy name matching to tie AI string outputs to valid Supabase IDs
     finalSearchResults = agenticMatches
-      .map((id: string) => products.find((p) => p.id === id))
+      .map((apiString: string) => {
+        return products.find(p => 
+          p.id === apiString || 
+          (p.name && p.name.toLowerCase().replace(/\s+/g, '') === apiString.toLowerCase().replace(/\s+/g, ''))
+        );
+      })
       .filter(Boolean);
   } else if (searchQuery) {
     // Basic local fallback until API returns (e.g. while typing)
