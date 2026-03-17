@@ -1215,7 +1215,7 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                 {/* Mission 64: Trending Autocomplete Tags */}
                 {!searchQuery && trendingTags.length > 0 && (
                   <div className="hidden md:flex flex-col gap-2 px-12 pt-1 pb-2">
-                    <span className="text-[10px] uppercase tracking-widest text-gray-500 font-bold ml-1">Trending in {selectedNode || "Whitefield"}</span>
+                    <span className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Trending in {selectedNode || "Whitefield"}</span>
                     <div className="flex gap-2 overflow-x-auto hide-scrollbar">
                       {trendingTags.map((tag, idx) => (
                         <button
@@ -1224,7 +1224,7 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                             setSearchQuery(tag);
                             handleSearchSubmit(tag);
                           }}
-                          className="bg-blue-50/10 hover:bg-blue-50/20 text-[#0066FF] border border-[#0066FF]/30 hover:border-[#0066FF] px-4 py-1.5 rounded-full text-sm font-bold transition-all shadow-sm whitespace-nowrap"
+                          className="text-sm font-medium text-white bg-[#1a1a1a] border border-gray-700 px-4 py-2 rounded-full transition-colors hover:bg-[#0066FF] hover:border-[#0066FF] whitespace-nowrap"
                         >
                           {tag}
                         </button>

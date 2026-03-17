@@ -164,14 +164,13 @@ export default function CartDrawer() {
                 order_id: orderData.id,
                 handler: async function (response: any) {
                     try {
-                        console.log("Razorpay Success Handler Triggered. Trace Started.");
-                        console.log("Payment Payload:", response);
+                        console.log("Razorpay Success! Starting Database Writes...");
+                        
+                        const { data: userAuthData } = await supabase.auth.getUser();
+                        const activeUserId = userAuthData?.user?.id || null;
 
-                        // 1. Force the Database Writes safely BEFORE verifying
+                        // 1. Write the Order
                         try {
-                            const { data: userAuthData } = await supabase.auth.getUser();
-                            const activeUserId = userAuthData?.user?.id || null;
-
                             const orderPayload = {
                                 ...(orderData.dbOrderId ? { id: orderData.dbOrderId } : {}),
                                 user_id: activeUserId,
@@ -180,60 +179,55 @@ export default function CartDrawer() {
                                 status: 'Confirmed',
                                 razorpay_order_id: response.razorpay_order_id || orderData.id,
                                 razorpay_payment_id: response.razorpay_payment_id,
-                                // FIX: Send as raw JSON payload so Supabase doesn't reject mismatched UUIDs
                                 items: cartItems
                             };
 
-                            const { error: syncError } = await supabase
-                                .from('orders')
-                                .upsert(orderPayload)
-                                .select()
-                                .single();
-
+                            const { error: syncError } = await supabase.from('orders').upsert(orderPayload).select().single();
                             if (syncError) {
                                 console.error("Supabase Order Upsert Error:", syncError);
-                                alert(`Database Save Error: ${syncError.message}`);
+                                alert(`Order DB Error: ${syncError.message}`);
                             } else {
-                                console.log("✅ Order firmly saved to Track page.");
-                            }
-
-                            // Calculate and Accumulate Pulse Points
-                            const pointsEarned = Math.floor(total * 0.1);
-                            if (isAuthenticated && activeUserId) {
-                                const { data: currentProfile } = await supabase
-                                    .from('profiles')
-                                    .select('pulse_points')
-                                    .eq('id', activeUserId)
-                                    .single();
-                                
-                                const newPoints = (currentProfile?.pulse_points || 0) + pointsEarned;
-                                
-                                await supabase
-                                    .from('profiles')
-                                    .update({ pulse_points: newPoints })
-                                    .eq('id', activeUserId);
-                                
-                                // Write Wallet Log
-                                const { error: walletError } = await supabase
-                                    .from('wallet_logs')
-                                    .insert({
-                                        user_id: activeUserId,
-                                        amount: pointsEarned,
-                                        type: 'earned',
-                                        description: `Order Reward (+${pointsEarned} Pulse)`
-                                    });
-                                
-                                if (walletError) console.error("Supabase Wallet Log Insert Error:", walletError);
-                                else addPulsePoints(pointsEarned);
+                                console.log("✅ Order saved successfully.");
                             }
                         } catch (err) {
-                            console.error("Fatal exception during Supabase order sync:", err);
+                            console.error("Fatal order sync error:", err);
                         }
 
-                        // Wait for any trailing promises before wiping cart
+                        // 2. Write the Pulse Points
+                        if (activeUserId && isAuthenticated) {
+                            try {
+                                const pointsEarned = Math.floor(total * 0.1);
+                                
+                                // Make sure profile exists first (upsert)
+                                const { data: currentProfile } = await supabase.from('profiles').select('pulse_points').eq('id', activeUserId).single();
+                                const newPoints = (currentProfile?.pulse_points || 0) + pointsEarned;
+                                
+                                const { error: profileError } = await supabase.from('profiles').upsert({ id: activeUserId, pulse_points: newPoints });
+                                if (profileError) console.error("Profile Upsert Error:", profileError);
+                                
+                                // Write to Wallet Logs
+                                const { error: walletError } = await supabase.from('wallet_logs').insert({
+                                    user_id: activeUserId,
+                                    amount: pointsEarned,
+                                    type: 'earned',
+                                    description: `Order Reward (+${pointsEarned} Pulse)`
+                                });
+                                
+                                if (walletError) {
+                                    console.error("Supabase Wallet Log Insert Error:", walletError);
+                                    alert(`Wallet DB Error: ${walletError.message}`);
+                                } else {
+                                    addPulsePoints(pointsEarned);
+                                    console.log(`✅ Added ${pointsEarned} Pulse Points!`);
+                                }
+                            } catch (walletErr) {
+                                console.error("Fatal wallet sync error:", walletErr);
+                            }
+                        }
+
                         await new Promise(resolve => setTimeout(resolve, 500));
 
-                        // 4. Verify Payment Signature
+                        // 3. Verify Payment
                         const verifyRes = await fetch('/api/verify', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
@@ -245,44 +239,25 @@ export default function CartDrawer() {
                             }),
                         });
 
-                        const verifyText = await verifyRes.text();
-                        console.log("Backend Verify Raw Response:", verifyText);
-                        
-                        let verifyData;
-                        try {
-                            verifyData = JSON.parse(verifyText);
-                        } catch (e) {
-                            throw new Error("Invalid response format: " + verifyText);
-                        }
-                        
-                        console.log("Backend Verify Reponse:", verifyData);
+                        const verifyData = await verifyRes.json();
 
                         if (verifyRes.ok && verifyData.status === 'ok') {
-                            console.log("PAYMENT VERIFIED: Executing Routing Pipeline.");
-
-                            // 5. Post-Payment Guard Logic
                             const finalOrderId = verifyData.dbOrderId || orderData.dbOrderId || response.razorpay_payment_id;
                             setOrderId(response.razorpay_payment_id);
                             setLastOrder([...cartItems]);
                             setCustomerMobile(address.phone);
 
                             clearCart();
-                            console.log("ACTION: Cart Cleared.");
-
                             setCartOpen(false);
-                            console.log("ACTION: Drawer Closed.");
-
                             setStep('cart');
                             setIsProcessing(false);
-                            console.log("ACTION: Local States Reset.");
 
-                            console.log("ACTION: Executing Router Push -> /order-success?orderId=" + finalOrderId);
                             router.push(`/order-success?orderId=${finalOrderId}`);
                         } else {
-                            throw new Error(verifyData.error || "Payment Verification Failed on Backend");
+                            throw new Error(verifyData.error || "Payment Verification Failed");
                         }
                     } catch (error: any) {
-                        console.error("Payment Verification Failed:", error);
+                        console.error("Post-Payment Flow Crash:", error);
                         setCheckoutError(error.message || "Payment verification failed.");
                         setIsProcessing(false);
                     }
