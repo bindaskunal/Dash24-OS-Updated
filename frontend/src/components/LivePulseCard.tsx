@@ -171,7 +171,7 @@ export default function LivePulseCard({ product, handleAddToCart, handleCardClic
                                     addItem({ ...product, id: product.id || product.name, brandName: product.brand || 'Unknown', isFastTrack: product.fulfilledBy !== 'Brand', imageUrl: product.image_url, deliveryBucket: product.deliveryBucket });
                                     setIsCartOpen(true);
                                 }}
-                                className="flex items-center justify-center w-full py-2.5 rounded-xl bg-[#00FF00] text-black font-black text-xs shadow-md active:scale-95 transition-transform gap-2"
+                                className="flex items-center justify-center w-full py-2.5 rounded-xl bg-[#0066FF] text-white font-black text-xs shadow-md active:scale-95 transition-transform gap-2 hover:bg-blue-700"
                             >
                                 <span className="text-sm leading-none font-black">+</span> Add to Cart
                             </button>
@@ -190,7 +190,7 @@ export default function LivePulseCard({ product, handleAddToCart, handleCardClic
                                 addItem({ ...product, id: product.id || product.name, brandName: product.brand || 'Unknown', isFastTrack: product.fulfilledBy !== 'Brand', imageUrl: product.image_url, deliveryBucket: product.deliveryBucket });
                                 setIsCartOpen(true);
                             }}
-                            className="hidden md:flex items-center justify-center w-full py-2.5 rounded-xl text-xs font-black transition-all relative overflow-hidden group/btn bg-[#00FF00] text-black border border-[#00FF00]/30 hover:bg-[#00ba00] mt-2 gap-2"
+                            className="hidden md:flex items-center justify-center w-full py-2.5 rounded-xl text-xs font-black transition-all relative overflow-hidden group/btn bg-[#0066FF] text-white border border-[#0066FF]/30 hover:bg-blue-700 mt-2 gap-2"
                         >
                             <span className="relative z-10 flex items-center justify-center gap-2">
                                 <span>➕</span> Add to Cart

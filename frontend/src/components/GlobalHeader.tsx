@@ -214,6 +214,21 @@ export default function GlobalHeader() {
                                 >
                                     K
                                 </button>
+                                {accountOpen && (
+                                    <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 z-[200] overflow-hidden py-2">
+                                        <button 
+                                            onClick={async () => {
+                                                await supabase.auth.signOut();
+                                                useUserStore.getState().setAuthenticated(false);
+                                                useUserStore.getState().setPulsePoints(0);
+                                                setAccountOpen(false);
+                                            }}
+                                            className="w-full text-left px-4 py-2 text-sm text-red-600 font-bold hover:bg-red-50 transition"
+                                        >
+                                            Logout
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         )}
                     </div>

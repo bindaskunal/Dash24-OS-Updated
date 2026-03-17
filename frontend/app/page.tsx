@@ -1369,12 +1369,12 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                                   </div>
                                   <h3 className="font-black text-xl text-gray-900 leading-tight mb-2 group-hover:text-blue-600 transition">{finalSearchResults[0].name}</h3>
                                   {productPitches[finalSearchResults[0].id] && (
-                                    <p className="text-sm font-bold text-[#00FF00] mb-4 leading-snug">{productPitches[finalSearchResults[0].id]}</p>
+                                    <p className="text-sm font-bold text-[#0066FF] mb-4 leading-snug">{productPitches[finalSearchResults[0].id]}</p>
                                   )}
                                 </div>
                                 <div className="mt-auto flex items-center justify-between pt-4 border-t border-gray-100">
                                   <p className="text-3xl font-black text-gray-900">₹{finalSearchResults[0].price}</p>
-                                  <button className="h-12 w-12 rounded-full bg-[#00FF00] hover:bg-[#00ba00] text-black flex items-center justify-center shadow-lg hover:shadow-[#00FF00]/40 transition text-2xl font-black" onClick={(e) => { e.stopPropagation(); handleAddToCart(finalSearchResults[0]); }}>
+                                  <button className="h-12 w-12 rounded-full bg-[#0066FF] hover:bg-blue-700 text-white flex items-center justify-center shadow-lg hover:shadow-[#0066FF]/40 transition text-2xl font-black" onClick={(e) => { e.stopPropagation(); handleAddToCart(finalSearchResults[0]); }}>
                                     +
                                   </button>
                                 </div>
@@ -1398,7 +1398,7 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                                     </div>
                                     <h4 className="font-bold text-sm text-gray-900 leading-snug line-clamp-2 mb-1 group-hover:text-blue-600 transition">{item.name}</h4>
                                     {productPitches[item.id] && (
-                                      <p className="text-[11px] font-bold text-[#00ba00] mb-3 leading-tight line-clamp-2">{productPitches[item.id]}</p>
+                                      <p className="text-[11px] font-bold text-[#0066FF] mb-3 leading-tight line-clamp-2">{productPitches[item.id]}</p>
                                     )}
                                     <div className="mt-auto flex items-center justify-between pt-3 border-t border-gray-50">
                                       <p className="text-base font-black text-gray-900">₹{item.price}</p>
@@ -1608,7 +1608,7 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                       </div>
                       <button
                         onClick={() => { handleAddToCart(activeProduct.name); setActiveProduct(null); }}
-                        className="w-[calc(100%-2.5rem)] ml-10 bg-[#00FF00] text-black py-4 rounded-xl text-sm font-black group-hover:bg-[#00ba00] transition shadow-lg hover:shadow-[#00FF00]/20"
+                        className="w-[calc(100%-2.5rem)] ml-10 bg-[#0066FF] text-white py-4 rounded-xl text-sm font-black group-hover:bg-blue-700 transition shadow-lg hover:shadow-[#0066FF]/20"
                       >
                         Add to Cart
                       </button>
@@ -1682,7 +1682,7 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
 
                         <button
                           onClick={() => { handleAddToCart(item.name); setCartOpen(true); }}
-                          className={`w-full py-3.5 rounded-xl text-xs font-black transition-all shadow-sm ${addedItem === item.name ? "bg-green-500 text-white shadow-green-500/20" : "bg-[#00FF00] text-black hover:bg-[#00ba00] hover:shadow-[#00FF00]/20"}`}
+                          className={`w-full py-3.5 rounded-xl text-xs font-black transition-all shadow-sm ${addedItem === item.name ? "bg-green-500 text-white shadow-green-500/20" : "bg-[#0066FF] text-white hover:bg-blue-700 hover:shadow-[#0066FF]/20"}`}
                         >
                           {addedItem === item.name ? "Added ✓" : "Add to Cart"}
                         </button>

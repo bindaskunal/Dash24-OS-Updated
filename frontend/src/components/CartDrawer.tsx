@@ -248,6 +248,9 @@ export default function CartDrawer() {
                             }
                         }
 
+                        // Wait for any trailing promises before wiping cart
+                        await new Promise(resolve => setTimeout(resolve, 500));
+
                         // 4. Verify Payment Signature
                         const verifyRes = await fetch('/api/verify', {
                             method: 'POST',
@@ -688,9 +691,9 @@ export default function CartDrawer() {
                                         </div>
                                         <h2 className="text-3xl font-black text-gray-900 mb-2 tracking-tight">Order Confirmed!</h2>
                                         <p className="text-lg font-mono font-bold text-gray-500 mt-4">Order ID: {orderId}</p>
-                                        <div className="bg-[#FFD700]/20 border border-[#FFD700] rounded-xl p-4 mt-6 mx-auto max-w-[90%]">
-                                            <p className="text-base md:text-lg font-black text-gray-900 leading-tight">
-                                                You earned <span className="text-[#D4AF37] text-xl md:text-2xl ml-1">{getTotalPoints()}</span> Dash24 Points on this order!
+                                        <div className="bg-[#0066FF]/10 border border-[#0066FF]/30 rounded-xl p-4 mt-6 mx-auto max-w-[90%]">
+                                            <p className="text-base md:text-lg font-black text-gray-200 leading-tight">
+                                                You earned <span className="text-[#0066FF] text-xl md:text-2xl ml-1">{getTotalPoints()}</span> Dash24 Points on this order!
                                             </p>
                                         </div>
                                     </div>
