@@ -181,8 +181,7 @@ export default function CartDrawer() {
                                 razorpay_order_id: response.razorpay_order_id || orderData.id,
                                 razorpay_payment_id: response.razorpay_payment_id,
                                 // FIX: Send as raw JSON payload so Supabase doesn't reject mismatched UUIDs
-                                items: cartItems,
-                                cart_items: cartItems 
+                                items: cartItems
                             };
 
                             const { error: syncError } = await supabase
