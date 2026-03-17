@@ -103,9 +103,9 @@ YOUR GOAL: Be agentic and highly persuasive. Don't just list products; convince 
 INSTRUCTIONS:
 1. Analyze intent. If they say "bhook" or "hunger", strictly prioritize food/snacks.
 2. Draft 'conciergeMessage': A short, agentic 1-sentence header.
-3. Draft 'heroReasoning': A high-conviction 7-8 line paragraph. Explain in detail WHY these products are perfect for them right now and emphasize the 60-minute delivery to Prestige Whitefield.
+3. Draft 'heroReasoning': A high-conviction 7-8 line paragraph. Explain in detail WHY these products are perfect for them right now and emphasize the 60-minute delivery to Prestige Whitefield. CRITICAL: Once you select the 'focusItemId', you MUST explicitly write out that product's actual name in this paragraph and explain why it is the absolute best solution for the user.
 4. Select 1 'focusItemId' and 4 'carouselItemIds'.
-5. For EVERY selected item, provide a 1-sentence 'pitch' highlighting a specific benefit.
+5. For EVERY other product in the alternatives list, write a 2-sentence 'pitch' explaining why it's a great secondary choice.
 
 RETURN ONLY RAW JSON matching this structure:
 {

@@ -85,16 +85,16 @@ function OrderSuccessContent() {
                     </svg>
                 </div>
 
-                <div className="absolute top-[20%] left-[20%] w-6 h-6 bg-white border-4 border-[#00FF41] rounded-full shadow-[0_0_15px_rgba(0,255,65,0.3)] z-10" />
+                <div className="absolute top-[20%] left-[20%] w-6 h-6 bg-white border-4 border-[#0066FF] rounded-full shadow-[0_0_15px_rgba(0,102,255,0.3)] z-10" />
                 <div className="absolute top-[80%] left-[80%] w-6 h-6 bg-white border-4 border-slate-300 rounded-full shadow-sm z-10" />
 
                 <svg className="absolute inset-0 w-full h-full pointer-events-none">
-                    <line x1="20%" y1="20%" x2="80%" y2="80%" stroke="#00FF41" strokeWidth="2" strokeDasharray="6 6" className="opacity-80 animate-[pulse_2s_infinite]" />
+                    <line x1="20%" y1="20%" x2="80%" y2="80%" stroke="#0066FF" strokeWidth="2" strokeDasharray="6 6" className="opacity-80 animate-[pulse_2s_infinite]" />
                 </svg>
 
                 {statusStep >= 2 && statusStep < 3 && (
                     <div
-                        className="absolute w-12 h-12 -ml-6 -mt-6 bg-[#00FF41] rounded-full flex items-center justify-center text-xl shadow-[0_0_20px_rgba(0,255,65,0.4)] transition-all duration-[20s] ease-linear z-20 text-white border-2 border-white"
+                        className="absolute w-12 h-12 -ml-6 -mt-6 bg-[#0066FF] rounded-full flex items-center justify-center text-xl shadow-[0_0_20px_rgba(0,102,255,0.4)] transition-all duration-[20s] ease-linear z-20 text-white border-2 border-white"
                         style={{ top: `${riderPos.top}%`, left: `${riderPos.left}%` }}
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6">
@@ -107,13 +107,13 @@ function OrderSuccessContent() {
             <div className="bg-slate-50 border-t p-4 shrink-0">
                  <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-white border flex items-center justify-center shrink-0 shadow-sm">
-                        <span className="text-[#00FF41] font-black animate-pulse text-sm">⚡</span>
+                        <span className="text-[#0066FF] font-black animate-pulse text-sm">⚡</span>
                     </div>
                     <p className="text-xs md:text-sm font-medium text-slate-700 font-mono tracking-tight leading-snug">
                         {pulseStep < pulseLogs.length ? (
                             <>
                                 {pulseText}
-                                <span className="inline-block w-1.5 h-3 bg-[#00FF41] ml-1 animate-pulse align-middle" />
+                                <span className="inline-block w-1.5 h-3 bg-[#0066FF] ml-1 animate-pulse align-middle" />
                             </>
                         ) : (
                             <span className="text-emerald-700">System: Optimal route locked.</span>
@@ -143,19 +143,19 @@ function OrderSuccessContent() {
                         <p className="text-slate-500 font-medium">Smart suggestions for your next order based on consumption rates.</p>
                     </div>
                     <div className="hidden md:flex items-center gap-2 text-sm font-bold text-slate-400 uppercase tracking-widest bg-slate-100 px-4 py-2 rounded-full mt-4 md:mt-0">
-                        <span className="w-2 h-2 rounded-full bg-[#00FF41] animate-pulse"></span> Auto-Add Engine Active
+                        <span className="w-2 h-2 rounded-full bg-[#0066FF] animate-pulse"></span> Auto-Add Engine Active
                     </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     {resetItems.map((item, idx) => (
                         <div key={idx} className="bg-white border rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
-                            <div className="absolute top-0 left-0 w-1 h-full bg-slate-200 group-hover:bg-[#00FF41] transition-colors" />
+                            <div className="absolute top-0 left-0 w-1 h-full bg-slate-200 group-hover:bg-[#0066FF] transition-colors" />
                             <div className="flex justify-between items-start mb-4">
                                 <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center text-2xl border">
                                     {item.icon}
                                 </div>
-                                <span className="text-[10px] font-bold uppercase tracking-widest text-[#00FF41] bg-emerald-50 px-2 py-1 rounded-md">
+                                <span className="text-[10px] font-bold uppercase tracking-widest text-[#0066FF] bg-blue-50 px-2 py-1 rounded-md">
                                     {item.cycle}
                                 </span>
                             </div>
@@ -164,7 +164,7 @@ function OrderSuccessContent() {
                             
                             <div className="flex items-center justify-between mt-auto">
                                 <span className="font-black text-gray-900">₹{item.price}</span>
-                                <button className="text-sm font-extrabold text-[#00FF41] hover:text-emerald-600 transition-colors uppercase tracking-wider">
+                                <button className="text-sm font-extrabold text-[#0066FF] hover:text-blue-700 transition-colors uppercase tracking-wider">
                                     Schedule +
                                 </button>
                             </div>
@@ -176,13 +176,13 @@ function OrderSuccessContent() {
     };
 
     return (
-        <div className="min-h-screen w-full overflow-x-hidden p-0 bg-slate-50 text-gray-900 font-sans selection:bg-[#00FF41]/30 pb-20 md:pb-0">
+        <div className="min-h-screen w-full overflow-x-hidden p-0 bg-gray-900 text-gray-200 font-sans selection:bg-[#0066FF]/30 pb-20 md:pb-0">
             {/* Header */}
-            <div className="p-4 md:px-8 border-b bg-white sticky top-0 z-50 flex items-center justify-between h-16 shadow-sm">
+            <div className="p-4 md:px-8 border-b border-gray-800 bg-gray-900/90 backdrop-blur-md sticky top-0 z-50 flex items-center justify-between h-16 shadow-sm">
                 <div>
-                    <h1 className="text-2xl font-black tracking-tight text-gray-900">DASH24</h1>
+                    <h1 className="text-2xl font-black tracking-tight text-white">DASH24</h1>
                 </div>
-                <Link href="/" className="px-5 py-2 rounded-full border text-gray-700 text-xs font-bold uppercase tracking-widest hover:bg-slate-50 transition-colors">
+                <Link href="/" className="px-5 py-2 rounded-full border border-gray-700 text-gray-300 text-xs font-bold uppercase tracking-widest hover:bg-gray-800 transition-colors">
                     Back to Store
                 </Link>
             </div>
@@ -191,10 +191,10 @@ function OrderSuccessContent() {
                 
                 {/* HEADLINE */}
                 <div className="text-center md:text-left">
-                    <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-gray-900 mb-2">
+                    <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-[#0066FF] mb-2">
                         Order Confirmed.
                     </h1>
-                    <p className="text-xl md:text-2xl text-slate-500 font-medium">
+                    <p className="text-xl md:text-2xl text-gray-400 font-medium">
                         Sit tight, it's on the way.
                     </p>
                 </div>
@@ -208,40 +208,40 @@ function OrderSuccessContent() {
 
                     {/* Right: Order Status & Minimal Receipt */}
                     <div className="order-2 flex flex-col gap-6">
-                        <div className="bg-white border rounded-3xl p-8 shadow-sm">
-                            <h3 className="text-sm font-bold uppercase tracking-widest text-slate-400 mb-1">Live Status</h3>
+                        <div className="bg-gray-800 border border-gray-700 rounded-3xl p-8 shadow-sm">
+                            <h3 className="text-sm font-bold uppercase tracking-widest text-gray-400 mb-1">Live Status</h3>
                             <div className="flex items-end gap-3 mb-6">
-                                <h2 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tighter">
+                                <h2 className="text-4xl md:text-5xl font-black text-white tracking-tighter">
                                     {statusStep < 3 ? "14 mins" : "Arrived"}
                                 </h2>
-                                {statusStep < 3 && <span className="text-lg text-slate-500 font-medium mb-1">ETA</span>}
+                                {statusStep < 3 && <span className="text-lg text-gray-400 font-medium mb-1">ETA</span>}
                             </div>
                             
                             {/* Progress bar */}
-                            <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden mb-4">
+                            <div className="w-full h-3 bg-gray-700 rounded-full overflow-hidden mb-4">
                                 <div 
-                                    className="h-full bg-[#00FF41] rounded-full transition-all duration-1000 ease-out" 
+                                    className="h-full bg-[#0066FF] rounded-full transition-all duration-1000 ease-out" 
                                     style={{ width: `${(statusStep / 3) * 100}%` }}
                                 />
                             </div>
-                            <div className="flex justify-between text-xs font-bold text-slate-400">
-                                <span className={statusStep >= 0 ? "text-gray-900" : ""}>Confirmed</span>
-                                <span className={statusStep >= 1 ? "text-gray-900" : ""}>Packing</span>
-                                <span className={statusStep >= 2 ? "text-gray-900" : ""}>En Route</span>
+                            <div className="flex justify-between text-xs font-bold text-gray-500">
+                                <span className={statusStep >= 0 ? "text-white" : ""}>Confirmed</span>
+                                <span className={statusStep >= 1 ? "text-white" : ""}>Packing</span>
+                                <span className={statusStep >= 2 ? "text-white" : ""}>En Route</span>
                             </div>
                         </div>
 
-                        <div className="bg-white border rounded-3xl p-6 shadow-sm">
+                        <div className="bg-gray-800 border border-gray-700 rounded-3xl p-6 shadow-sm">
                             <div className="flex justify-between items-center mb-4">
-                                <h3 className="font-bold text-gray-900">Order Summary</h3>
-                                <span className="font-mono text-xs md:text-sm text-slate-500 truncate max-w-[150px]">{displayOrderId}</span>
+                                <h3 className="font-bold text-white">Order Summary</h3>
+                                <span className="font-mono text-xs md:text-sm text-gray-400 truncate max-w-[150px]">{displayOrderId}</span>
                             </div>
-                            <div className="flex justify-between items-center py-3 border-b border-slate-100">
+                            <div className="flex justify-between items-center py-3 border-b border-gray-700">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center text-xl">🛍️</div>
-                                    <span className="font-medium text-slate-700">Dash24 Combined Delivery</span>
+                                    <div className="w-10 h-10 bg-gray-700 rounded-lg flex items-center justify-center text-xl">🛍️</div>
+                                    <span className="font-medium text-gray-300">Dash24 Combined Delivery</span>
                                 </div>
-                                <span className="font-bold text-gray-900">₹{orderTotal}</span>
+                                <span className="font-bold text-white">₹{orderTotal}</span>
                             </div>
                         </div>
                     </div>

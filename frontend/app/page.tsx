@@ -1353,7 +1353,7 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                                   <span className="text-[#00FF00] mr-3">✨</span>
                                   {agenticReasoning || `Here are your ${searchQuery} results`}
                                 </h2>
-                                <p className="text-gray-300 text-base md:text-lg leading-relaxed font-medium">
+                                <p className="text-gray-200 text-lg md:text-xl leading-loose font-medium mt-4 bg-gray-900/50 p-6 rounded-2xl border border-gray-800 shadow-inner">
                                   {heroReasoning}
                                 </p>
                             </div>

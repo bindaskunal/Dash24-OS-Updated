@@ -189,12 +189,12 @@ export default function CartDrawer() {
 
                             const { data: syncedOrder, error: syncError } = await supabase
                                 .from('orders')
-                                .upsert(orderPayload)
+                                .insert(orderPayload)
                                 .select()
                                 .single();
 
                             if (syncError) {
-                                console.error("Supabase Order Upsert Error:", syncError);
+                                console.error("Supabase Order Insert Error:", syncError);
                             } else if (syncedOrder && !orderData.dbOrderId) {
                                 // Failsafe: explicitly write order_items if the backend API was bypassed/failed
                                 const itemsPayload = cartItems.map((item: any) => ({
