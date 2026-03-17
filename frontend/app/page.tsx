@@ -1239,111 +1239,6 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                 <div className="w-full max-w-7xl mx-auto space-y-8 h-full flex flex-col items-center justify-center">
                   {!searchQuery ? (
                     <>
-                      {/* Default AI Suggestions */}
-                      <div className="space-y-4">
-                        <p className="text-xs uppercase tracking-widest text-gray-500 font-bold ml-1">Live Pulse Recommendations</p>
-                        <div className="flex flex-wrap gap-2">
-                          {["Minimalist vs Mamaearth Vitamin C", "Noise vs boAt Smartwatch", "Sugar-free energy snacks", "Hyperlocal favorites in Bangalore", "Amla juice for acidity"].map((query) => (
-                            <button
-                              onClick={() => {
-                                setSearchQuery(query);
-                                if (query === "Minimalist vs Mamaearth Vitamin C") {
-                                  setSearchFocused(true);
-                                  setIsSearching(true);
-                                  setTimeout(() => {
-                                    const mockData = {
-                                      isComparison: true,
-                                      thought_process: ["Comparing active formulations...", "Analyzing clinical vs botanical benefits..."],
-                                      globalHook: "Minimalist offers clinical-grade active treatment, while Mamaearth focuses on instant hydration and surface glow.",
-                                      headline: "Clinical Treatment vs Daily Botanical Glow",
-                                      primary_product_id: 1, // Assumes item #1 exists or can load
-                                      comparisonData: {
-                                        features: [
-                                          "Core Active", "Texture", "Skin Type", "Primary Benefit", "Bonus Booster",
-                                          "Irritants", "Sun Protection", "Application", "Visible Results", "Best For"
-                                        ],
-                                        products: [
-                                          {
-                                            name: "Minimalist 10% Vitamin C Serum",
-                                            values: [
-                                              "10% Ethyl Ascorbic Acid", "Water-light serum", "Oily/Acne-prone", "Fades dark spots",
-                                              "Centella Asiatica (1%)", "Fragrance-free", "None (use SPF var)", "3-4 drops directly",
-                                              "4-6 weeks", "Stubborn pigmentation"
-                                            ]
-                                          },
-                                          {
-                                            name: "Mamaearth Vitamin C Daily Glow Cream",
-                                            values: [
-                                              "Vitamin C + Turmeric", "Lightweight cream", "Dry/Combination", "Instant radiance",
-                                              "Glycerin & Niacinamide", "Contains fragrance", "Mild UV filters", "Pea-sized amount",
-                                              "Immediate glow", "Daily moisturizing"
-                                            ]
-                                          }
-                                        ]
-                                      },
-                                      recommendations: []
-                                    };
-                                    setAgenticRawData(mockData);
-                                    setAgenticReasoning(mockData.globalHook);
-                                    setAgenticComparison(mockData.comparisonData);
-                                    setAgenticMatches([]);
-                                    setIsSearching(false);
-                                  }, 300);
-                                  return;
-                                }
-                                if (query === "Noise vs boAt Smartwatch") {
-                                  setSearchFocused(true);
-                                  setIsSearching(true);
-                                  setTimeout(() => {
-                                    const mockData = {
-                                      isComparison: true,
-                                      thought_process: ["Comparing hardware specs...", "Analyzing battery life differentials..."],
-                                      globalHook: "Noise offers superior display brightness and fitness tracking accuracy, while boAt dominates in battery life and rugged build quality.",
-                                      headline: "Display Brightness vs Rugged Battery Endurance",
-                                      primary_product_id: 2, // Assumes item #2 exists
-                                      comparisonData: {
-                                        features: [
-                                          "Display Tech", "Peak Brightness", "Battery Life", "Calling Features", "Heart Rate Sensor Accuracy",
-                                          "Sports Modes", "IP Rating (Water Resistance)", "Companion App", "Build Material", "Warranty"
-                                        ],
-                                        products: [
-                                          {
-                                            name: "Noise ColorFit Pro 4",
-                                            values: [
-                                              "1.72\" TruView Display", "500 Nits", "Up to 7 Days", "Advanced Bluetooth Calling", "Highly Accurate",
-                                              "100+ Sports Modes", "IP68 Water Resistant", "NoiseFit App", "Polycarbonate Body", "1 Year"
-                                            ]
-                                          },
-                                          {
-                                            name: "boAt Xtend Smartwatch",
-                                            values: [
-                                              "1.69\" HD Display", "450 Nits", "Up to 10 Days", "Standard Bluetooth Calling", "Standard Accuracy",
-                                              "50+ Sports Modes", "5ATM Water Resistance", "boAt Crest App", "Metal Alloy Frame", "1 Year"
-                                            ]
-                                          }
-                                        ]
-                                      },
-                                      recommendations: []
-                                    };
-                                    setAgenticRawData(mockData);
-                                    setAgenticReasoning(mockData.globalHook);
-                                    setAgenticComparison(mockData.comparisonData);
-                                    setAgenticMatches([]);
-                                    setIsSearching(false);
-                                  }, 300);
-                                  return;
-                                }
-                                handleSearchSubmit(query);
-                              }}
-                              key={query}
-                              className="bg-white border border-gray-200 hover:border-blue-300 shadow-sm hover:shadow-md px-4 py-2.5 rounded-xl text-sm text-gray-700 font-medium transition text-left flex items-center gap-2"
-                            >
-                              <span className="text-blue-500">✨</span> {query}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
                       {/* Local Search Results While Typing (Before Enter/AI) */}
                       {searchQuery.length > 1 && (
                         <div className="mt-8 space-y-4">
@@ -1356,7 +1251,7 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                             ).map(item => (
                               <div key={`local-search-${item.id}`} onClick={() => { setSearchFocused(false); router.push(`/product/${item.id || 0}`); }} className="bg-white rounded-xl border border-gray-100 shadow-sm p-3 flex flex-col justify-between cursor-pointer group hover:shadow-md transition text-black">
                                 <div className="w-full h-28 mb-3 relative overflow-hidden flex items-center justify-center">
-                                  <img referrerPolicy="no-referrer" src={item.image_url} alt={item.name} className="max-w-full max-h-full object-contain group-hover:scale-110 transition duration-300 mix-blend-multiply" />
+                                  <img referrerPolicy="no-referrer" src={item.image_url} alt={item.name} className="max-w-full max-h-full object-contain group-hover:scale-110 transition duration-300 mix-blend-multiply" onError={(e) => { e.currentTarget.src = "https://placehold.co/400x400/1a1a1a/ffffff?text=Image+Coming+Soon" }} />
                                 </div>
                                 <div className="p-1">
                                   <div className="flex items-center gap-1.5 mb-1.5">
@@ -1400,7 +1295,7 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                             <div className="md:col-span-2 group h-full">
                               <div onClick={() => { setSearchFocused(false); router.push(`/product/${finalSearchResults[0].id || 0}`); }} className="h-full bg-white rounded-[2rem] border-2 border-transparent hover:border-[#00FF00] shadow-xl p-6 flex flex-col justify-between cursor-pointer transition-all duration-300 hover:shadow-[#00FF00]/20">
                                 <div className="w-full h-48 md:h-64 mb-6 relative overflow-hidden flex items-center justify-center rounded-xl bg-gray-50">
-                                  <img referrerPolicy="no-referrer" src={finalSearchResults[0].image_url} alt={finalSearchResults[0].name} className="max-h-full max-w-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-500" />
+                                  <img referrerPolicy="no-referrer" src={finalSearchResults[0].image_url} alt={finalSearchResults[0].name} className="max-h-full max-w-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-500" onError={(e) => { e.currentTarget.src = "https://placehold.co/400x400/1a1a1a/ffffff?text=Image+Coming+Soon" }} />
                                 </div>
                                 <div>
                                   <div className="flex items-center gap-2 mb-2">
@@ -1433,11 +1328,11 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                                 {finalSearchResults.slice(1).map(item => (
                                   <div key={`hero-alt-${item.id}`} onClick={() => { setSearchFocused(false); router.push(`/product/${item.id || 0}`); }} className="min-w-[240px] md:min-w-[280px] snap-start bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex flex-col cursor-pointer group hover:shadow-lg transition">
                                     <div className="w-full h-32 mb-4 relative overflow-hidden flex items-center justify-center rounded-lg bg-gray-50">
-                                      <img referrerPolicy="no-referrer" src={item.image_url} alt={item.name} className="max-h-full max-w-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500" />
+                                      <img referrerPolicy="no-referrer" src={item.image_url} alt={item.name} className="max-h-full max-w-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500" onError={(e) => { e.currentTarget.src = "https://placehold.co/400x400/1a1a1a/ffffff?text=Image+Coming+Soon" }} />
                                     </div>
                                     <h4 className="font-bold text-sm text-gray-900 leading-snug line-clamp-2 mb-1 group-hover:text-blue-600 transition">{item.name}</h4>
                                     {productPitches[item.id] && (
-                                      <p className="text-[11px] font-bold text-[#0066FF] mb-3 leading-tight line-clamp-2">{productPitches[item.id]}</p>
+                                      <p className="text-xs text-gray-400 mt-1 mb-2 leading-tight line-clamp-2">{productPitches[item.id]}</p>
                                     )}
                                     <div className="mt-auto flex items-center justify-between pt-3 border-t border-gray-50">
                                       <p className="text-base font-black text-gray-900">₹{item.price}</p>

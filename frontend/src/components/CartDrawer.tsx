@@ -167,7 +167,7 @@ export default function CartDrawer() {
                         console.log("Razorpay Success Handler Triggered. Trace Started.");
                         console.log("Payment Payload:", response);
 
-                        // 1. Mission 59: Guarantee Orders Table Write
+                        // 1. Force the Database Writes safely BEFORE verifying
                         try {
                             const { data: userAuthData } = await supabase.auth.getUser();
                             const activeUserId = userAuthData?.user?.id || null;
@@ -180,46 +180,31 @@ export default function CartDrawer() {
                                 status: 'Confirmed',
                                 razorpay_order_id: response.razorpay_order_id || orderData.id,
                                 razorpay_payment_id: response.razorpay_payment_id,
-                                cart_items: cartItems.map((item: any) => ({
-                                    product_id: item.id,
-                                    quantity: item.quantity,
-                                    price: item.price
-                                }))
+                                // FIX: Send as raw JSON payload so Supabase doesn't reject mismatched UUIDs
+                                items: cartItems,
+                                cart_items: cartItems 
                             };
 
-                            const { data: syncedOrder, error: syncError } = await supabase
+                            const { error: syncError } = await supabase
                                 .from('orders')
-                                .insert(orderPayload)
+                                .upsert(orderPayload)
                                 .select()
                                 .single();
 
                             if (syncError) {
-                                console.error("Supabase Order Insert Error:", syncError);
-                            } else if (syncedOrder && !orderData.dbOrderId) {
-                                // Failsafe: explicitly write order_items if the backend API was bypassed/failed
-                                const itemsPayload = cartItems.map((item: any) => ({
-                                    order_id: syncedOrder.id,
-                                    product_id: item.id,
-                                    quantity: item.quantity,
-                                    price_at_purchase: item.price
-                                }));
-                                const { error: itemsError } = await supabase.from('order_items').insert(itemsPayload);
-                                if (itemsError) console.error("Supabase Order Items Failsafe Insert Error:", itemsError);
+                                console.error("Supabase Order Upsert Error:", syncError);
+                                alert(`Database Save Error: ${syncError.message}`);
+                            } else {
+                                console.log("✅ Order firmly saved to Track page.");
                             }
-                        } catch (err) {
-                            console.error("Fatal exception during Supabase explicit order sync:", err);
-                        }
 
-                        // 2. Calculate and Accumulate Pulse Points
-                        const pointsEarned = Math.floor(total * 0.1);
-                        if (isAuthenticated) {
-                            const { data: userAuthData } = await supabase.auth.getUser();
-                            if (userAuthData.user) {
-                                // Call RPC or update profiles directly
+                            // Calculate and Accumulate Pulse Points
+                            const pointsEarned = Math.floor(total * 0.1);
+                            if (isAuthenticated && activeUserId) {
                                 const { data: currentProfile } = await supabase
                                     .from('profiles')
                                     .select('pulse_points')
-                                    .eq('id', userAuthData.user.id)
+                                    .eq('id', activeUserId)
                                     .single();
                                 
                                 const newPoints = (currentProfile?.pulse_points || 0) + pointsEarned;
@@ -227,25 +212,23 @@ export default function CartDrawer() {
                                 await supabase
                                     .from('profiles')
                                     .update({ pulse_points: newPoints })
-                                    .eq('id', userAuthData.user.id);
+                                    .eq('id', activeUserId);
                                 
-                                // Mission 60: Action 2 - Wallet Logs
+                                // Write Wallet Log
                                 const { error: walletError } = await supabase
                                     .from('wallet_logs')
                                     .insert({
-                                        user_id: userAuthData.user.id,
+                                        user_id: activeUserId,
                                         amount: pointsEarned,
                                         type: 'earned',
-                                        description: `Order ${orderData.dbOrderId || response.razorpay_order_id} Reward`
+                                        description: `Order Reward (+${pointsEarned} Pulse)`
                                     });
                                 
-                                if (walletError) {
-                                    console.error("Supabase Wallet Log Insert Error:", walletError);
-                                }
-                                
-                                addPulsePoints(pointsEarned);
-                                console.log(`Added ${pointsEarned} Pulse Points securely.`);
+                                if (walletError) console.error("Supabase Wallet Log Insert Error:", walletError);
+                                else addPulsePoints(pointsEarned);
                             }
+                        } catch (err) {
+                            console.error("Fatal exception during Supabase order sync:", err);
                         }
 
                         // Wait for any trailing promises before wiping cart
@@ -679,8 +662,6 @@ export default function CartDrawer() {
                                     </div>
                                 </div>
                             )}
-
-
 
                             {/* ============ SUCCESS ============ */}
                             {step === 'success' && (

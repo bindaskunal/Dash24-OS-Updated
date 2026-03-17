@@ -57,7 +57,7 @@ export default function LivePulseCard({ product, handleAddToCart, handleCardClic
                 <div className="w-[80px] md:w-[140px] h-[80px] md:h-[140px] relative group-hover:scale-105 transition-transform duration-500 md:mt-2">
                     <img 
                         referrerPolicy="no-referrer" 
-                        src={imgError ? `https://placehold.co/600x600/1a1a1a/ffffff?text=${encodeURIComponent(product.name)}` : (product.image_url || `https://placehold.co/600x600/1a1a1a/ffffff?text=${encodeURIComponent(product.name)}`)} 
+                        src={imgError ? "https://placehold.co/400x400/1a1a1a/ffffff?text=Image+Coming+Soon" : (product.image_url || "https://placehold.co/400x400/1a1a1a/ffffff?text=Image+Coming+Soon")} 
                         alt={product.name} 
                         loading="lazy" 
                         onError={() => setImgError(true)}
