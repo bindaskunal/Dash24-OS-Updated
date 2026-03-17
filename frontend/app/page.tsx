@@ -189,9 +189,11 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
   const [agenticReasoning, setAgenticReasoning] = useState<string | null>(null);
   const [agenticComparison, setAgenticComparison] = useState<any>(null);
   const [agenticRawData, setAgenticRawData] = useState<any>(null);
-  // Mission 60 states
   const [heroReasoning, setHeroReasoning] = useState<string | null>(null);
   const [productPitches, setProductPitches] = useState<Record<string, string>>({});
+  
+  // Mission 64 state
+  const [trendingTags, setTrendingTags] = useState<string[]>([]);
 
   const [showBattle, setShowBattle] = useState(false);
   const [battleStep, setBattleStep] = useState(0);
@@ -386,6 +388,22 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
       setIntent('product');
     }
   }, [searchParams?.search]);
+
+  // Mission 64: Fetch trending tags
+  useEffect(() => {
+    const fetchTrendingTags = async () => {
+      try {
+        const res = await fetch('/api/trending');
+        const data = await res.json();
+        if (data && data.trending) {
+          setTrendingTags(data.trending);
+        }
+      } catch (err) {
+        console.error("Failed to fetch trending tags", err);
+      }
+    };
+    fetchTrendingTags();
+  }, []);
 
   // Manual Agentic Search Fetch (Triggered on Enter or Button Click)
   const handleSearchSubmit = async (queryOverride?: string) => {
@@ -1193,6 +1211,27 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                     </button>
                   ))}
                 </div>
+
+                {/* Mission 64: Trending Autocomplete Tags */}
+                {!searchQuery && trendingTags.length > 0 && (
+                  <div className="hidden md:flex flex-col gap-2 px-12 pt-1 pb-2">
+                    <span className="text-[10px] uppercase tracking-widest text-gray-500 font-bold ml-1">Trending in {selectedNode || "Whitefield"}</span>
+                    <div className="flex gap-2 overflow-x-auto hide-scrollbar">
+                      {trendingTags.map((tag, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => {
+                            setSearchQuery(tag);
+                            handleSearchSubmit(tag);
+                          }}
+                          className="bg-blue-50/10 hover:bg-blue-50/20 text-[#0066FF] border border-[#0066FF]/30 hover:border-[#0066FF] px-4 py-1.5 rounded-full text-sm font-bold transition-all shadow-sm whitespace-nowrap"
+                        >
+                          {tag}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Content Area - Full Screen Agentic Layout */}
