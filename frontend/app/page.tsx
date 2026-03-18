@@ -495,7 +495,11 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
 
   const [userItems, setUserItems] = useState<any[]>([]);
 
-  const scoredItems = userItems.map((item) => {
+  const scoredItems = userItems.filter(item => {
+    const url = item.image_url || "";
+    const isMissing = !url || url.trim() === "" || url.toLowerCase() === "no image" || url.includes("placehold.co") || url.toLowerCase().includes("coming soon");
+    return !isMissing;
+  }).map((item) => {
     let score = item.rating * 10;
     if (item.stock <= 3) score += 15;
     if (item.low) score += 20;
@@ -515,7 +519,12 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
           (p.name && p.name.toLowerCase().replace(/\s+/g, '') === apiString.toLowerCase().replace(/\s+/g, ''))
         );
       })
-      .filter(Boolean);
+      .filter(Boolean)
+      .filter((p: any) => {
+        const url = p.image_url || "";
+        const isMissing = !url || url.trim() === "" || url.toLowerCase() === "no image" || url.includes("placehold.co") || url.toLowerCase().includes("coming soon");
+        return !isMissing;
+      });
   } else if (searchQuery) {
     // Basic local fallback until API returns (e.g. while typing)
     const normalizedSearch = searchQuery.toLowerCase();
@@ -1224,7 +1233,7 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                             setSearchQuery(tag);
                             handleSearchSubmit(tag);
                           }}
-                          className="text-sm font-medium text-white bg-[#1a1a1a] border border-gray-700 px-4 py-2 rounded-full transition-colors hover:bg-[#0066FF] hover:border-[#0066FF] whitespace-nowrap"
+                          className="text-sm font-medium text-white px-4 py-2 bg-[#1a1a1a] border border-gray-700 rounded-full transition-colors hover:bg-[#0066FF] hover:border-[#0066FF] whitespace-nowrap"
                         >
                           {tag}
                         </button>
@@ -1244,11 +1253,15 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                         <div className="mt-8 space-y-4">
                           <p className="text-xs uppercase tracking-widest text-gray-500 font-bold ml-1">Local Matches for "{searchQuery}"</p>
                           <div className="grid grid-cols-2 gap-3">
-                            {products.filter(p => 
+                            {products.filter((p:any) => {
+                                const url = p.image_url || "";
+                                const isMissing = !url || url.trim() === "" || url.toLowerCase() === "no image" || url.includes("placehold.co") || url.toLowerCase().includes("coming soon");
+                                return !isMissing;
+                            }).filter((p:any) => 
                               p.name.toLowerCase().replace(/[^a-z0-9]/g, '').includes(searchQuery.toLowerCase().replace(/[^a-z0-9]/g, '')) ||
                               (p.brand && p.brand.toLowerCase().includes(searchQuery.toLowerCase())) ||
                               (p.category && p.category.toLowerCase().includes(searchQuery.toLowerCase()))
-                            ).map(item => (
+                            ).map((item:any) => (
                               <div key={`local-search-${item.id}`} onClick={() => { setSearchFocused(false); router.push(`/product/${item.id || 0}`); }} className="bg-white rounded-xl border border-gray-100 shadow-sm p-3 flex flex-col justify-between cursor-pointer group hover:shadow-md transition text-black">
                                 <div className="w-full h-28 mb-3 relative overflow-hidden flex items-center justify-center">
                                   <img referrerPolicy="no-referrer" src={item.image_url} alt={item.name} className="max-w-full max-h-full object-contain group-hover:scale-110 transition duration-300 mix-blend-multiply" onError={(e) => { e.currentTarget.src = "https://placehold.co/400x400/1a1a1a/ffffff?text=Image+Coming+Soon" }} />
@@ -1325,10 +1338,14 @@ export default function Home({ searchParams }: { searchParams?: { preview?: stri
                                 <div className="h-px bg-white/20 flex-1"></div>
                               </div>
                               <div className="flex overflow-x-auto gap-4 pb-4 hide-scrollbar snap-x px-2">
-                                {finalSearchResults.slice(1).map(item => (
+                                {finalSearchResults.slice(1).filter((p:any) => {
+                                  const url = p.image_url || "";
+                                  const isMissing = !url || url.trim() === "" || url.toLowerCase() === "no image" || url.includes("placehold.co") || url.toLowerCase().includes("coming soon");
+                                  return !isMissing;
+                                }).map((item:any) => (
                                   <div key={`hero-alt-${item.id}`} onClick={() => { setSearchFocused(false); router.push(`/product/${item.id || 0}`); }} className="min-w-[240px] md:min-w-[280px] snap-start bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex flex-col cursor-pointer group hover:shadow-lg transition">
                                     <div className="w-full h-32 mb-4 relative overflow-hidden flex items-center justify-center rounded-lg bg-gray-50">
-                                      <img referrerPolicy="no-referrer" src={item.image_url} alt={item.name} className="max-h-full max-w-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500" onError={(e) => { e.currentTarget.src = "https://placehold.co/400x400/1a1a1a/ffffff?text=Image+Coming+Soon" }} />
+                                      <img referrerPolicy="no-referrer" src={item.image_url} alt={item.name} className="max-h-full max-w-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500" />
                                     </div>
                                     <h4 className="font-bold text-sm text-gray-900 leading-snug line-clamp-2 mb-1 group-hover:text-blue-600 transition">{item.name}</h4>
                                     {productPitches[item.id] && (

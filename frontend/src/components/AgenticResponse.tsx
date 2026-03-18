@@ -30,7 +30,11 @@ export default function AgenticResponse({
     image_url: "https://placehold.co/600x600/1a1a1a/ffffff?text=Product",
     ai_intent_layers: { clarification: data?.reasoning || "Highly rated comparison match" }
   };
-  const alternatives = alternativeIds.map((id:string) => catalog.find(p => p.id === id)).filter(Boolean);
+  const alternatives = alternativeIds.map((id:string) => catalog.find(p => p.id === id)).filter(Boolean).filter((p: any) => {
+    const url = p.image_url || p.image || "";
+    const isMissing = !url || url.trim() === "" || url.toLowerCase() === "no image" || url.includes("placehold.co") || url.toLowerCase().includes("coming soon");
+    return !isMissing;
+  });
 
   // Typewriter effect logic
   useEffect(() => {
@@ -199,6 +203,13 @@ export default function AgenticResponse({
 
 function AlternativeCard({ item, onProductClick, onAddToCart }: any) {
   const [imgError, setImgError] = useState(false);
+  
+  // Extra safety check in the component itself
+  const url = item.image_url || item.image || "";
+  if (!url || url.trim() === "" || url.toLowerCase() === "no image" || url.includes("placehold.co") || url.toLowerCase().includes("coming soon") || imgError) {
+    return null;
+  }
+
   return (
     <div 
       className="min-w-[170px] max-w-[170px] snap-start bg-white border border-gray-100 rounded-3xl p-3 flex flex-col cursor-pointer hover:border-gray-300 hover:shadow-md transition-all shadow-sm group"
@@ -206,10 +217,7 @@ function AlternativeCard({ item, onProductClick, onAddToCart }: any) {
     >
        <div className="w-full h-28 mb-3 flex items-center justify-center p-2 bg-gray-50/50 rounded-2xl">
           <img 
-            src={imgError 
-              ? `https://placehold.co/600x600/1a1a1a/ffffff?text=${encodeURIComponent(item.name)}` 
-              : (item.image_url || item.image || `https://placehold.co/600x600/1a1a1a/ffffff?text=${encodeURIComponent(item.name)}`)
-            } 
+            src={url} 
             alt={item.name} 
             referrerPolicy="no-referrer"
             className="h-full w-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-300"

@@ -86,7 +86,11 @@ export async function POST(req: Request) {
         console.log("Katzen Hero Search triggered for:", normalizedQuery);
 
         // FIXED: Added tags back so the AI has semantic context
-        const slimCatalog = enrichedCatalog.map((item: any) => ({
+        const slimCatalog = enrichedCatalog.filter((item: any) => {
+            const url = item.image_url || "";
+            const isMissing = !url || url.trim() === "" || url.toLowerCase() === "no image" || url.includes("placehold.co") || url.toLowerCase().includes("coming soon");
+            return !isMissing;
+        }).map((item: any) => ({
             id: item.id,
             name: item.name,
             category: item.category,
